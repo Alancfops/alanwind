@@ -1,33 +1,60 @@
 # alanwind: visão e decisões (documento vivo)
 
-Última atualização: 2026-11-25 · Status: **fase de conversa, antes de specs, ADRs e agentes**
+Última atualização: 2026-11-25 · Status: **fase de conversa, antes de specs,
+ADRs e agentes**
 
-Este documento registra a ideia e o que já foi decidido. Separa com clareza o que o Alan **decidiu** do que foi **proposto e ainda precisa de confirmação**. Ele serve também como ponto de partida quando o Alan continuar o trabalho no Claude Code (skills, agentes e orquestração), depois que o escopo estiver fechado.
+Este documento registra a ideia e o que já foi decidido. Separa com clareza o
+que o Alan **decidiu** do que foi **proposto e ainda precisa de confirmação**.
+Ele serve também como ponto de partida quando o Alan continuar o trabalho no
+Claude Code (skills, agentes e orquestração), depois que o escopo estiver
+fechado.
 
-Materiais de apoio: ideias de outras libs em `01-referencias-e-ideias.md`; comparação de sintaxe com Tailwind para compartilhar com um amigo, em um doc separado (https://claude.ai/artifact/B56dibQGS9wticzyqFsoHD). Esse doc de comparação foi escrito antes das decisões D25 a D31 e usa `class` e variantes com dois-pontos em alguns trechos; o Alan decidiu deixá-lo como está por enquanto.
+Materiais de apoio: ideias de outras libs em `01-referencias-e-ideias.md`;
+comparação de sintaxe com Tailwind para compartilhar com um amigo, em um doc
+separado (https://claude.ai/artifact/B56dibQGS9wticzyqFsoHD). Esse doc de
+comparação foi escrito antes das decisões D25 a D31 e usa `class` e variantes
+com dois-pontos em alguns trechos; o Alan decidiu deixá-lo como está por
+enquanto.
 
 ---
 
 ## 1. Origem e motivação
 
-- O Alan tem um projeto em React Native que usa **NativeWind** (o Tailwind do React Native). Se o NativeWind parar de ser mantido, o app para.
-- Um amigo (rigoroso em front-end) sugeriu criar o alanwind, para ter uma camada de estilos própria, que o próprio Alan usaria. Esse amigo concorda que **não ficar igual ao Tailwind é o melhor caminho**.
-- O projeto também serve para **treinar arquitetura, infra e orquestração de agentes**: specs, ADRs, CI, múltiplos agentes com papéis diferentes.
-- A intenção é **uso real**, não só estudo. A ideia é original, no formato de lib/extensão como Tailwind ou Bootstrap, para evitar escrever CSS puro.
+- O Alan tem um projeto em React Native que usa **NativeWind** (o Tailwind do
+  React Native). Se o NativeWind parar de ser mantido, o app para.
+- Um amigo (rigoroso em front-end) sugeriu criar o alanwind, para ter uma camada
+  de estilos própria, que o próprio Alan usaria. Esse amigo concorda que **não
+  ficar igual ao Tailwind é o melhor caminho**.
+- O projeto também serve para **treinar arquitetura, infra e orquestração de
+  agentes**: specs, ADRs, CI, múltiplos agentes com papéis diferentes.
+- A intenção é **uso real**, não só estudo. A ideia é original, no formato de
+  lib/extensão como Tailwind ou Bootstrap, para evitar escrever CSS puro.
 - O Alan **não pretende trocar o NativeWind de imediato** (ver D39).
+- *Correção (2026-11-25, D80):* o app do Alan usado na validação, o
+  **ShadowPlatinum**, hoje usa `StyleSheet.create` e Expo SDK 54; o NativeWind
+  já tinha sido removido dele. A motivação (ter uma camada de estilos própria e
+  independente) continua a mesma.
 
 ## 2. Tese e posicionamento
 
-> *A styling layer for web and React Native, from one theme and one syntax of its own: accessible by default, good-looking without configuration, and fully under your control.*
+> *A styling layer for web and React Native, from one theme and one syntax of
+> its own: accessible by default, good-looking without configuration, and fully
+> under your control.*
 
 Pontos centrais:
 - **Independência**: você controla a camada de estilos.
 - **Acessibilidade por padrão** (diferencial principal).
-- **Bonito sem configurar** (tema padrão bem desenhado), com atenção especial ao **tema escuro**.
+- **Bonito sem configurar** (tema padrão bem desenhado), com atenção especial ao
+  **tema escuro**.
 - **Web e mobile** com o mesmo tema e a mesma sintaxe.
-- **Sintaxe com identidade própria**, prática e fácil de aprender. Nas palavras do Alan: sem identidade própria, nem faz sentido criar o alanwind. Analogia que orienta: **Ruby e Python** se parecem no jeito de escrever e funcionar, mas a sintaxe é diferente.
+- **Sintaxe com identidade própria**, prática e fácil de aprender. Nas palavras
+  do Alan: sem identidade própria, nem faz sentido criar o alanwind. Analogia
+  que orienta: **Ruby e Python** se parecem no jeito de escrever e funcionar,
+  mas a sintaxe é diferente.
 
-**Posicionamento (D21)**: o alanwind **não compete em "ser Tailwind"**, até porque já existem outros que fazem isso. Ele é uma **alternativa com seus próprios diferenciais**.
+**Posicionamento (D21)**: o alanwind **não compete em "ser Tailwind"**, até
+porque já existem outros que fazem isso. Ele é uma **alternativa com seus
+próprios diferenciais**.
 
 ## 3. Decisões tomadas pelo Alan
 
@@ -35,7 +62,7 @@ Pontos centrais:
 |---|---------|
 | D1 | Uso real, com ideia original. Formato de lib/extensão, na linha de Tailwind e Bootstrap. |
 | D2 | O desenvolvimento será feito **com agentes**, para treinar arquitetura, infra e orquestração. Antes dos agentes: specs, ADRs e documentação. |
-| D3 | Linguagem: **TypeScript**. |
+| D3 | Linguagem: **TypeScript**. *Motivo (2026-11-25): tipagem estrita e autocomplete, que permitem tratar classes e tokens inválidos como erro de tipo (D20, D66).* |
 | D4 | Primeiras entregas: **plugin de build (Vite/PostCSS)** e **CDN** (para web). *Ajuste (D55): a CDN deixa de ser "CSS pré-gerado" e passa a ser um script que lê o `look`.* |
 | D5 | Diferencial **A, acessibilidade e boas práticas por padrão**, aprovado. |
 | D6 | Diferencial **C, bonito sem configurar** (tema padrão cuidadoso), considerado interessante. |
@@ -44,7 +71,7 @@ Pontos centrais:
 | D9 | Terá um **site de documentação** com modelos/templates prontos e guias de como usar e como conectar ao projeto, nos moldes de Tailwind e Bootstrap. |
 | D10 | Ainda sem escrever visão formal, ADRs ou specs: seguir conversando para definir mais coisas antes. |
 | D11 | Estilo do site e da marca: **minimalista e direto, mas bonito**. |
-| D12 | **Nome: alanwind, mantido como nome de trabalho (provisório).** Pode ser revisto antes de publicar. |
+| D12 | *Ajuste (D121): o nome alanwind passou a ser definitivo.* **Nome: alanwind, mantido como nome de trabalho (provisório).** Pode ser revisto antes de publicar. |
 | D13 | **Sintaxe própria.** Pode lembrar o Tailwind em espírito, mas com gramática e vocabulário próprios, para ter identidade. |
 | D14 | **Alvo de referência: Expo SDK 58** (versão mais atual que o Alan usa no projeto). |
 | D15 | **React Native resolve as classes em runtime** (com cache). Build fica como otimização futura. |
@@ -52,7 +79,7 @@ Pontos centrais:
 | D17 | **Sintaxe em meio-termo aprovada**: base prática e fácil de pegar (`propriedade-valor` com hífen), puxada para uma **identidade própria** do alanwind. A identidade é requisito, não detalhe. |
 | D18 | **Fontes de identidade aprovadas**: (1) cores por **papel semântico** (`bg-primary`, `bg-surface`, `text-muted`), com pares de contraste garantido (`bg-primary text-on-primary`); (2) **utilitários de acessibilidade prontos** (`tap-target`, `focus-ring`, `motion-safe(...)`); (3) **vocabulário de palavras inteiras e legíveis** (`pad-4`, `round-lg`, `row`, `center`, `fill`); (4) **agrupamento de variantes** (`hover(bg-surface-2 shadow-md)`); (5) **variantes de plataforma** (`ios(...)`, `android(...)`, `web(...)`). Regra de ouro: uma só forma óbvia de escrever cada coisa. **Observações (verificadas na pesquisa):** o agrupamento de variantes já existe no UnoCSS, e variantes de plataforma já existem no NativeWind, no Uniwind e em outras libs. Os itens 4 e 5 são, portanto, ergonomia, e não diferenciais isolados. |
 | D19 | **Regra de abreviação**: abrevia-se **só o que é universal e curto** (`w`, `h`, `x`, `y`); o resto fica por extenso (`pad`, `margin`, `round`, `gap`). Motivo do Alan: assim a sintaxe não fica idêntica à do Tailwind. Um amigo do Alan, rigoroso em front-end, gostou de `pad` em vez de `p`. |
-| D20 | **Ideias de outras libs aprovadas** (detalhes em `01-referencias-e-ideias.md`): **zero dependências de runtime**; **tokens semânticos com modo claro/escuro embutido**; **tipagem estrita** (classes e tokens inválidos viram erro ou aviso, com autocomplete). **MCP do alanwind**: aprovado, mas **só será aplicado quando o alanwind estiver funcionando corretamente**. |
+| D20 | **Ideias de outras libs aprovadas** (detalhes em `01-referencias-e-ideias.md`): **zero dependências de runtime**; **tokens semânticos com modo claro/escuro embutido**; **tipagem estrita** (classes e tokens inválidos viram erro ou aviso, com autocomplete). **MCP do alanwind**: aprovado, mas **só será aplicado quando o alanwind estiver funcionando corretamente**. *Motivo da regra de zero dependências (2026-11-25): **independência**, a mesma motivação do projeto: não depender de bibliotecas de terceiros que podem parar de ser mantidas.* |
 | D21 | **Posicionamento**: o alanwind **não compete em ser Tailwind**; é uma **alternativa com seus próprios diferenciais** (independência, acessibilidade por padrão, sintaxe própria, web e mobile num só vocabulário). |
 | D22 | **Cores**: o Alan gosta de **cores escuras**. Os papéis de cor terão **versões suaves (`-soft`)** e **estados embutidos (`-hover`)**, de modo que o efeito de passar o mouse **clareie no tema escuro** (e escureça no claro) sem quem usa precisar pensar nisso. |
 | D23 | **`type-` confirmado** como prefixo de tamanho de texto (`type-lg`). `text-` fica só para cor do texto. |
@@ -68,7 +95,7 @@ Pontos centrais:
 | D33 | **Modelo de cores em duas camadas, confirmado.** (1) **Paleta base** no arquivo de tema: tons de **0 a 100** (0 = preto, 100 = branco), em que a pessoa define só alguns tons-âncora e os intermediários são calculados. (2) **Papéis** que apontam para um tom da paleta, com um valor para o claro e outro para o escuro. Três caminhos de uso: **papel pronto** (`bg-danger`), **trocar a cor do papel** no tema (muda em todo o projeto) e **valor livre sem papel** (`bg=red-96` para um tom da paleta, `bg=#e11d48` para cor exata, com tom diferente no escuro por `dark(bg=red-20)`). |
 | D34 | **A paleta base não é usada direto nas classes**: não existe `bg-red-600` (estilo Tailwind). A paleta só alimenta os papéis e os valores livres com `=`. Motivo: empurrar para os papéis, manter a identidade, evitar conflito com a opacidade numérica (D31) e preservar a garantia de contraste. |
 | D35 | **Tema padrão completo e soma com a configuração da pessoa.** Sem configurar nada, `danger`, `primary`, `secondary`, `success`, `warning`, `info`, fundos, textos e bordas já existem, com claro, escuro, `-soft`, `-hover` e o par `on-` (reforça D6). Configurar um papel **substitui só aquele papel**, e os demais continuam do padrão; os estados `-soft`, `-hover` e `on-` dele são **recalculados** a partir da cor nova, e o aviso de contraste (D32) sinaliza se algum par não passar. Papel inexistente (ex.: `bg-banana`): **aviso ou erro em desenvolvimento, com sugestão** (pela tipagem estrita, D20), e **ignorado em produção** sem quebrar o app. |
-| D36 | **Atalhos definidos pelo usuário (o equivalente ao `@apply` do Tailwind) com `define`**: `define('btn', 'bg-primary pad-4 round-md')`, e depois `btn` vale como uma classe. |
+| D36 | *Formato atualizado pela D100.* **Atalhos definidos pelo usuário (o equivalente ao `@apply` do Tailwind) com `define`**: `define('btn', 'bg-primary pad-4 round-md')`, e depois `btn` vale como uma classe. |
 | D37 | **Variantes de tamanho valem "a partir de" (mobile-first)**: `medium(row)` vale em `medium` **e acima** (`expanded`), como no CSS e no Tailwind. Ex.: `col medium(row)` fica em coluna no celular e em linha no tablet e no computador. Faixa exata fica como exceção, com forma própria a definir depois, se for preciso. |
 | D38 | **Três formas de `center`**: `center` centraliza nos **dois eixos**; `center-x` só na **horizontal**; `center-y` só na **vertical**. `center-x` e `center-y` valem sempre para a **tela** (horizontal e vertical), e **não** para a direção do layout, então funcionam igual em `row` e em `col` (evita a confusão do "eixo principal" do CSS). |
 | D39 | **Escopo do projeto**: implementar **tudo o que foi conversado, aos poucos (em fases)**. Quando isso estiver terminado, o Alan **para**, e o que surgir depois são **ideias futuras e correção de bugs**. O Alan **não pretende trocar o NativeWind de imediato**. |
@@ -77,7 +104,7 @@ Pontos centrais:
 | D42 | **`look` em todo lugar, inclusive no HTML puro**: `<Box look="...">` no React Native e no React na web, e `<div look="...">` no HTML puro. No HTML puro, o plugin de build (ou um script pequeno da CDN) lê o atributo `look`, gera o CSS e liga ao elemento. Não existe `class` como segunda forma (reforça "uma só forma", D18). Custo conhecido: `look` não é atributo padrão do HTML (navegadores ignoram, mas validadores podem reclamar). O Alan acha que quase ninguém usa HTML puro hoje, mas pediu para **manter o suporte** mesmo assim, como caso de menor prioridade. |
 | D43 | **Escala de espaçamento: de `pad-0` até `pad-16`**, em passos de 4 (`pad-1` = 4 px, `pad-4` = 16 px, `pad-16` = 64 px). Vale para a família de espaçamento (`pad`, `margin`, `gap`). |
 | D44 | **Raios**: `round-none` = 0, `round-sm` = 4, `round-md` = 8, `round-lg` = 12, `round-xl` = 16, `round-full` = totalmente redondo (pílula ou círculo). |
-| D45 | **Sombras com tratamento próprio por tema**: `shadow-sm`, `shadow-md` e `shadow-lg`. No **tema claro**, sombra de verdade (mais suave no `sm`, mais forte no `lg`). No **tema escuro**, onde sombra escura some no fundo escuro, a elevação aparece por um **fundo um pouco mais claro que o da base (`bg-raised`) mais uma borda fina**, com sombra bem discreta. Cada emissor traduz (`box-shadow` na web; iOS e Android no nativo). |
+| D45 | *Ajuste (D108): no nativo, as sombras usam `boxShadow`.* **Sombras com tratamento próprio por tema**: `shadow-sm`, `shadow-md` e `shadow-lg`. No **tema claro**, sombra de verdade (mais suave no `sm`, mais forte no `lg`). No **tema escuro**, onde sombra escura some no fundo escuro, a elevação aparece por um **fundo um pouco mais claro que o da base (`bg-raised`) mais uma borda fina**, com sombra bem discreta. Cada emissor traduz (`box-shadow` na web; iOS e Android no nativo). |
 | D46 | **`primary` vibrante, em azul elétrico** (opção C da comparação). Valores ilustrativos: claro `#2563EB` com texto branco; escuro `#8AB4FF` com texto escuro `#0A1F4D`; `-soft` claro `#E1EAFD` (texto `#1E3FA8`) e escuro `#14306B` (texto `#B3CCFF`). Os **fundos do tema escuro são neutros e escuros**, para o `primary` ser o destaque. Valores finais saem do tema padrão. |
 | D47 | **Cores de semáforo = papéis de estado**: `success` (verde), `warning` (amarelo) e `danger` (vermelho), mais o `info`. Cada um segue o modelo de papéis (claro/escuro, `-soft`, `-hover`, par `on-`). **No `warning` (amarelo), o texto sobre a cor forte é escuro**, não branco, porque branco sobre amarelo não passa em 4,5:1; o `text-on-warning` é escolhido automaticamente. |
 | D48 | **`info` em azul** (o Alan escolheu o azul, e não o ciano que foi sugerido). Como o `primary` também é azul, a versão `-soft` do `info` e o botão `primary` ficam da mesma família; para evitar que um aviso pareça um botão, a ideia associada é que **avisos `info` tragam um ícone** (ver seção 4). |
@@ -92,7 +119,7 @@ Pontos centrais:
 | D57 | **Herança de texto por contexto.** No React Native, a cor e o tamanho do texto não passam do pai para o `<Text>` filho. Por isso `Box` e `Pressable` **repassam por contexto** as classes de texto (`text-*`, `type-*`, `weight-*` e afins) aos `Text` de dentro. Assim `<Pressable look="bg-danger text-on-danger"><Text>Ok</Text></Pressable>` funciona igual na web e no RN, e o par `bg-x text-on-x` vale no elemento pai. O `look` do próprio `Text` vence o herdado. |
 | D58 | **Regra de conflito entre classes do mesmo `look`**: (1) a **mais específica vence a genérica** (`pad-x-2` vence `pad-4` no eixo x; `pad-top` vence `pad-y`, que vence `pad`); (2) entre classes de mesma especificidade, **vence a última escrita** (`bg-primary bg-surface` resulta em `bg-surface`); (3) em desenvolvimento, **aviso** quando duas classes de mesma especificidade disputam a mesma propriedade. Os dois emissores (CSS e RN) seguem a mesma regra. |
 | D59 | **`hover(...)` e `press(...)` separados.** `hover(...)` vale **só onde existe ponteiro** (mouse ou trackpad, na web e em dispositivos com ponteiro) e é ignorado no toque. `press(...)` vale para o **elemento pressionado** em todas as plataformas (`:active` na web, estado `pressed` no RN). Corrige a ideia anterior de `hover` virar pressionado no celular. Ex.: `bg-primary hover(bg-primary-hover) press(bg-primary-hover)`. |
-| D60 | **Fase 1 começa pelo React Native**: parser + representação intermediária (IR) + **emissor RN** + componentes `Box`, `Text` e `Pressable` + tema padrão. Validação com uso real: uma tela do app do Alan rodando com o alanwind ao lado do NativeWind. O **emissor de CSS vem logo depois**. Substitui a proposta de ordem "CSS primeiro" da seção 4. |
+| D60 | **Fase 1 começa pelo React Native**: parser + representação intermediária (IR) + **emissor RN** + componentes `Box`, `Text` e `Pressable` + tema padrão. Validação com uso real: uma tela do app do Alan rodando com o alanwind ao lado do NativeWind. O **emissor de CSS vem logo depois**. Substitui a proposta de ordem "CSS primeiro" da seção 4. *Ajuste (D80): a validação passa a ser numa cópia do ShadowPlatinum, trocando `StyleSheet` por alanwind.* |
 | D61 | **`compact(...)` removido.** Como as variantes de tela valem "a partir de" (D37), o que é escrito sem variante já vale para todos os tamanhos, inclusive o menor. As variantes de tela são só **`medium(...)` e `expanded(...)`**. O nome `compact` continua existindo como nome da faixa (na doc e no tema), mas não como variante. Ajusta a D29. |
 | D62 | **`Box` é sempre flex em coluna**, na web e no React Native. `row` muda para linha. Assim o mesmo `look` produz o mesmo layout nas duas plataformas, e `center-x`/`center-y` (D38) têm tradução previsível. |
 | D63 | **Atalhos (`define`, D36) ficam no arquivo de tema**, numa seção própria do `alanwind.config.ts`. Build, runtime e autocomplete leem do mesmo lugar. Não existe `define()` solto no código. |
@@ -101,24 +128,81 @@ Pontos centrais:
 | D66 | **Tipagem estrita entra na fase 1**, junto com o núcleo da D60: autocomplete e erro de tipo para classes e tokens inválidos desde o início (D20). Aviso de contraste, utilitários de acessibilidade e tema customizável **não** foram marcados para a fase 1 e serão distribuídos na divisão em fases. |
 | D67 | **Monorepo com `packages/` e `apps/`.** Libs publicáveis ficam em `packages/` (`core`, `native`, `css`, `vite-plugin`, `cdn`, `cli`). O que roda e não é publicado fica em `apps/` (`playground-expo` para testar no RN, `site` para a documentação). Estrutura completa na seção 14. |
 | D68 | **Nomes no npm: `alanwind` + `@alanwind/*`.** O pacote `alanwind` é a porta de entrada (D56) e reexporta o principal; os pacotes internos são publicados com escopo (`@alanwind/core`, `@alanwind/native`, `@alanwind/vite-plugin`…). O nome continua provisório (D12), então a disponibilidade no npm precisa ser conferida antes de publicar. |
-| D69 | **Ferramentas de desenvolvimento**: pnpm workspaces, Turborepo (cache de build e testes), Vitest (testes), tsup (geração dos pacotes) e Biome (lint e formatação). São só ferramentas de desenvolvimento; a regra de zero dependências de runtime (D20) continua valendo para os pacotes publicados. |
+| D69 | *Ajuste (D114): componentes RN são testados com Jest (`jest-expo`).* **Ferramentas de desenvolvimento**: pnpm workspaces, Turborepo (cache de build e testes), Vitest (testes), tsup (geração dos pacotes) e Biome (lint e formatação). São só ferramentas de desenvolvimento; a regra de zero dependências de runtime (D20) continua valendo para os pacotes publicados. |
 | D70 | **Organização de `docs/`**: este arquivo (`00-visao-e-decisoes.md`) vira o índice da visão; `01-referencias-e-ideias.md` guarda as referências; `02-fases.md` guarda a divisão em fases; ADRs numerados em `docs/adr/` (`0001-typescript-monorepo.md`…); specs em `docs/specs/` (`sintaxe.md`, `tema.md`, `componentes.md`…). |
 | D71 | **Time inicial de agentes, por função**: planejador (desde o início), implementador, QA, revisor e documentador. Sem divisão em "backend"/"frontend": o alanwind é uma biblioteca, e o agente de frontend só entra na fase 5 (site). Detalhes na seção 7. |
 | D72 | **Skills**: as do projeto são montadas pelo Claude sob pedido do Alan, uma por vez, com explicação. Skills de código e de commit são do próprio Alan. Candidatas na seção 7. |
 | D73 | **Fluxo de git**: duas skills do Alan, `conventional-commits` e `fluxo-de-branches` (em `.claude/skills/`). Commits em Conventional Commits, com tipo e escopo em inglês e descrição em português. Branches `main` (releases com tag), `develop` (integração) e `feature/`, `fix/`, `docs/`, `hotfix/` etc. PR para a branch de origem, corpo em português, **squash merge** feito pelo Alan. **Sem nenhuma atribuição ao Claude** em commits e PRs. |
 | D74 | **Qualidade de código**: skill do Alan `codigo-limpo` (em `.claude/skills/`). Clean Code e Clean Architecture com pragmatismo: `core` é o domínio puro e sem API de plataforma; emissores são adaptadores; componentes, plugin, CDN e CLI são a borda; dependências apontam sempre para o `core`, e a IR é o contrato entre as camadas. Sem redundância (uma fonte da verdade, regra de três), sem código morto e sem arquivos mortos (Knip no CI). Identificadores e comentários do código em inglês; documentação em português. Confirma a proposta de regras de dependência da seção 14. |
 | D75 | **Skills do alanwind são a fonte principal; skills externas são consulta e validação.** Agentes e tarefas seguem as skills de `.claude/skills/` do projeto. Skills instaladas globalmente (ex.: do pacote *superpowers*: `writing-plans`, `test-driven-development`, `requesting-code-review`, `brainstorming`) servem como **referência** ao montar as do projeto e como **validação** (segunda checagem), nunca como substitutas. Em conflito, vale a skill do alanwind. |
+| D76 | **Agentes criados em `.claude/agents/`**: `planejador`, `implementador`, `qa`, `revisor` e `documentador`, cada um com as skills do projeto ligadas e os plugins externos (*superpowers*, *code-review*) como consulta e validação (D75). Tarefas do planejador ficam em `docs/tarefas/fase-N/`. Subagentes não falam com o Alan; devolvem perguntas no relatório, e a sessão principal orquestra. O `CLAUDE.md` da raiz resume convenções, skills, agentes e o fluxo de uma tarefa. |
+| D77 | **Vocabulário da fase 1**: layout, espaçamento, cores por papel, `type-*`, borda, raio e sombra, **mais** tamanho (`w`, `h`, `size`), valor livre com `=` (D30), tipografia completa (`weight-*`, `leading-*`, `align-*`, `font-*`, `italic`/`underline`/`upper`/`lower`, `lines-N`) e atalhos com `define` (D36, D63). |
+| D78 | **Acessibilidade na fase 1**: só a área mínima de toque, **embutida no `Pressable`** (D26), sem utilitário `tap-target` separado nesta fase. `motion-safe(...)` fica para a fase de acessibilidade. |
+| D79 | **Fachada `alanwind` fica para depois** (fase 2, quando houver mais de um pacote para reexportar). Na fase 1, o app importa direto de `@alanwind/native`. |
+| D80 | **Validação da fase 1 no ShadowPlatinum** (github.com/Alancfops/ShadowPlatinum): o repositório é **copiado** para `~/myProjects/`, a cópia é **atualizada para o Expo SDK 58** (alvo da D14) e o `StyleSheet.create` é trocado pelo alanwind. O app original não é alterado. Ajusta a D60, que falava em comparar com o NativeWind. |
+| D81 | **Arquivo de tema na fase 1 só com atalhos**: `alanwind.config.ts` existe na fase 1 apenas para os atalhos (`define`, D63). Trocar papéis, paleta e escalas (D35) continua para a fase de tema. |
+| D82 | **Regra de conflito aplicada no `core`, uma vez só.** O `core` resolve as disputas da D58 e entrega aos emissores uma IR já sem conflitos. Os emissores não reimplementam a regra, então ficam iguais por construção. |
+| D83 | **A IR separa estilo de props.** Classes que viram prop do componente, e não estilo (ex.: `lines-2` → `numberOfLines`), vão numa parte própria da IR. O `core` continua sendo a fonte única do que cada classe faz; o emissor só traduz. |
+| D84 | **Diagnósticos devolvidos pelo `core`; a borda decide.** A resolução sempre devolve o resultado **mais** uma lista de diagnósticos (código `AW###`, posição, sugestão). O `core` não sabe se está em desenvolvimento ou produção: quem está na borda (`native`, plugin, CDN) mostra os avisos em dev e os ignora em produção (D35). Preserva a pureza do `core` (D15). |
+| D85 | **`center-x`/`center-y` traduzidos no `core` com a direção final.** O `core` conhece a direção (`row`/`col`, inclusive sob condições como `medium(row)`) e converte `center-x`/`center-y` nas propriedades flex certas para cada condição. Os emissores recebem propriedades flex comuns, sem lógica de eixo duplicada. |
+| D86 | **Variantes podem ser aninhadas, em qualquer ordem.** `dark(hover(bg-raised))` e `hover(dark(bg-raised))` são equivalentes: as condições se somam (E lógico). |
+| D87 | **Lados com `top`, `bottom`, `left` e `right`** no espaçamento e na borda (`pad-top-2`, `margin-left-4`), coerente com palavras inteiras (D18). Suporte a idiomas da direita para a esquerda (`start`/`end`) fica para depois. |
+| D88 | **Sintaxe quebrada: ignora só o trecho ruim.** Em `pad-4 hover(bg-raised`, o `pad-4` continua valendo e só o trecho malformado é descartado; em dev, diagnóstico com posição (D84). O app nunca perde todo o estilo por um erro. |
+| D89 | **Margem `auto` na escala; negativa só com valor livre.** `margin-x-auto` existe. Margem negativa só por `=` (`margin-top=-8`), porque é caso raro e um `-` na escala confundiria com o hífen da sintaxe. |
+| D90 | **Arquitetura por presets adiada.** Não entra na fase 1: o vocabulário fica direto no `core`, como fonte única. Se um dia houver um segundo vocabulário, ele vira preset. Coerente com não criar abstração para o futuro (D74). |
+| D91 | **Cores de estado do tema padrão aprovadas.** Claro (cor / on / soft / texto do soft / hover): `success` #15803D / #FFFFFF / #DCFCE7 / #14532D / #116932; `warning` #F2B200 / #3B2A00 / #FEF3C7 / #713F12 / #D99F00; `danger` #D02424 / #FFFFFF / #FEE2E2 / #991B1B / #B91C1C; `info` #0B63B6 / #FFFFFF / #E0EFFF / #0B4A8B / #09529A. Escuro: `success` #5FD68E / #052E16 / #123A22 / #A7F0C4 / #7CE2A4; `warning` #FFD166 / #3B2A00 / #3A2C06 / #FDE68A / #FFDD8A; `danger` #FF8A80 / #450A0A / #4A1515 / #FECACA / #FFA59D; `info` #7CC4FF / #04203D / #0E2E4F / #B8DCFF / #9BD2FF. Todos os pares (cor/on, hover/on, soft/texto) passam 4,5:1; o menor é 5,02 (`success` claro). O `info` é um azul mais fechado que o `primary`, para não parecer botão (D48). |
+| D92 | **`text-<papel>` com tom automático.** `text-<papel>` usa a cor do papel quando ela passa 4,5:1 sobre os fundos (`page`, `surface`, `raised`); se não passa, o alanwind escolhe um tom mais escuro (claro) ou mais claro (escuro) da mesma cor. Vale para papéis criados pela pessoa (D35). Ex.: `text-warning` no claro vira #8A5A00 (5,49:1), enquanto `bg-warning` continua #F2B200. |
+| D93 | **`text-subtle` só para elementos desabilitados**, que o WCAG isenta de contraste. A documentação avisa para não usar em texto que a pessoa precisa ler; para texto de apoio, use `text-muted`. |
+| D94 | **Breakpoints: `medium` a partir de 600 e `expanded` a partir de 840** (valores do Material Design, de onde vieram os nomes, D29). Abaixo de 600 é a faixa `compact`. |
+| D95 | **Cores neutras e de marca finais.** Os valores ilustrativos de `primary` (D46), `secondary` (D52), fundos e textos (D50, D51) passam a ser finais. Novos: `text-link` claro #1D4FD8 / escuro #8AB4FF (6,15 / 7,02); `border-focus` #2563EB / #8AB4FF (4,79 / 7,02, mínimo 3); `border-strong` #8E8E96 / #74747E (3,01 / 3,17, mínimo 3); `border-subtle` #E3E3E8 / #34343A (decorativa); `primary-hover` #1D4FD8 / #A6C6FF (6,64 / 9,23 com o `on-`). `text-muted` no escuro sobre `bg-raised` passa justo (4,51). |
+| D96 | **Sombras do tema claro, suaves e em camadas**: `shadow-sm` = 0 1px 2px a 6%; `shadow-md` = 0 4px 8px a 8% + 0 1px 2px a 6%; `shadow-lg` = 0 12px 24px a 12% + 0 4px 8px a 6% (cor preta com a opacidade indicada). |
+| D97 | **No escuro, `shadow-*` eleva o fundo sozinho**: clareia o fundo do elemento um nível (`bg-page` → `bg-surface` → `bg-raised`), adiciona a borda fina #34343A e uma sombra bem discreta. Quem escreve só coloca `shadow-md`. Detalha a D45. |
+| D98 | **Escalas restantes do tema padrão.** Tamanho (`w`, `h`, `size`): mesma escala do espaçamento, passos de 4, de 0 a 16 (`h-10` = 40), mais `w-full`/`h-full` (100%) e `w-screen`/`h-screen` (tela); fora da escala, valor livre (`w=137`, `w=50%`). Peso: `weight-regular` 400, `weight-medium` 500, `weight-bold` 700. Altura de linha (multiplica o `type-*`): `leading-tight` 1.25, `leading-normal` 1.5, `leading-loose` 1.75. Opacidade do elemento: `opacity-0`, `-25`, `-50`, `-75`, `-100`; a opacidade da cor (D31) usa os mesmos números. `round-full` = 9999. |
+| D99 | **Algoritmo da paleta só na fase de tema.** Na fase 1, o tema padrão guarda os valores prontos (D91, D95), inclusive os tons automáticos de `text-<papel>` (D92), já calculados. Paleta por tons, interpolação e recálculo de `-soft`/`-hover`/`on-` (D33, D35) entram junto com o tema customizável. |
+| D100 | **Formato dos atalhos**: objeto `define` dentro de `defineConfig` no `alanwind.config.ts`. Ex.: `export default defineConfig({ define: { btn: 'bg-primary text-on-primary pad-4 round-md' } })`. Substitui a forma de chamada `define('btn', ...)` usada como exemplo na D36. |
+| D101 | **Conteúdo dos atalhos**: podem ter variantes (`hover(...)`) e usar outros atalhos. Ciclo entre atalhos (`a` usa `b`, `b` usa `a`) é erro ao carregar o tema. O nome de um atalho não pode coincidir com uma classe existente. |
+| D102 | **Formato W3C Design Tokens adiado.** O tema fica em TypeScript puro; importar e exportar no formato W3C pode vir com o theme builder do site. |
+| D103 | **Variantes `focus(...)`, `disabled(...)`, `light(...)` e `native(...)` confirmadas.** `focus` = elemento com foco (teclado ou leitor de tela); `disabled` = elemento desabilitado; `light` = exceção só no tema claro (par do `dark`); `native` = iOS e Android juntos (oposto de `web`). |
+| D104 | **Opacidade em cor livre com barra**: `bg=red-40/50`, `bg=#e11d48/50`. A barra só existe no valor livre; nos papéis continua o sufixo (`bg-primary-50`, D31). Resolve a ambiguidade entre tom e opacidade. |
+| D105 | *Ajuste (D118): tons da paleta (`red-40`) só na fase de tema; na fase 1, só hex.* **O que vale no valor livre (`=`)**: número sem unidade = px na web e dp no nativo (`w=137`); negativo onde fizer sentido (`margin-top=-8`, D89); porcentagem (`w=50%`); cores em hex de 3, 6 ou 8 dígitos e tons da paleta (`red-40`), com opacidade por barra (D104). Sem `rem`, `em`, `vw`, `vh` nesta fase. |
+| D106 | **Faixa exata de tamanho de tela adiada.** Fora da fase 1; o caso se resolve com `medium(x) expanded(y)`, que desfaz no tamanho maior (D37). |
+| D107 | **Classes de eixo expandidas em lados explícitos.** No emissor RN, `pad-x-4` vira `paddingLeft` + `paddingRight` e `margin-y-2` vira `marginTop` + `marginBottom`, sem `paddingHorizontal`/`paddingVertical`. Bate com os lados da D87, com a saída do emissor CSS e com a regra de conflito (D58). |
+| D108 | **Sombras no nativo com `boxShadow`** (RN 0.76+, nova arquitetura, padrão no SDK 58): mesma sintaxe do CSS, igual no iOS e no Android, com as camadas da D96. Ajusta a D45, que falava em `shadow*` no iOS e `elevation` no Android. |
+| D109 | **Cache da resolução: faixa de tela + limite LRU.** A chave usa a faixa (`compact`/`medium`/`expanded`, D94), não a largura exata, mais o esquema de cor, a plataforma e o tema. Guarda as últimas ~500 combinações e descarta as mais antigas. |
+| D110 | **Ponteiro detectado pelo evento de hover.** `hover(...)` vale enquanto o componente recebe o evento de hover (`onHoverIn`/`onHoverOut`), que só acontece com mouse ou trackpad (web, iPad com trackpad, Android com mouse). Sem ponteiro, o evento nunca vem e o `hover` nunca vale (D59). |
+| D111 | **Área mínima de toque por plataforma, com `hitSlop`.** O `Pressable` garante 44 no iOS e na web (Apple e WCAG) e 48 no Android (Material), aumentando a área de toque com `hitSlop`, sem mudar o visual. Detalha a D78. |
+| D112 | **Visual padrão do `Text`: `text-body` + `type-base`.** Sem cor ou tamanho herdado ou escrito, o `Text` usa a cor de corpo do tema (muda sozinha no escuro) e 16. Bonito sem configurar (D6). |
+| D113 | **Herança de texto em cascata, como no CSS.** Um `Box` interno repassa o que herdou, somado ao que declara. A classe de texto mais próxima vence **por propriedade** (a cor do filho vence a do pai, mas o tamanho do pai continua). Só o `look` é herdado; o `style` escrito à mão não. Detalha a D57. |
+| D114 | **Testes: Vitest no `core` e nos emissores, Jest nos componentes.** O pacote `native`, com componentes, usa `jest-expo` + `@testing-library/react-native`, o caminho suportado pelo Expo. Código TypeScript puro continua no Vitest. Ajusta a D69. |
+| D115 | **Acessibilidade padrão dos componentes da fase 1.** `Pressable`: `accessibilityRole='button'` por padrão (a pessoa pode trocar), `accessibilityState.disabled` ligado à prop `disabled` e foco visível na web, além da área de toque (D111). `Box` e `Text` não forçam papel (são genéricos); o `Text` respeita a escala de fonte do sistema. |
+| D116 | **Política de versões do Expo**: enquanto o alanwind estiver em 0.x, só o SDK atual (hoje o 58; muda quando sair um novo). A partir da 1.0, o atual e o anterior. |
+| D117 | **Precedência entre condições diferentes: vence a mais específica.** Quando a mesma propriedade aparece com condições que valem ao mesmo tempo: com condição vence sem condição (`bg-primary hover(bg-raised)` mostra `bg-raised` no hover, mesmo escrito antes); mais condições vencem menos (`dark(hover(...))` vence `hover(...)`); entre faixas de tela, a maior vence; no empate, a última escrita. Complementa a D58, que cobre classes sem condição. |
+| D118 | **Tons da paleta fora da fase 1.** Na fase 1, cor livre só em hex (`bg=#e11d48`, `bg=#e11d48/50`). `bg=red-40` entra junto com a paleta, na fase de tema (D99). Ajusta a D105 e resolve a contradição entre D99 e D105. |
+| D119 | **Config no RN por `configure()`.** `defineConfig` e `configure` vêm de `@alanwind/native` na fase 1; o app chama `configure(config)` uma vez, no arquivo de entrada. Sem plugin de build, coerente com o runtime da D15. Sem a chamada, os atalhos ficam desligados, com aviso em dev. |
+| D120 | **Propostas de formato da IR aprovadas em bloco** (as 12 da `docs/specs/ir.md`): estilo como lista ordenada de camadas, cada uma com uma condição (átomos combinados por E, em ordem canônica); cor sempre com o par `{light, dark}` já resolvido no valor; lados explícitos já na IR (estende a D107 ao `core`); o `core` desfaz `center-x`/`center-y` com valores iniciais quando a direção muda numa camada; elevação do escuro expandida pelo `core` sob a condição `dark`; aviso de conflito aponta a classe que perdeu; diagnósticos com posição `[início, fim)` em UTF-16, ordenados por posição; hex de 3 dígitos expandido e de 8 dígitos convertido em alfa; `fontFamily` genérica (`sans`/`serif`/`mono`) mapeada pelo emissor; `lines-N` em `props`; nomes de tipos e campos como na spec. |
+| D121 | **Nome definitivo: alanwind.** Deixa de ser nome provisório (ajusta a D12). Antes de publicar, ainda é preciso conferir se `alanwind` e o escopo `@alanwind` estão livres no npm (D68). |
 
 ### 3.1 Alvo técnico de referência (Expo SDK 58)
 
-Conforme a documentação do Expo: SDK 58 usa **React Native 0.88**, **react-native-web 0.21** e exige **Node.js 22.13 ou superior**. A *Strict TypeScript API* do React Native passou a ser o padrão, então os tipos do alanwind devem funcionar bem com ela. O React Native tem cerca de seis releases por ano, e o Expo acompanha esse ritmo, então a lib precisa de uma **política de suporte** (por exemplo, SDK atual e o anterior).
+Conforme a documentação do Expo: SDK 58 usa **React Native 0.88**,
+**react-native-web 0.21** e exige **Node.js 22.13 ou superior**. A *Strict
+TypeScript API* do React Native passou a ser o padrão, então os tipos do
+alanwind devem funcionar bem com ela. O React Native tem cerca de seis releases
+por ano, e o Expo acompanha esse ritmo, então a lib precisa de uma **política de
+suporte** (por exemplo, SDK atual e o anterior).
 
 ### 3.2 Como o runtime funciona (D15)
 
 - O app renderiza um componente e chama o alanwind com a string de classes.
-- Uma função **pura** lê a string, consulta o tema e devolve um **objeto de estilo** do React Native (por exemplo `{ padding: 16, backgroundColor: '#...' }`).
-- Um **cache** (chave: string de classes + contexto, como tema, modo claro/escuro e largura da tela) guarda o resultado. A segunda vez que a mesma string aparece, a resposta vem pronta.
-- Requisito: a função é **determinística** (mesma entrada, mesma saída). Isso permite rodar o mesmo código em build mais tarde, como otimização, sem mudar a API.
+- Uma função **pura** lê a string, consulta o tema e devolve um **objeto de
+  estilo** do React Native (por exemplo
+  `{ padding: 16, backgroundColor: '#...' }`).
+- Um **cache** (chave: string de classes + contexto, como tema, modo
+  claro/escuro e largura da tela) guarda o resultado. A segunda vez que a mesma
+  string aparece, a resposta vem pronta.
+- Requisito: a função é **determinística** (mesma entrada, mesma saída). Isso
+  permite rodar o mesmo código em build mais tarde, como otimização, sem mudar a
+  API.
 - Na web, o CSS continua sendo gerado em build, como no Tailwind.
 
 ### 3.3 Componentes (D26, D40, D41, D53): esforço estimado
@@ -133,52 +217,107 @@ Conforme a documentação do Expo: SDK 58 usa **React Native 0.88**, **react-nat
 | Tema e modo escuro | Médio | Reagir ao esquema de cor e ao tamanho da tela. |
 | Componentes de terceiros | Médio | Helper `styled(Componente)` com mapa de props (D53). O look padrão (D54) fica para depois. |
 
-É bem mais simples e estável do que transformar `className` no build com Babel, e combina com a decisão de runtime.
+É bem mais simples e estável do que transformar `className` no build com Babel,
+e combina com a decisão de runtime.
 
 ## 4. Propostas ainda não confirmadas
 
 Direções sugeridas na conversa, sem decisão do Alan:
 
-- **Comando de configuração `npx alanwind init`** (consequência da D56): um comando que prepara o projeto sozinho (cria o arquivo de tema e liga o plugin de build), no estilo do `init` de outras libs. Faz parte do pacote `cli` já previsto. Ideia do alanwind, ainda sem decisão.
-- **Ícone nos avisos `info`** (consequência da D48): o `info` azul e o `primary` azul são da mesma família, então o componente de aviso deveria trazer um ícone para não parecer um botão. Ideia do alanwind, ainda sem decisão.
-- **Opacidade em cor livre (em aberto)**: com qualquer tom, `bg=red-40-50` fica ambíguo (o último número é tom ou opacidade?). Opções levantadas: barra (`bg=red-40/50`), proibir opacidade em cor livre (usar hex de 8 dígitos) ou classe separada. O Alan comentou que o 96 do exemplo era só ilustrativo; a decisão ainda não foi tomada.
-- **CSS pré-gerado como extra da CDN**: um arquivo de CSS cobrindo só as classes simples (sem variantes agrupadas), além do script da D55. Opcional.
-- **Arquitetura "um core, dois emissores"**: o core lê a classe e gera uma representação intermediária (IR) neutra. Um emissor gera **CSS** (web) e outro gera **objetos de estilo do React Native**.
-- **Arquitetura por presets** (inspirada no UnoCSS): core enxuto e um `preset-default` com o vocabulário do alanwind.
-- ~~**Ordem**: core + IR + emissor CSS primeiro~~ **Substituída pela D60** (React Native primeiro, CSS logo depois).
-- **Desenhar o subconjunto portátil a partir do React Native**, que é o alvo mais restritivo.
-- **Matriz de suporte** em três níveis: *core* (funciona nas duas plataformas), *web-only* e *native-only*, com aviso claro quando uma classe é usada na plataforma errada.
-- **Tabela de tradução de variantes**: `hover` vira `:hover` na web e estado `pressed` no nativo (no celular não existe hover); `compact`/`medium`/`expanded` viram media query ou breakpoint por largura; `dark` vira `prefers-color-scheme` ou `useColorScheme`.
-- **Tokens do tema numa única fonte da verdade**, alimentando os dois emissores; considerar o formato W3C Design Tokens.
+- **Comando de configuração `npx alanwind init`** (consequência da D56): um
+  comando que prepara o projeto sozinho (cria o arquivo de tema e liga o plugin
+  de build), no estilo do `init` de outras libs. Faz parte do pacote `cli` já
+  previsto. Ideia do alanwind, ainda sem decisão.
+- **Ícone nos avisos `info`** (consequência da D48): o `info` azul e o `primary`
+  azul são da mesma família, então o componente de aviso deveria trazer um ícone
+  para não parecer um botão. Ideia do alanwind, ainda sem decisão.
+- ~~**Opacidade em cor livre (em aberto)**~~ **Decidida pela D104.** com
+  qualquer tom, `bg=red-40-50` fica ambíguo (o último número é tom ou
+  opacidade?). Opções levantadas: barra (`bg=red-40/50`), proibir opacidade em
+  cor livre (usar hex de 8 dígitos) ou classe separada. O Alan comentou que o 96
+  do exemplo era só ilustrativo; a decisão ainda não foi tomada.
+- **CSS pré-gerado como extra da CDN**: um arquivo de CSS cobrindo só as classes
+  simples (sem variantes agrupadas), além do script da D55. Opcional.
+- **Arquitetura "um core, dois emissores"**: o core lê a classe e gera uma
+  representação intermediária (IR) neutra. Um emissor gera **CSS** (web) e outro
+  gera **objetos de estilo do React Native**.
+- ~~**Arquitetura por presets**~~ **Adiada pela D90.**
+- ~~**Ordem**: core + IR + emissor CSS primeiro~~ **Substituída pela D60**
+  (React Native primeiro, CSS logo depois).
+- **Desenhar o subconjunto portátil a partir do React Native**, que é o alvo
+  mais restritivo.
+- **Matriz de suporte** em três níveis: *core* (funciona nas duas plataformas),
+  *web-only* e *native-only*, com aviso claro quando uma classe é usada na
+  plataforma errada.
+- **Tabela de tradução de variantes**: `hover` vira `:hover` na web e estado
+  `pressed` no nativo (no celular não existe hover);
+  `compact`/`medium`/`expanded` viram media query ou breakpoint por largura;
+  `dark` vira `prefers-color-scheme` ou `useColorScheme`.
+- **Tokens do tema numa única fonte da verdade**, alimentando os dois emissores;
+  considerar o formato W3C Design Tokens.
 - ~~**Monorepo pnpm**~~ **Decidido** (D67 a D69, estrutura na seção 14).
-- **Geração sob demanda (JIT)** na web: escaneia os arquivos e gera só o que é usado (inclusive o atributo `look`, D42).
-- **Entrega em três camadas**: (1) fundação, com core, emissor CSS e site mínimo; (2) mobile, com emissor RN e abas de React Native na doc; (3) vitrine, com galeria de templates, playground, theme builder e extensão de VS Code.
-- Outras ideias de `01-referencias-e-ideias.md` ainda sem decisão: inspetor para depuração, trocar tema sem providers, otimizações de desempenho (cache por contexto, atualização de tema sem re-render).
+- **Geração sob demanda (JIT)** na web: escaneia os arquivos e gera só o que é
+  usado (inclusive o atributo `look`, D42).
+- **Entrega em três camadas**: (1) fundação, com core, emissor CSS e site
+  mínimo; (2) mobile, com emissor RN e abas de React Native na doc; (3) vitrine,
+  com galeria de templates, playground, theme builder e extensão de VS Code.
+- Outras ideias de `01-referencias-e-ideias.md` ainda sem decisão: inspetor para
+  depuração, trocar tema sem providers, otimizações de desempenho (cache por
+  contexto, atualização de tema sem re-render).
 
 ## 5. Acessibilidade: princípios iniciais (candidatos a ADR)
 
-- Paleta padrão só com combinações texto/fundo que passam no contraste **WCAG AA (4,5:1)**, validado por teste automático (isso vale para os dois temas, claro e escuro, e para os estados `-soft` e `-hover`; o hover mais claro é o que mais arrisca quebrar o par com o texto).
-- **Aviso de contraste em desenvolvimento** para combinações declaradas no mesmo `look` (D32).
+- Paleta padrão só com combinações texto/fundo que passam no contraste **WCAG AA
+  (4,5:1)**, validado por teste automático (isso vale para os dois temas, claro
+  e escuro, e para os estados `-soft` e `-hover`; o hover mais claro é o que
+  mais arrisca quebrar o par com o texto).
+- **Aviso de contraste em desenvolvimento** para combinações declaradas no mesmo
+  `look` (D32).
 - **Foco visível** sempre, e o framework nunca remove o outline.
-- Animações respeitam **reduzir movimento** (`prefers-reduced-motion` na web, `AccessibilityInfo` no RN).
+- Animações respeitam **reduzir movimento** (`prefers-reduced-motion` na web,
+  `AccessibilityInfo` no RN).
 - **Área de toque mínima** (cerca de 44 px na web e 44 a 48 dp no nativo).
-- Texto em unidades que respeitam zoom e escala de fonte do sistema (`rem` na web, escala de fonte no RN).
-- Fora do escopo do framework: HTML semântico e `aria-*`/props de acessibilidade, que são do usuário. A doc deve orientar.
+- Texto em unidades que respeitam zoom e escala de fonte do sistema (`rem` na
+  web, escala de fonte no RN).
+- Fora do escopo do framework: HTML semântico e `aria-*`/props de
+  acessibilidade, que são do usuário. A doc deve orientar.
 
 ## 6. Site de documentação (ideias)
 
-- **Hospedagem: em aberto.** O Alan comentou que pensa em usar o **GitHub Pages**, mas pediu para **deixar para decidir depois**, quando ele avaliar melhor como isso vai funcionar. Nada decidido. Ponto a lembrar quando voltar ao assunto: o GitHub Pages só serve site estático, e em `usuario.github.io/alanwind` o caminho base muda os links e os arquivos (um domínio próprio evita isso).
-- **Estilo (D11)**: minimalista e direto, mas bonito. Pouco ruído, hierarquia clara, exemplos logo de cara. O próprio visual é a demonstração do "bonito sem configurar", com o tema escuro como vitrine (D25). O site **herda o tema padrão da lib** (D43 a D52), então as decisões de cor, raio e sombra valem para ele também.
-- **Docs**: getting started por ambiente (npm com Vite ou Next, CDN, Expo/React Native), referência de utilitários com exemplo ao vivo e saída gerada, guias de tema, variantes, modo escuro e acessibilidade, página de migração "vindo do NativeWind/Tailwind" (como a sintaxe é própria, vale incluir uma tabela de equivalências e, mais tarde, um codemod).
-- **Galeria de templates**: blocos copiáveis (botões, formulários, cards, navbar, login, listas), cada um com aba Web e aba React Native e selo de acessibilidade validado por teste.
-- **Playground**: web primeiro; React Native depois (via `react-native-web` ou Expo Snack).
-- **Theme builder** (opcional): escolher cores e espaçamentos e baixar o `alanwind.config`.
-- **Doc gerada a partir do código** (tokens e utilitários numa única fonte) e **exemplos da doc rodando como testes no CI**.
-- Ferramenta sugerida: Astro Starlight ou Docusaurus no começo, migrando o visual para o próprio alanwind aos poucos (dogfooding). Hospedagem gratuita é possível (GitHub Pages, Vercel, Netlify), a escolher depois.
+- **Hospedagem: em aberto.** O Alan comentou que pensa em usar o **GitHub
+  Pages**, mas pediu para **deixar para decidir depois**, quando ele avaliar
+  melhor como isso vai funcionar. Nada decidido. Ponto a lembrar quando voltar
+  ao assunto: o GitHub Pages só serve site estático, e em
+  `usuario.github.io/alanwind` o caminho base muda os links e os arquivos (um
+  domínio próprio evita isso).
+- **Estilo (D11)**: minimalista e direto, mas bonito. Pouco ruído, hierarquia
+  clara, exemplos logo de cara. O próprio visual é a demonstração do "bonito sem
+  configurar", com o tema escuro como vitrine (D25). O site **herda o tema
+  padrão da lib** (D43 a D52), então as decisões de cor, raio e sombra valem
+  para ele também.
+- **Docs**: getting started por ambiente (npm com Vite ou Next, CDN, Expo/React
+  Native), referência de utilitários com exemplo ao vivo e saída gerada, guias
+  de tema, variantes, modo escuro e acessibilidade, página de migração "vindo do
+  NativeWind/Tailwind" (como a sintaxe é própria, vale incluir uma tabela de
+  equivalências e, mais tarde, um codemod).
+- **Galeria de templates**: blocos copiáveis (botões, formulários, cards,
+  navbar, login, listas), cada um com aba Web e aba React Native e selo de
+  acessibilidade validado por teste.
+- **Playground**: web primeiro; React Native depois (via `react-native-web` ou
+  Expo Snack).
+- **Theme builder** (opcional): escolher cores e espaçamentos e baixar o
+  `alanwind.config`.
+- **Doc gerada a partir do código** (tokens e utilitários numa única fonte) e
+  **exemplos da doc rodando como testes no CI**.
+- Ferramenta sugerida: Astro Starlight ou Docusaurus no começo, migrando o
+  visual para o próprio alanwind aos poucos (dogfooding). Hospedagem gratuita é
+  possível (GitHub Pages, Vercel, Netlify), a escolher depois.
 
 ## 7. Agentes planejados (para treinar orquestração)
 
-**Time inicial (D71)**: os agentes são divididos **por função no fluxo** (e, quando for treinar paralelismo, por fronteira da arquitetura), não em "backend" e "frontend", porque o alanwind é uma biblioteca.
+**Time inicial (D71)**: os agentes são divididos **por função no fluxo** (e,
+quando for treinar paralelismo, por fronteira da arquitetura), não em "backend"
+e "frontend", porque o alanwind é uma biblioteca.
 
 | Agente | Papel | Pode editar |
 |---|---|---|
@@ -188,23 +327,44 @@ Direções sugeridas na conversa, sem decisão do Alan:
 | **Revisor** | Confere o diff contra spec, ADRs, convenções e zero dependências. Devolve aprovado ou lista de problemas. | Nada |
 | **Documentador** | Mantém specs e doc de uso em sincronia com o código; aponta decisões que não chegaram na spec. | Só `docs/` |
 
-Ficam para depois: agente de frontend (só na fase 5, site), infra/CI e segurança (começam como skills, se precisar).
+Ficam para depois: agente de frontend (só na fase 5, site), infra/CI e segurança
+(começam como skills, se precisar).
 
-**Skills (D72)**: as skills do projeto são montadas pelo Claude **quando o Alan pedir uma por vez**, sempre com explicação de como funcionam. Candidatas: `registrar-decisao`, `escrever-adr`, `escrever-spec`, `adicionar-utilitario`, `teste-de-ouro`, `checar-contraste`. Skills de código e de commit são **do próprio Alan**.
+**Skills (D72)**: as skills do projeto são montadas pelo Claude **quando o Alan
+pedir uma por vez**, sempre com explicação de como funcionam. Candidatas:
+`registrar-decisao`, `escrever-adr`, `escrever-spec`, `adicionar-utilitario`,
+`teste-de-ouro`, `checar-contraste`. Skills de código e de commit são **do
+próprio Alan**.
 
-Lista anterior de ideias (substituída pela tabela acima): arquiteto/planejador · implementadores por módulo · escritor de testes · revisor · verificador independente · agente de docs · infra/CI · segurança/dependências · agente de ADR.
+Lista anterior de ideias (substituída pela tabela acima): arquiteto/planejador ·
+implementadores por módulo · escritor de testes · revisor · verificador
+independente · agente de docs · infra/CI · segurança/dependências · agente de
+ADR.
 
-Aprendizados que o Alan quer treinar: contratos claros entre agentes, paralelizar só o que é independente, loops de revisão com critério objetivo, controle de contexto.
+Aprendizados que o Alan quer treinar: contratos claros entre agentes,
+paralelizar só o que é independente, loops de revisão com critério objetivo,
+controle de contexto.
 
-**Plano do Alan**: a conversa sobre quais skills e agentes criar acontece **no Claude Code, depois que o escopo estiver pronto**. Este documento é a base para isso. O **MCP do alanwind** entra depois que a lib estiver funcionando corretamente (D20).
+**Plano do Alan**: a conversa sobre quais skills e agentes criar acontece **no
+Claude Code, depois que o escopo estiver pronto**. Este documento é a base para
+isso. O **MCP do alanwind** entra depois que a lib estiver funcionando
+corretamente (D20).
 
 ## 8. Artefatos a produzir antes dos agentes
 
 1. Visão de 1 página.
-2. ADRs iniciais: TS + monorepo; arquitetura IR + emissores; matriz de suporte por plataforma; runtime no React Native; API por componentes (D26, D40, D41, D53, D54); `look` em todo lugar (D42); distribuição por npm e CDN (D55, D56); princípios de acessibilidade; **gramática da sintaxe própria** (variantes, breakpoints, valor livre, opacidade, `define`, `center`); **modelo de cores** (paleta por tons + papéis, D33 a D35); zero dependências; tokens semânticos; **tema padrão** (D43 a D52).
-3. Divisão do escopo (D39) **em fases**, com a lista de utilitários e componentes de cada fase.
+2. ADRs iniciais: TS + monorepo; arquitetura IR + emissores; matriz de suporte
+   por plataforma; runtime no React Native; API por componentes (D26, D40, D41,
+   D53, D54); `look` em todo lugar (D42); distribuição por npm e CDN (D55, D56);
+   princípios de acessibilidade; **gramática da sintaxe própria** (variantes,
+   breakpoints, valor livre, opacidade, `define`, `center`); **modelo de cores**
+   (paleta por tons + papéis, D33 a D35); zero dependências; tokens semânticos;
+   **tema padrão** (D43 a D52).
+3. Divisão do escopo (D39) **em fases**, com a lista de utilitários e
+   componentes de cada fase.
 4. Specs: sintaxe das classes, tema/config, saída por plataforma, CLI.
-5. Estratégia de testes, com testes de ouro ("dado este input, a saída tem que ser exatamente esta").
+5. Estratégia de testes, com testes de ouro ("dado este input, a saída tem que
+   ser exatamente esta").
 6. `CLAUDE.md`/`AGENTS.md` com as convenções do repositório.
 
 ## 9. O que falta para fechar o escopo
@@ -213,53 +373,168 @@ Em ordem de prioridade:
 
 1. ~~Fechar o modelo de cores~~ **Feito** (D33 a D35).
 2. ~~Fechar a sintaxe~~ **Feito** (D36 a D38).
-3. ~~Tema padrão~~ **Quase fechado** (D43 a D52). **Falta só** o detalhe fino: valores exatos das sombras, cores de `border-strong`/`border-focus`/`text-link`, e a conferência final de contraste de cada par (trabalho de spec e de teste automático).
-4. ~~Escopo~~ **Definido** (D39). Falta **dividir em fases** (o que vem primeiro).
-5. ~~Detalhes da API~~ **Feito no nível de decisão** (D40 a D42, D53 a D56). O que sobra é detalhe de spec (formato exato do mapa de props do `styled()`, como o script da CDN observa mudanças na página).
-6. **Revisão do amigo**: o Alan pediu para **não mandar agora**. Fica para quando ele quiser; o feedback entra na seção 12.
+3. ~~Tema padrão~~ **Quase fechado** (D43 a D52). **Falta só** o detalhe fino:
+   valores exatos das sombras, cores de
+   `border-strong`/`border-focus`/`text-link`, e a conferência final de
+   contraste de cada par (trabalho de spec e de teste automático).
+4. ~~Escopo~~ **Definido** (D39). Falta **dividir em fases** (o que vem
+   primeiro).
+5. ~~Detalhes da API~~ **Feito no nível de decisão** (D40 a D42, D53 a D56). O
+   que sobra é detalhe de spec (formato exato do mapa de props do `styled()`,
+   como o script da CDN observa mudanças na página).
+6. **Revisão do amigo**: o Alan pediu para **não mandar agora**. Fica para
+   quando ele quiser; o feedback entra na seção 12.
 
 Pode esperar:
-- **Hospedagem do site de documentação** (o Alan pensa em GitHub Pages, decisão adiada; ver seção 6).
-- **Política de suporte** de versões (SDK atual e anterior?) e navegadores.
-- **Disponibilidade do nome**: a busca web não achou nenhum projeto chamado alanwind, mas isso não confirma. Checar `npm view alanwind` e `npm view @alanwind/core` (404 = livre), o GitHub e um domínio antes de publicar. O sufixo "-wind" é bem usado por projetos pequenos (miniwind, digiwind, litewind) e remete ao Tailwind, o que pode causar confusão de busca e de marca. Alternativas levantadas, caso o nome mude: alankit, alanstyle, alanui, alantokens, alanform.
+- **Hospedagem do site de documentação** (o Alan pensa em GitHub Pages, decisão
+  adiada; ver seção 6).
+- **Política de suporte** de navegadores. (Versões do Expo: decidido na D116.)
+- **Disponibilidade do nome**: a busca web não achou nenhum projeto chamado
+  alanwind, mas isso não confirma. Checar `npm view alanwind` e
+  `npm view @alanwind/core` (404 = livre), o GitHub e um domínio antes de
+  publicar. O sufixo "-wind" é bem usado por projetos pequenos (miniwind,
+  digiwind, litewind) e remete ao Tailwind, o que pode causar confusão de busca
+  e de marca. Alternativas levantadas, caso o nome mude: alankit, alanstyle,
+  alanui, alantokens, alanform.
 - Licença.
 - Política de versionamento (o vocabulário de classes é uma API pública).
 
 ## 10. Histórico
 
-- 2026-11-25: conversa inicial. Definidos motivação, tese, TypeScript, inglês, web + mobile, primeiras entregas e ideia do site de docs.
-- 2026-11-25: definido o estilo do site e da marca (minimalista, direto e bonito, D11).
+- 2026-11-25: conversa inicial. Definidos motivação, tese, TypeScript, inglês,
+  web + mobile, primeiras entregas e ideia do site de docs.
+- 2026-11-25: definido o estilo do site e da marca (minimalista, direto e
+  bonito, D11).
 - 2026-11-25: pesquisa de nome; alanwind mantido como nome provisório (D12).
-- 2026-11-25: decidida a sintaxe própria (D13) e o alvo de referência Expo SDK 58 (D14).
-- 2026-11-25: decidido runtime no React Native (D15) e o princípio de sintaxe prática e fácil de aprender (D16).
-- 2026-11-25: aprovado o meio-termo da sintaxe, com identidade como requisito (D17), e as cinco fontes de identidade (D18). Definida a lista do que falta para fechar o escopo; conversa de skills e agentes fica para o Claude Code.
-- 2026-11-25: decidida a regra de abreviação (D19). Iniciado o rascunho do vocabulário base (seção 11).
-- 2026-11-25: pesquisa de outras libs (`01-referencias-e-ideias.md`). Aprovados zero dependências, tokens semânticos, tipagem estrita e MCP para depois (D20), e o posicionamento como alternativa com diferenciais próprios (D21). Rascunho de cor, tipografia, borda, raio e sombra.
-- 2026-11-25: decididos os papéis de cor com versões suaves e estados de hover embutidos, pela preferência do Alan por cores escuras (D22). Corrigida uma afirmação anterior: variantes de plataforma já existem em outras libs. Criado doc de comparação com Tailwind para compartilhar.
-- 2026-11-25: confirmado o prefixo `type-` (D23) e a separação entre `-hover` (estado) e `-soft` (baixa ênfase estática, não só para botões) (D24).
-- 2026-11-25: decididos o tema que segue o sistema com escuro cuidado (D25), a API por componentes (D26) e a prop `look` (D27). O amigo do Alan gostou de `pad`.
-- 2026-11-25: tratados os elementos parecidos com o Tailwind: variantes só com parêntese (D28), breakpoints `compact`/`medium`/`expanded` (D29) e valor livre com `=` (D30).
-- 2026-11-25: decidida a opacidade com sufixo numérico (D31). Aprovada a ideia do aviso de contraste (D32).
-- 2026-11-25: fechado o modelo de cores: paleta por tons de 0 a 100 e papéis (D33), paleta base fora das classes (D34), tema padrão completo com soma da configuração e tratamento de papel inexistente (D35). O aviso de contraste passa a cobrir cores livres.
-- 2026-11-25: fechada a sintaxe: atalhos com `define` (D36), variantes de tamanho "a partir de" (D37) e três formas de `center` (D38).
-- 2026-11-25: o Alan mencionou o GitHub Pages para o site e em seguida pediu para deixar a hospedagem **em aberto**, decidindo depois. Registrado como pendente, sem decisão.
-- 2026-11-25: definido o escopo (tudo o que foi conversado, em fases; depois só ideias futuras e bugs; sem trocar o NativeWind de imediato) (D39). Resumo para o amigo adiado a pedido do Alan.
-- 2026-11-25: fechada a API: lista de componentes (D40), `contentLook` e `styled()` (D41) e `look` em todo lugar, inclusive no HTML puro (D42), corrigindo a menção a `class` na D26.
-- 2026-11-25: início do tema padrão: espaçamento até `pad-16` (D43), raios (D44), sombras com tratamento próprio no escuro (D45), `primary` vibrante em azul elétrico, opção C (D46) e semáforo com `warning` de texto escuro (D47).
-- 2026-11-25: tema padrão quase fechado: `info` em azul, contra a sugestão do ciano (D48), tamanhos de `type-` e fonte do sistema (D49), fundo escuro cinza-grafite (D50), fundos claros (D51) e `secondary` neutro (D52).
-- 2026-11-25: detalhes da API: o `style` vence o `look` e mapa de props no `styled()` (D53), look padrão no `styled()` como extra bacana para depois (D54), CDN como script e plugin de build para produção, ajustando a D4 (D55) e instalação por npm além da CDN, para qualquer projeto com bundler (D56).
-- 2026-11-25 (Claude Code): primeira rodada de revisão. Decididos a herança de texto por contexto (D57), a regra de conflito entre classes (D58), `hover(...)` separado de `press(...)` (D59) e a fase 1 começando pelo React Native (D60).
-- 2026-11-25 (Claude Code): segunda rodada. Removido `compact(...)` como variante (D61), `Box` sempre flex em coluna (D62), atalhos no arquivo de tema (D63) e troca de tema sem provider (D64).
-- 2026-11-25 (Claude Code): terceira rodada. Plugin reescreve o `look` por classe gerada no HTML (D65) e tipagem estrita na fase 1 (D66). Opacidade em cor livre ficou em aberto (seção 4). Próximo passo escolhido: dividir o escopo em fases.
-- 2026-11-25 (Claude Code): documento movido para `docs/`. Decididos o monorepo com `packages/` e `apps/` (D67), os nomes no npm (D68), as ferramentas de desenvolvimento (D69) e a organização de `docs/` (D70). Estrutura registrada na seção 14.
-- 2026-11-25 (Claude Code): specs criadas em `docs/specs/` só com o já decidido. Definidos o time inicial de agentes por função, com planejador desde o início (D71), e o modo de montar skills (D72).
-- 2026-11-25 (Claude Code): criadas as skills de git `conventional-commits` e `fluxo-de-branches` (D73).
+- 2026-11-25: decidida a sintaxe própria (D13) e o alvo de referência Expo SDK
+  58 (D14).
+- 2026-11-25: decidido runtime no React Native (D15) e o princípio de sintaxe
+  prática e fácil de aprender (D16).
+- 2026-11-25: aprovado o meio-termo da sintaxe, com identidade como requisito
+  (D17), e as cinco fontes de identidade (D18). Definida a lista do que falta
+  para fechar o escopo; conversa de skills e agentes fica para o Claude Code.
+- 2026-11-25: decidida a regra de abreviação (D19). Iniciado o rascunho do
+  vocabulário base (seção 11).
+- 2026-11-25: pesquisa de outras libs (`01-referencias-e-ideias.md`). Aprovados
+  zero dependências, tokens semânticos, tipagem estrita e MCP para depois (D20),
+  e o posicionamento como alternativa com diferenciais próprios (D21). Rascunho
+  de cor, tipografia, borda, raio e sombra.
+- 2026-11-25: decididos os papéis de cor com versões suaves e estados de hover
+  embutidos, pela preferência do Alan por cores escuras (D22). Corrigida uma
+  afirmação anterior: variantes de plataforma já existem em outras libs. Criado
+  doc de comparação com Tailwind para compartilhar.
+- 2026-11-25: confirmado o prefixo `type-` (D23) e a separação entre `-hover`
+  (estado) e `-soft` (baixa ênfase estática, não só para botões) (D24).
+- 2026-11-25: decididos o tema que segue o sistema com escuro cuidado (D25), a
+  API por componentes (D26) e a prop `look` (D27). O amigo do Alan gostou de
+  `pad`.
+- 2026-11-25: tratados os elementos parecidos com o Tailwind: variantes só com
+  parêntese (D28), breakpoints `compact`/`medium`/`expanded` (D29) e valor livre
+  com `=` (D30).
+- 2026-11-25: decidida a opacidade com sufixo numérico (D31). Aprovada a ideia
+  do aviso de contraste (D32).
+- 2026-11-25: fechado o modelo de cores: paleta por tons de 0 a 100 e papéis
+  (D33), paleta base fora das classes (D34), tema padrão completo com soma da
+  configuração e tratamento de papel inexistente (D35). O aviso de contraste
+  passa a cobrir cores livres.
+- 2026-11-25: fechada a sintaxe: atalhos com `define` (D36), variantes de
+  tamanho "a partir de" (D37) e três formas de `center` (D38).
+- 2026-11-25: o Alan mencionou o GitHub Pages para o site e em seguida pediu
+  para deixar a hospedagem **em aberto**, decidindo depois. Registrado como
+  pendente, sem decisão.
+- 2026-11-25: definido o escopo (tudo o que foi conversado, em fases; depois só
+  ideias futuras e bugs; sem trocar o NativeWind de imediato) (D39). Resumo para
+  o amigo adiado a pedido do Alan.
+- 2026-11-25: fechada a API: lista de componentes (D40), `contentLook` e
+  `styled()` (D41) e `look` em todo lugar, inclusive no HTML puro (D42),
+  corrigindo a menção a `class` na D26.
+- 2026-11-25: início do tema padrão: espaçamento até `pad-16` (D43), raios
+  (D44), sombras com tratamento próprio no escuro (D45), `primary` vibrante em
+  azul elétrico, opção C (D46) e semáforo com `warning` de texto escuro (D47).
+- 2026-11-25: tema padrão quase fechado: `info` em azul, contra a sugestão do
+  ciano (D48), tamanhos de `type-` e fonte do sistema (D49), fundo escuro
+  cinza-grafite (D50), fundos claros (D51) e `secondary` neutro (D52).
+- 2026-11-25: detalhes da API: o `style` vence o `look` e mapa de props no
+  `styled()` (D53), look padrão no `styled()` como extra bacana para depois
+  (D54), CDN como script e plugin de build para produção, ajustando a D4 (D55) e
+  instalação por npm além da CDN, para qualquer projeto com bundler (D56).
+- 2026-11-25 (Claude Code): primeira rodada de revisão. Decididos a herança de
+  texto por contexto (D57), a regra de conflito entre classes (D58),
+  `hover(...)` separado de `press(...)` (D59) e a fase 1 começando pelo React
+  Native (D60).
+- 2026-11-25 (Claude Code): segunda rodada. Removido `compact(...)` como
+  variante (D61), `Box` sempre flex em coluna (D62), atalhos no arquivo de tema
+  (D63) e troca de tema sem provider (D64).
+- 2026-11-25 (Claude Code): terceira rodada. Plugin reescreve o `look` por
+  classe gerada no HTML (D65) e tipagem estrita na fase 1 (D66). Opacidade em
+  cor livre ficou em aberto (seção 4). Próximo passo escolhido: dividir o escopo
+  em fases.
+- 2026-11-25 (Claude Code): documento movido para `docs/`. Decididos o monorepo
+  com `packages/` e `apps/` (D67), os nomes no npm (D68), as ferramentas de
+  desenvolvimento (D69) e a organização de `docs/` (D70). Estrutura registrada
+  na seção 14.
+- 2026-11-25 (Claude Code): specs criadas em `docs/specs/` só com o já decidido.
+  Definidos o time inicial de agentes por função, com planejador desde o início
+  (D71), e o modo de montar skills (D72).
+- 2026-11-25 (Claude Code): criadas as skills de git `conventional-commits` e
+  `fluxo-de-branches` (D73).
 - 2026-11-25 (Claude Code): criada a skill `codigo-limpo` (D74).
-- 2026-11-25 (Claude Code): definido que as skills do projeto são a fonte principal e as externas servem de consulta e validação (D75).
+- 2026-11-25 (Claude Code): definido que as skills do projeto são a fonte
+  principal e as externas servem de consulta e validação (D75).
+- 2026-11-25 (Claude Code): repositório criado no GitHub com `main` e `develop`.
+  Criadas as skills do projeto `registrar-decisao`, `escrever-adr`,
+  `escrever-spec`, `adicionar-utilitario`, `teste-de-ouro` e `checar-contraste`
+  (candidatas da D72).
+- 2026-11-25 (Claude Code): criados os agentes do projeto e escrito o
+  `CLAUDE.md` (D76).
+- 2026-11-25 (Claude Code): planejador gerou o rascunho da fase 1 em
+  `docs/tarefas/fase-1/` (34 tarefas). Rodada 1 de perguntas: vocabulário da
+  fase 1 (D77), área de toque embutida no `Pressable` (D78) e fachada para
+  depois (D79). Validação numa cópia do ShadowPlatinum atualizada para o SDK 58
+  (D80) e arquivo de tema na fase 1 só com atalhos (D81).
+- 2026-11-25 (Claude Code): rodada 2 (IR): conflito resolvido no `core` (D82),
+  IR com parte de props (D83), diagnósticos devolvidos e filtrados na borda
+  (D84) e `center-x`/`center-y` traduzidos no `core` (D85).
+- 2026-11-25 (Claude Code): documentador escreveu os ADRs 0001 e 0002
+  (propostos). Rodada 3 (sintaxe): variantes aninhadas (D86), lados
+  `top`/`bottom`/`left`/`right` (D87), sintaxe quebrada ignora só o trecho ruim
+  (D88) e margem `auto` na escala, negativa só com `=` (D89). Registrados os
+  motivos de D3 (tipagem estrita) e D20 (independência), e presets adiados
+  (D90).
+- 2026-11-25 (Claude Code): o Alan aceitou os ADRs 0001 (TypeScript e monorepo)
+  e 0002 (core, IR e emissores).
+- 2026-11-25 (Claude Code): rodada 4 (tema): cores de estado aprovadas com
+  contraste conferido (D91), tom automático em `text-<papel>` (D92),
+  `text-subtle` só para desabilitado (D93) e breakpoints 600/840 (D94).
+- 2026-11-25 (Claude Code): rodada 5 (tema): cores neutras finais e novas (D95),
+  sombras do claro (D96), elevação automática no escuro (D97) e escalas de
+  tamanho, peso, linha, opacidade e `round-full` (D98).
+- 2026-11-25 (Claude Code): rodada 6 (tema): algoritmo da paleta só na fase de
+  tema (D99), atalhos como objeto `define` (D100), atalhos com variantes e
+  aninhamento sem ciclos (D101) e W3C Design Tokens adiado (D102).
+- 2026-11-25 (Claude Code): rodada 7 (sintaxe): variantes `focus`, `disabled`,
+  `light` e `native` (D103), opacidade em cor livre com barra (D104), conteúdo
+  do valor livre (D105) e faixa exata adiada (D106).
+- 2026-11-25 (Claude Code): rodada 8 (emissor RN): eixos expandidos em lados
+  explícitos (D107), `boxShadow` no nativo (D108), cache por faixa de tela com
+  LRU (D109) e `hover` pelo evento de hover (D110).
+- 2026-11-25 (Claude Code): rodada 9 (componentes): área de toque por plataforma
+  com `hitSlop` (D111), visual padrão do `Text` (D112), herança em cascata
+  (D113) e Jest nos componentes RN (D114).
+- 2026-11-25 (Claude Code): acessibilidade padrão dos componentes da fase 1
+  (D115) e política de versões do Expo (D116). Disparados os documentadores para
+  redigir as specs completas e o ADR 0003.
+- 2026-11-25 (Claude Code): onda 1 dos documentadores concluída (sintaxe, IR e
+  tema em rascunho; ADR 0003 proposto). Rodada 10: precedência entre condições
+  (D117), tons da paleta fora da fase 1 (D118), config por `configure()` (D119)
+  e propostas da IR aprovadas (D120).
+- 2026-11-25 (Claude Code): o Alan definiu alanwind como nome definitivo (D121).
 
 ## 11. Vocabulário base (rascunho em construção)
 
-Regras: sintaxe `propriedade-valor` com hífen; escala de espaçamento em passos de 4 (`pad-4` = 16); abreviar só `w`, `h`, `x`, `y` (D19); valor livre com `=` (D30); variantes só com parêntese (D28). Nada aqui é definitivo até virar spec.
+Regras: sintaxe `propriedade-valor` com hífen; escala de espaçamento em passos
+de 4 (`pad-4` = 16); abreviar só `w`, `h`, `x`, `y` (D19); valor livre com `=`
+(D30); variantes só com parêntese (D28). Nada aqui é definitivo até virar spec.
 
 **Variantes** (rascunho)
 
@@ -271,7 +546,8 @@ Regras: sintaxe `propriedade-valor` com hífen; escala de espaçamento em passos
 | Tamanho de tela (D29, D37, D61) | `medium(...)`, `expanded(...)`; valem "a partir de" (`medium(...)` vale em `medium` e acima). Sem variante = todos os tamanhos. |
 | Acessibilidade | `motion-safe(...)` |
 
-Exemplo: `<Box look="col gap-2 pad-4 medium(row gap-6) bg-surface hover(bg-raised shadow-md)">`
+Exemplo:
+`<Box look="col gap-2 pad-4 medium(row gap-6) bg-surface hover(bg-raised shadow-md)">`
 
 **Layout** (rascunho)
 
@@ -299,11 +575,16 @@ Exemplo: `<Box look="col gap-2 pad-4 medium(row gap-6) bg-surface hover(bg-raise
 
 **Atalhos** (D36)
 
-`define('btn', 'bg-primary pad-4 round-md')` cria o atalho `btn`, usado como uma classe qualquer. Os atalhos são declarados no arquivo de tema (D63); o formato exato fica para a spec.
+`define('btn', 'bg-primary pad-4 round-md')` cria o atalho `btn`, usado como uma
+classe qualquer. Os atalhos são declarados no arquivo de tema (D63); o formato
+exato fica para a spec.
 
 **Cor** (D46 a D52)
 
-Regra: `bg-` é cor de fundo; `text-` é **só cor do texto** (o tamanho do texto usa `type-`, D23). Todo papel tem valores para claro e escuro (D20). Todo papel colorido tem um par `on-` com contraste garantido e variações embutidas `-soft` e `-hover` (D22, D24). A paleta base não aparece nas classes (D34).
+Regra: `bg-` é cor de fundo; `text-` é **só cor do texto** (o tamanho do texto
+usa `type-`, D23). Todo papel tem valores para claro e escuro (D20). Todo papel
+colorido tem um par `on-` com contraste garantido e variações embutidas `-soft`
+e `-hover` (D22, D24). A paleta base não aparece nas classes (D34).
 
 | Grupo | Papéis |
 |---|---|
@@ -320,7 +601,9 @@ Regra: `bg-` é cor de fundo; `text-` é **só cor do texto** (o tamanho do text
 
 **Tipografia** (D23, D49)
 
-O prefixo `type-` (de "type scale", a escala tipográfica) foi confirmado (D23). Motivo: no Tailwind, `text-lg` (tamanho) e `text-red-500` (cor) usam o mesmo prefixo, o que confunde quem está aprendendo.
+O prefixo `type-` (de "type scale", a escala tipográfica) foi confirmado (D23).
+Motivo: no Tailwind, `text-lg` (tamanho) e `text-red-500` (cor) usam o mesmo
+prefixo, o que confunde quem está aprendendo.
 
 | O que | Classes |
 |---|---|
@@ -332,7 +615,8 @@ O prefixo `type-` (de "type scale", a escala tipográfica) foi confirmado (D23).
 | Estilo | `italic`, `underline`, `upper`, `lower` |
 | Limite de linhas | `lines-2` (corta o texto em 2 linhas; `numberOfLines` no RN, equivalente em CSS na web) |
 
-Os tamanhos de texto respeitam a escala de fonte do sistema (`rem` na web, escala de fonte no RN), conforme a seção 5.
+Os tamanhos de texto respeitam a escala de fonte do sistema (`rem` na web,
+escala de fonte no RN), conforme a seção 5.
 
 **Borda, raio e sombra** (D44, D45)
 
@@ -344,11 +628,17 @@ Os tamanhos de texto respeitam a escala de fonte do sistema (`rem` na web, escal
 
 ## 12. Feedback de terceiros (separado das decisões)
 
-- **Amigo do Alan (rigoroso em front-end, quem sugeriu a ideia do alanwind)**, 2026-11-25: gostou de `pad` em vez de `p`; concorda que não ficar igual ao Tailwind é o melhor. Revisão mais crítica da sintaxe ainda pendente, **adiada a pedido do Alan** (perguntas sugeridas: variantes só com parêntese, nomes de breakpoint, papéis de cor, `center`/`center-x`/`center-y`, utilitários de acessibilidade, `look` no HTML, CSS gerado).
+- **Amigo do Alan (rigoroso em front-end, quem sugeriu a ideia do alanwind)**,
+  2026-11-25: gostou de `pad` em vez de `p`; concorda que não ficar igual ao
+  Tailwind é o melhor. Revisão mais crítica da sintaxe ainda pendente, **adiada
+  a pedido do Alan** (perguntas sugeridas: variantes só com parêntese, nomes de
+  breakpoint, papéis de cor, `center`/`center-x`/`center-y`, utilitários de
+  acessibilidade, `look` no HTML, CSS gerado).
 
 ## 13. Exemplo de tema de cores (modelo aprovado em D33 a D35; valores ilustrativos)
 
-O **modelo** está decidido. Os valores de cor abaixo são **ilustrativos**; os valores finais virão do tema padrão.
+O **modelo** está decidido. Os valores de cor abaixo são **ilustrativos**; os
+valores finais virão do tema padrão.
 
 ```ts
 // alanwind.config.ts (opcional: o tema padrão já traz tudo isto)
@@ -370,7 +660,8 @@ export default defineTheme({
 })
 ```
 
-O que o alanwind **gera sozinho** para cada papel (exemplo com `danger`; os tons de `-soft` e `-hover` são regras propostas, a definir no tema padrão):
+O que o alanwind **gera sozinho** para cada papel (exemplo com `danger`; os tons
+de `-soft` e `-hover` são regras propostas, a definir no tema padrão):
 
 | Classe | No claro | No escuro |
 |---|---|---|
@@ -420,4 +711,6 @@ alanwind/
 └─ biome.json
 ```
 
-Regras de dependência entre pacotes (proposta, a confirmar num ADR): `core` não depende de nenhum outro pacote; `native` e `css` dependem só de `core`; `vite-plugin` e `cdn` dependem de `css`; `alanwind` só reexporta.
+Regras de dependência entre pacotes (D74, ADR 0002): `core` não depende de
+nenhum outro pacote; `native` e `css` dependem só de `core`; `vite-plugin` e
+`cdn` dependem de `css`; `alanwind` só reexporta.
