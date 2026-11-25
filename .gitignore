@@ -1,0 +1,26 @@
+# Dependências e builds
+node_modules/
+dist/
+build/
+coverage/
+.turbo/
+*.tsbuildinfo
+
+# Expo / React Native
+.expo/
+ios/Pods/
+
+# Ambiente e segredos
+.env
+.env.*
+!.env.example
+
+# Claude Code: configurações locais de cada pessoa
+.claude/settings.local.json
+
+# Sistema e editores
+.DS_Store
+*.log
+.idea/
+.vscode/*
+!.vscode/extensions.json
