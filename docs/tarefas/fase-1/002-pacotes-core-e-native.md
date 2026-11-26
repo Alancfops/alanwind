@@ -7,7 +7,8 @@
 - **Paralelo com**: —
 - **Spec**: nenhuma (fundação). Seção 14 de `docs/00-visao-e-decisoes.md`;
   ADR 0003 (Jest nos componentes)
-- **Decisões**: D14, D20, D67, D68, D69, D74, D114, D121, D142
+- **Decisões**: D14, D20, D67, D68, D69, D74, D114, D121, D142, D173, D174,
+  D175
 
 ## Objetivo
 Criar os dois pacotes da fase 1, vazios mas compiláveis, testáveis e
@@ -30,7 +31,12 @@ publicáveis, com a regra de dependência valendo.
     O script `test` do pacote roda os dois.
   - `package.json` dos dois pacotes prontos para o Release (D142): sem
     `private`, com `exports`/`main`/`types` e `files` apontando para a saída do
-    tsup, para que `pnpm -r publish` publique o pacote compilado.
+    tsup, para que `pnpm -r publish` publique o pacote compilado, e
+    `license: "MIT"` (D174).
+  - Formato (D175): o `native` sai **só em ESM** (o tsup gera só ESM e o
+    `exports` não tem condição `require`), para um app nunca carregar duas
+    cópias do estado do módulo (cache, `configure`). O `core`, sem estado,
+    sai em ESM e PODE sair também em CJS.
   - Os dois pacotes compilam com tsup e rodam os testes (sem testes ainda, sem
     falhar).
 - Não faz: nenhum código de domínio; pacote fachada `alanwind` (fase 2, D79);
@@ -42,7 +48,9 @@ publicáveis, com a regra de dependência valendo.
 - QA: nenhum arquivo permanente; verificação por comando.
 - Na raiz, só os arquivos da lista da D148, se precisar (`turbo.json`,
   `pnpm-lock.yaml`, `package.json`, `biome.json`). Fora dela, **pare e
-  relate**: a mudança vai para a sessão principal.
+  relate**, sem contornar o hook: a mudança vai para a sessão principal
+  (D173). Arquivos se escrevem só com `Write`/`Edit`.
+- O `README.md` do `native` é da `056` (D178), não desta tarefa.
 
 ## Critérios de aceite
 - [ ] `pnpm run build`, `pnpm run typecheck`, `pnpm run test` e
@@ -56,6 +64,9 @@ publicáveis, com a regra de dependência valendo.
       commitar).
 - [ ] `pnpm -r publish --dry-run` lista os dois pacotes com a saída do tsup e
       sem os fontes de teste.
+- [ ] Os dois `package.json` têm `license: "MIT"` (D174).
+- [ ] A saída do `native` só tem ESM; nenhum arquivo `.cjs` nem condição
+      `require` no `exports` (D175).
 - [ ] Um import de `react` colocado temporariamente em `packages/core/src` faz o
       `biome ci` falhar (prova da regra da 001; desfazer depois).
 

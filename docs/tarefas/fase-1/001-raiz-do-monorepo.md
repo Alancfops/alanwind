@@ -11,7 +11,7 @@
   `docs/00-visao-e-decisoes.md`; workflows em `.github/workflows/ci.yml` e
   `.github/workflows/release.yml`
 - **Decisões**: D3, D14, D20, D67, D69, D74, D114, D141, D142, D143, D148,
-  D150, D151
+  D150, D151, D173, D174
 
 ## Objetivo
 Criar a raiz do monorepo com pnpm workspaces, Turborepo, TypeScript estrito e
@@ -25,6 +25,7 @@ pacotes da fase 1 tenham onde nascer.
       (`pnpm@<versão>`): o `pnpm/action-setup` dos dois workflows lê a versão
       daqui (D141, D142);
     - `engines.node` `>=22.18` (D150; o 22.13+ da seção 3.1 é de quem usa);
+    - `license: "MIT"` (D174);
     - scripts com **estes nomes exatos**, delegando ao Turborepo:
       `typecheck`, `test`, `build` (chamados por `pnpm run` no CI e no
       Release) e `lint`.
@@ -50,10 +51,12 @@ pacotes da fase 1 tenham onde nascer.
 - Implementador: `package.json`, `pnpm-workspace.yaml`, `turbo.json`,
   `tsconfig.base.json`, `biome.json`, `pnpm-lock.yaml` (lista da D148).
 - QA: nenhum arquivo; verificação por comando.
-- Fora da lista da D148: `.gitignore`, `.npmrc` e `.github/`. Se o pnpm
+- Fora da lista da D148: `.gitignore`, `.npmrc`, `.github/` e o arquivo
+  `LICENSE` da raiz (MIT, D174), que fica com a sessão principal. Se o pnpm
   exigir `.npmrc`, se faltar entrada no `.gitignore` (ex.: `node_modules`,
   `dist`, `.turbo`) ou se o `biome ci` reclamar de `.github/scripts/*.mjs`,
-  **pare e relate**: a sessão principal faz essa parte.
+  **pare e relate**, sem contornar o hook (D173): a sessão principal faz
+  essa parte.
 
 ## Critérios de aceite
 - [ ] `pnpm install --frozen-lockfile` termina sem erro em Node 22.18+.

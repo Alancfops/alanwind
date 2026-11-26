@@ -1,15 +1,15 @@
 # 061. Validação da fase 1 no ShadowPlatinum
 
-- **Status**: pronta (depois da 054 e da 060); as telas são escolhidas pelo
+- **Status**: pronta (depois da 054, 056 e 060); as telas são escolhidas pelo
   Alan quando a tarefa começar (D147)
 - **Executor**: sessão principal com o Alan (o trabalho fica fora deste
   repositório; os hooks dos agentes não liberam esse caminho)
 - **Fase**: 1
 - **Branch**: — (no repositório da cópia do ShadowPlatinum, não aqui)
-- **Depende de**: 054, 060
+- **Depende de**: 054, 056, 060
 - **Paralelo com**: —
 - **Spec**: `docs/specs/componentes.md`, `docs/specs/tema.md`
-- **Decisões**: D14, D60, D80, D116, D142, D147
+- **Decisões**: D14, D60, D80, D116, D142, D147, D175, D178
 
 ## Objetivo
 Fechar a fase 1 com uso real: numa **cópia** do ShadowPlatinum em
@@ -24,6 +24,11 @@ alanwind (D80), instalado a partir dos pacotes que seriam publicados (D147).
   - Nas telas que o Alan escolher ao começar a tarefa (D147), trocar
     `StyleSheet.create` por `Box`, `Text`, `Pressable` e `look`, com
     `configure(config)` no arquivo de entrada.
+  - **Jest** (D175, D178): seguir o aviso do `README.md` do pacote (`056`),
+    incluindo `@alanwind/native` no `transformIgnorePatterns` da cópia, e
+    rodar um teste Jest que renderiza uma tela com componentes do alanwind.
+    Se o exemplo do README não funcionar como está, o achado volta para a
+    `056`.
   - Listar o que faltou no vocabulário da fase 1.
 - Não faz: alterar o app original (D80); publicar no npm.
 
@@ -36,6 +41,8 @@ alanwind (D80), instalado a partir dos pacotes que seriam publicados (D147).
       `workspace:` (prova de que o pacote publicável funciona).
 - [ ] A cópia roda no SDK 58 com as telas escolhidas usando só o alanwind.
 - [ ] Claro e escuro funcionam nas telas escolhidas.
+- [ ] Com o `transformIgnorePatterns` do README, um teste Jest da cópia que
+      importa `@alanwind/native` roda sem erro de ESM (D178).
 - [ ] Relatório com o que faltou ou incomodou, para a fase seguinte.
 
 ## Casos que o QA deve cobrir

@@ -1,37 +1,47 @@
 # Fase 1: tarefas
 
-**Status do plano: revisado em 2026-11-26** contra as decisões até a D148.
-A fundação (001 a 004), todo o `core` (010 a 035) e a validação (061) estão
-prontos para começar, respeitando as dependências entre tarefas; a fundação
-ainda precisa do pedido do Alan para criar estrutura (`CLAUDE.md`, "Estado
-atual"). O `native` e os componentes seguem **bloqueados** por
-`emissor-native.md` e `componentes.md`, ainda em rascunho.
+**Status do plano: revisado em 2026-11-26** contra as decisões até a D179.
+Todas as specs da fase 1 estão aprovadas e **nenhuma tarefa está bloqueada
+por spec**: cada uma está pronta para começar assim que as tarefas da coluna
+"Depende de" estiverem na `develop`. Um ponto de detalhe segue como pergunta
+(ver "Perguntas em aberto"); ele não impede começar, e a tarefa afetada diz o
+que fazer até a resposta.
 
-As tarefas citam a D144 a D146 e a D149 diretamente. Essas decisões já estão
-nas specs, que o Alan reaprovou em 2026-11-26. Se o texto de uma spec diferir
-de uma tarefa, vale a spec, e o implementador relata.
+Se o texto de uma spec diferir de uma tarefa, vale a spec, e o implementador
+relata.
 
 Escopo da fase 1 (D60, D66, D77): parser + IR + emissor React Native + `Box`,
 `Text`, `Pressable` + tema padrão + tipo do `look` com autocomplete (D126) +
-atalhos com `define` e `configure()` (D119). Validação: uma cópia do
-ShadowPlatinum no SDK 58, trocando `StyleSheet` pelo alanwind (D80).
+atalhos com `define` e `configure()` (D119) + `look()` e `useLook()` públicos
+(D158). Validação: uma cópia do ShadowPlatinum no SDK 58, trocando
+`StyleSheet` pelo alanwind (D80).
 
 Fora da fase 1: aviso de contraste (D32, D66); `motion-safe`, `tap-target` e
 `focus-ring` (D78); paleta por tons e tema customizável (D99, D118); fachada
-`alanwind` (D79, fase 2); `styled()` e os demais componentes da D40; emissor
-CSS (fase 2, D60).
+`alanwind` (D79, fase 2); `styled()`, `contentLook` e os demais componentes
+da D40 (D172); emissor CSS (fase 2, D60).
+
+Node para desenvolver o monorepo: 22.18+ (D150, na `001`); o 22.13+ é o de
+quem usa o alanwind. Licença MIT (D174, `001` e `002`); `@alanwind/native`
+só em ESM (D175, `002`), com o aviso do Jest no README do pacote (D178,
+`056`) e a prova na `061`.
 
 ## Estado das specs
 
-| Spec | Status | Tarefas que ainda espera |
+| Spec | Status | Tarefas |
 |---|---|---|
-| `funcionamento-interno.md` | aprovado (D144 a D146 em propagação) | — |
-| `sintaxe.md` | aprovado (D144 a D146 em propagação) | — |
-| `tema.md` | aprovado (D144 em propagação) | — |
-| `emissor-native.md` | rascunho (seção 2 aberta) | 040 a 046, 053 |
-| `componentes.md` | rascunho (seção 2 aberta) | 050 a 054 |
+| `funcionamento-interno.md` | aprovado | 010 a 035, 041 a 045 |
+| `sintaxe.md` | aprovado | 011, 020 a 035 |
+| `tema.md` | aprovado | 012 a 014, 025, 032, 040, 046 |
+| `emissor-native.md` | aprovado (D152 a D162; D176 em propagação) | 040 a 046 |
+| `componentes.md` | aprovado para a fase 1 (D163 a D172; D177 a D179 em propagação) | 050 a 056, 060 |
 
-`emissor-css.md` não entra na fase 1 (D60).
+As tarefas já citam a D176 a D179 diretamente; o documentador as leva para as
+specs em paralelo.
+
+`emissor-css.md` não entra na fase 1 (D60). O bloco "Fases posteriores" da
+`componentes.md` (`styled()`, demais componentes) não gera tarefa agora
+(D172).
 
 ## Tarefas
 
@@ -62,67 +72,91 @@ CSS (fase 2, D60).
 | 033 | [Camadas e precedência](033-core-camadas-e-precedencia.md) | core | 028, 026 | pronta |
 | 034 | [Atalhos: validação](034-core-atalhos-validacao.md) | core | 028, 022, 023 | pronta |
 | 035 | [Atalhos: expansão](035-core-atalhos-expansao.md) | core | 029, 034 | pronta |
-| 040 | [Contexto: esquema, faixa, plataforma](040-native-contexto-de-resolucao.md) | native | 002, 012 | bloqueada: `emissor-native.md` |
-| 041 | [Emissor: layout, espaço, borda, raio](041-native-emissor-layout-espaco-borda.md) | native | 010 | bloqueada: `emissor-native.md` |
-| 042 | [Emissor: cor e tipografia](042-native-emissor-cor-e-texto.md) | native | 010 | bloqueada: `emissor-native.md` |
-| 043 | [Emissor: `boxShadow`](043-native-emissor-sombras.md) | native | 010 | bloqueada: `emissor-native.md` |
-| 044 | [Emissor: condições e camadas](044-native-condicoes-variantes.md) | native | 010, 040 | bloqueada: `emissor-native.md` |
-| 045 | [Resolução ponta a ponta e cache](045-native-resolucao-e-cache.md) | native | 022 a 029, 031 a 033, 040 a 044 | bloqueada: `emissor-native.md` |
-| 046 | [`defineConfig` e `configure()`](046-native-configure-e-define-config.md) | native | 035, 045 | bloqueada: `emissor-native.md` |
-| 050 | [Herança de texto](050-native-heranca-de-texto.md) | native | 045 | bloqueada: `componentes.md` |
-| 051 | [`Box`](051-native-componente-box.md) | native | 045, 050 | bloqueada: `componentes.md` |
-| 052 | [`Text`](052-native-componente-text.md) | native | 045, 050 | bloqueada: `componentes.md` |
-| 053 | [`Pressable`](053-native-componente-pressable.md) | native | 045, 050 | bloqueada: `componentes.md` |
-| 054 | [Tipo da prop `look`](054-native-tipagem-da-prop-look.md) | native | 030, 051, 052, 053 | bloqueada: `componentes.md` |
-| 060 | [Tela de demonstração no playground](060-playground-tela-de-validacao.md) | playground | 004, 046, 051, 052, 053 | bloqueada: tarefas anteriores |
-| 061 | [Validação no ShadowPlatinum](061-validacao-no-shadowplatinum.md) | fora do repo | 054, 060 | pronta (telas escolhidas pelo Alan, D147) |
+| 040 | [Contexto: esquema, faixa, plataforma, janela](040-native-contexto-de-resolucao.md) | native | 002, 012 | pronta |
+| 041 | [Emissor: layout, espaço, borda, raio](041-native-emissor-layout-espaco-borda.md) | native | 010, 040 | pronta |
+| 042 | [Emissor: cor e tipografia](042-native-emissor-cor-e-texto.md) | native | 010, 040 | pronta |
+| 043 | [Emissor: `boxShadow`](043-native-emissor-sombras.md) | native | 010, 042 | pronta |
+| 044 | [Emissor: condições e camadas](044-native-condicoes-variantes.md) | native | 010, 040 | pronta |
+| 045 | [Resolução, cache, `look()` e `useLook()`](045-native-resolucao-e-cache.md) | native | 022 a 029, 031 a 033, 040 a 044 | pronta |
+| 046 | [`defineConfig` e `configure()`](046-native-configure-e-define-config.md) | native | 035, 045 | pronta |
+| 050 | [Herança de texto](050-native-heranca-de-texto.md) | native | 045 | pronta |
+| 051 | [`Box`](051-native-componente-box.md) | native | 045, 050 | pronta |
+| 052 | [`Text`](052-native-componente-text.md) | native | 045, 050 | pronta |
+| 053 | [`Pressable`](053-native-componente-pressable.md) | native | 045, 050 | pronta |
+| 054 | [Tipo do `look` nos componentes e na API](054-native-tipagem-da-prop-look.md) | native | 030, 051, 052, 053 | pronta |
+| 055 | [Árvores de componentes (integração)](055-native-componentes-integracao.md) | native | 051, 052, 053 | pronta |
+| 056 | [`README.md` do `@alanwind/native`](056-native-readme-do-pacote.md) | native | 046, 051 | pronta |
+| 060 | [Tela de demonstração no playground](060-playground-tela-de-validacao.md) | playground | 004, 046, 051, 052, 053 | pronta |
+| 061 | [Validação no ShadowPlatinum](061-validacao-no-shadowplatinum.md) | fora do repo | 054, 056, 060 | pronta (telas escolhidas pelo Alan, D147) |
 
 "Pronta" = pode começar assim que as tarefas da coluna "Depende de"
 estiverem na `develop`.
 
 ## O que mudou nesta revisão
 
-**Removidas** (arquivos apagados):
+As tarefas do `native` e dos componentes saíram de "bloqueada": as lacunas
+de cada uma viraram regras das specs aprovadas (D152 a D172).
 
-- **015** (paleta por tons): fora da fase 1. A paleta e o tom no valor livre
-  (`bg=red-40`) ficaram para a fase de tema (D99, D118); `bg=red-40` dá
-  `AW008` (D138), coberto pela 020.
-- **055** (fachada `alanwind`): fica para a fase 2 (D79).
+**Criada**:
 
-**Criadas**:
+- **055** árvores de componentes com herança: as onze linhas da seção 5.3 da
+  `componentes.md` precisam de `Box`, `Pressable` e `Text` juntos, e nenhuma
+  das tarefas 050 a 053 consegue testá-las sozinha. O número estava livre
+  desde a remoção da fachada.
+- **056** `README.md` do `@alanwind/native`: instalação e os avisos da D167
+  e do Jest (D175, D178). Nenhuma tarefa escrevia documentação de uso.
 
-- **031** alinhamento pela direção final (R22 a R26, R45, R46 da
-  `funcionamento-interno.md`), separado da 022 por depender de condições e
-  camadas.
-- **032** `shadow-*` e elevação no escuro (R34, R35, D137), tirada da 027 pelo
-  mesmo motivo.
-- **033** camadas e precedência entre condições (R15, R16, R28; D136, D140).
-- **034** e **035** atalhos: validação ao carregar (`AW301`, `AW302`,
-  `AW304`) e expansão no `look` com `origin` (D101, D134, D135). Nenhuma
-  tarefa cobria os atalhos, que são da fase 1 (D77).
-- **046** `defineConfig` e `configure()` no `native` (D119).
-- **061** validação no ShadowPlatinum (D80), fora deste repositório.
+**Respostas do Alan (D173 a D179)**:
 
-**Mudanças de escopo maiores**:
+- **001** e **002**: licença MIT (D174; o `LICENSE` da raiz fica com a
+  sessão principal); "pare e relate" sem contornar o hook (D173).
+- **002**: `native` só em ESM; `core` em ESM e, se quiser, CJS (D175).
+- **045**: `look('leading-normal')` usa 16 → `lineHeight` 24 (D176).
+- **051** e **053**: classes de texto só repassadas aos filhos, nunca no
+  `style` do próprio componente (D177).
+- **054**: exporta `BoxProps`, `AwTextProps` e `AwPressableProps` (D179).
+- **061**: passa a depender da `056` e confere o Jest com o
+  `transformIgnorePatterns` do README na cópia (D178).
 
-- 001 cria `packageManager` e os scripts `typecheck`, `test`, `build` com os
-  nomes que o CI e o Release chamam (D141, D142); 003 encolheu para o Knip (o
-  workflow já existe); 002 prepara o Jest do `native` (D114) e os pacotes
-  para o Release.
-- 011 passou a depender da 010 (o tipo `Diagnostic` está na IR).
-- 027 virou "espessura de borda, raio e opacidade" (a opacidade do elemento
-  não tinha tarefa).
-- 030 e 054: o tipo do `look` é autocomplete + `string` (D126), sem erro de
-  tipo para classe inválida.
-- 043 encolheu: só traduz `boxShadow` (D108); a elevação é do `core` (032).
-- 060 deixou de ser "a tela do app do Alan" e virou uma tela de demonstração
-  no playground; a validação real é a 061 (D80), com os `.tgz` de
-  `pnpm pack` (D147).
-- Respostas do Alan (D144 a D148): empate de diagnósticos por código e
-  `AW303` fora do catálogo (011); `lines-0` = `AW103` (026); camadas com a
-  mesma condição comparadas como uma (029); sombra dentro de variante (032);
-  diagnósticos de carregamento e atalho com erro descartado (034, 035); 001
-  e 003 passam para o `implementador` (D148).
+**Mudanças nas tarefas (D152 a D172)**:
+
+- **040**: faixa com os limites lidos do tema (D153); janela no contexto
+  (D152); `setColorScheme` com estado próprio, sem `Appearance` (D162);
+  instantâneo e hook de contexto para `look()` e `useLook()`; define os
+  tipos `ResolutionContext` e `ScreenBand`.
+- **041**: tabela da R16 (`Percent` como `'50%'`, `ScreenSize` pela janela,
+  D152); `flexDirection` padrão do `Box` passou para a `051` (D168). Passa a
+  depender da `040` (tipo do contexto).
+- **042**: cor com alfa em `rgba(...)` e `fontWeight` como string (D154);
+  `fontFamily` exata (D156); `lineHeight` a duas casas, recebendo o tamanho
+  final de quem chama (D157); sem mexer na escala de fonte. Passa a depender
+  da `040`.
+- **043**: `boxShadow` como lista de objetos (D155), com a conversão de cor
+  da `042` (passa a depender dela).
+- **044**: forma da entrada (`ResolutionContext` e `InteractionStates`, seção
+  4) e da saída; define `InteractionStates`; props aplicadas como estilo
+  (R23).
+- **045**: `look()` e `useLook()` públicos (D158); janela exata na chave
+  para unidades de tela (D152); estados por entrada do cache e limite 500
+  (D159); aviso com `__DEV__` e `console.warn`, um por `look`, código e
+  posição (D160); resolução interna com `lineHeight` em `Ratio` e opção
+  "sem estados" para o aviso da D166.
+- **046**: aviso de ausência só com `AW101` (D161); segunda chamada
+  substitui; chave estranha ignorada com aviso.
+- **050**: lista exata das herdáveis, sem `numberOfLines` (D163); `Text`
+  também repassa (D164); texto de variante de estado do pai (D165);
+  `lineHeight` herdado como `Ratio`.
+- **051**: base `flexDirection: 'column'` (D168); variantes de estado com
+  aviso (D166); `style` não normalizado (D167).
+- **052**: precedência por propriedade e `lineHeight` sobre o tamanho final
+  (R20, D157); `Text` dentro de `Text` (D164); aviso de variante de estado
+  (D166).
+- **053**: estados e callbacks (R22, R23); `hitSlop` só depois do
+  `onLayout` e o da pessoa vence (D170); foco só por `onFocus`/`onBlur`
+  (D171); outline do navegador mantido (D169); `role` também desliga o
+  papel padrão.
+- **054**: o tipo vale também para `look()` e `useLook()` (D158).
+- **060**: deixou de estar bloqueada.
 
 ## Grafo de dependências
 
@@ -197,8 +231,11 @@ graph TD
   032 --> 030
 
   010 --> 041
+  040 --> 041
   010 --> 042
+  040 --> 042
   010 --> 043
+  042 --> 043
   010 --> 044
   040 --> 044
 
@@ -224,13 +261,21 @@ graph TD
   052 --> 054
   053 --> 054
 
+  051 --> 055
+  052 --> 055
+  053 --> 055
+
   004 --> 060
   046 --> 060
   051 --> 060
   052 --> 060
   053 --> 060
 
+  046 --> 056
+  051 --> 056
+
   054 --> 061
+  056 --> 061
   060 --> 061
 ```
 
@@ -243,9 +288,9 @@ que já chegam por 029).
 |---|---|---|
 | 0 | 001 → 002 → (003 ‖ 004) | Fundação. |
 | 1 | 010 ‖ 012 | Contratos: IR e escalas do tema. |
-| 2 | 011 ‖ 013 ‖ 014 ‖ 040 ‖ 041 ‖ 042 ‖ 043 | Com a IR fechada, os emissores testam com IR escrita à mão. |
-| 3 | 020 ‖ 044 | Parser; condições no emissor (depois da 040). |
-| 4 | 021 | Gargalo: estrutura do registro e resolução. |
+| 2 | 011 ‖ 013 ‖ 014 ‖ 040 | A 040 fecha os tipos do contexto para os emissores. |
+| 3 | 020 ‖ 041 ‖ 042 ‖ 044 | Parser; emissores testam com IR escrita à mão. |
+| 4 | 021 ‖ 043 | Gargalo do `core`; a sombra usa a cor da 042. |
 | 5 | 022 ‖ 023 ‖ 024 ‖ 025 ‖ 026 ‖ 027 | Cada família num arquivo próprio em `vocabulary/`. |
 | 6 | 028 | Variantes; começa assim que 022, 023 e 025 terminarem. |
 | 7 | 033 ‖ 034 | Camadas; validação dos atalhos. |
@@ -254,7 +299,7 @@ que já chegam por 029).
 | 10 | 030 ‖ 045 | Tipo do `look`; junção de `core` e emissor. |
 | 11 | 046 ‖ 050 | `configure`; herança de texto. |
 | 12 | 051 ‖ 052 ‖ 053 | Componentes. |
-| 13 | 054 ‖ 060 | Tipo na prop; tela de demonstração. |
+| 13 | 054 ‖ 055 ‖ 056 ‖ 060 | Tipos; árvores; README do pacote; demonstração. |
 | 14 | 061 | Validação no ShadowPlatinum. |
 
 Caminho crítico: 001 → 002 → 010 → 011 → 020 → 021 → 022/023/025 → 028 →
@@ -262,22 +307,26 @@ Caminho crítico: 001 → 002 → 010 → 011 → 020 → 021 → 022/023/025 �
 
 ## Perguntas em aberto
 
-- `emissor-native.md` e `componentes.md` ainda têm seção 2 aberta; as
-  lacunas que travam 040 a 046 e 050 a 053 estão listadas em cada tarefa.
+Nenhuma. As últimas viraram a D176 a D181.
 
 ## Observações para a orquestração
 
 - **Hook do implementador** (D148): além de `packages/` e `apps/`, ele edita
   `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `turbo.json`,
   `biome.json`, `tsconfig*.json` e `knip.json` da raiz. `.gitignore`,
-  `.npmrc` e `.github/` continuam com a sessão principal (ver 001). A 061 é
-  fora do repositório.
+  `.npmrc`, `.github/` e `LICENSE` (D174) continuam com a sessão principal
+  (ver 001). A 061 é fora do repositório. Se um hook bloquear, o agente para
+  e relata, sem contornar; arquivos só com `Write`/`Edit` (D173).
 - **CI** (D141): assim que o `pnpm-lock.yaml` entra na `develop` (001), o job
   `Code` passa a rodar `biome ci`, `typecheck`, `test` e `build` em toda PR; o
   passo do Knip liga quando existir `knip.json` (003).
 - **Testes**: Vitest no `core` e nos emissores; Jest com `jest-expo` nos
   componentes e hooks do `native` (D114, ADR 0003). Convenção na 002:
-  `.test.ts` no Vitest, `.test.tsx` no Jest.
+  `.test.ts` no Vitest, `.test.tsx` no Jest. A 045 tem as duas: `look()`
+  com contexto explícito no Vitest, `useLook()` no Jest.
+- **`emit/index.ts`**: 041, 042, 043 e 044 editam o mesmo arquivo; ao
+  integrar uma depois da outra, a sessão principal resolve o conflito de
+  merge.
 - **Notação da `sintaxe.md`**: a seção 7 usa propriedades abstratas
   (`pad.left=16`, `role(primary)`). O QA traduz cada linha para a IR da
   `funcionamento-interno.md`, com os valores do `tema.md`.

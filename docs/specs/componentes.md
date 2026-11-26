@@ -1,9 +1,9 @@
 # Spec: componentes
 
-Status: **em revisão** (estrutura completa; só restam as fases posteriores da
-seção 8; aguarda o Alan) · Decisões de origem: D26, D27, D40, D41, D53, D54,
-D57, D59, D60, D62, D78, D98, D103, D107, D110 a D115, D126, D157, D158,
-D163 a D172
+Status: **aprovado** para a fase 1 (pelo Alan em 2026-11-26, de novo depois
+das D175 a D181; a seção 8 só tem fases posteriores, D172) ·
+Decisões de origem: D26, D27, D40, D41, D53, D54, D57, D59, D60, D62, D78, D98,
+D103, D107, D110 a D115, D126, D157, D158, D163 a D172, D177 a D181
 
 `Box`, `Text`, `Pressable` e demais componentes, herança de texto, `contentLook`
 e `styled()`.
@@ -56,7 +56,8 @@ e a regra de conflito e precedência (`funcionamento-interno.md`).
   atalhos do RN no `style` (`padding`, `paddingHorizontal`, `margin`,
   `borderWidth`, `borderRadius`) NÃO vencem um lado específico vindo do `look`
   (`paddingTop`), porque o RN dá precedência ao lado específico. O alanwind NÃO
-  DEVE normalizar o `style`; a documentação DEVE avisar.
+  DEVE normalizar o `style`; a documentação DEVE avisar, no `README.md` do
+  `@alanwind/native` (D178).
 - **R3.** Um componente sem `look`, ou com `look` vazio, NÃO DEVE acrescentar
   estilo além da base do componente.
 - **R4.** O `look` DEVE ser resolvido pelo `useLook` do `native`, com o
@@ -65,7 +66,8 @@ e a regra de conflito e precedência (`funcionamento-interno.md`).
   D158; `emissor-native.md` R3, R6, R40).
 - **R5.** As props do `look` (`numberOfLines`, de `lines-N`) DEVEM ser aplicadas
   ao componente; a que a pessoa passar explicitamente vence a do `look` (mesma
-  ideia de R2, D53).
+  ideia de R2, D53). `numberOfLines` só vale no `Text`: em `Box` e `Pressable`,
+  `lines-N` NÃO tem efeito e a borda DEVE avisar em dev (D180).
 - **R6.** Diagnósticos do `look` seguem a borda do `native`: aparecem em dev e
   são ignorados em produção (D84; `emissor-native.md` R31).
 - **R7.** Os componentes DEVEM funcionar na web via `react-native-web` com o
@@ -79,11 +81,13 @@ e a regra de conflito e precedência (`funcionamento-interno.md`).
   `row` no `look` e o `style` sobrepõem (D62, D168).
 - **R10.** `Box` NÃO DEVE forçar papel de acessibilidade (D115).
 - **R11.** `Box` DEVE repassar às crianças o texto herdado somado ao que o seu
-  `look` declara (R28 a R31).
+  `look` declara (R28 a R31). As propriedades de texto do `look` NÃO DEVEM ir
+  para o `style` do `View`: só são repassadas aos `Text` filhos (D177).
 - **R12.** Variantes de estado (`hover`, `press`, `focus`, `disabled`) no `look`
   de um `Box` são ignoradas: o `Box` não informa estado e a camada NÃO vale
   (`emissor-native.md` R13). Em dev, a borda DEVE avisar, sem código `AW`,
-  como no `styled()` (D166, D53).
+  como no `styled()` (D166, D53), uma vez por combinação de `look` e posição
+  da variante (D181).
 
 ### 3.3 `Text`
 
@@ -144,13 +148,18 @@ e a regra de conflito e precedência (`funcionamento-interno.md`).
   o seu `look` declara, avaliado com o estado atual do `Pressable`:
   `press(text-on-primary)` vale para o `Text` filho enquanto o pai está
   pressionado (D165, D57).
+- **R45.** As propriedades de texto do `look` do `Pressable` NÃO DEVEM ir para
+  o `style` do `Pressable` nativo: só são repassadas aos `Text` filhos (R26,
+  R28, D177).
 - **R27.** `tap-target` e `focus-ring` NÃO existem nesta fase (D78).
 
 ### 3.5 Herança de texto (D57, D113)
 
 - **R28.** `Box` e `Pressable` DEVEM repassar por contexto as propriedades de
   texto do seu `look` aos `Text` de dentro. Propriedades que não são de texto
-  (`padding*`, `backgroundColor`, bordas) NÃO DEVEM ser herdadas.
+  (`padding*`, `backgroundColor`, bordas) NÃO DEVEM ser herdadas. As de texto
+  vão só aos filhos: o `style` do `View` ou do `Pressable` NÃO DEVE recebê-las
+  (D177).
 - **R29.** **Cascata:** um `Box` interno DEVE repassar o que herdou somado ao
   que declara. A classe de texto mais próxima vence **por propriedade**: a cor
   do filho vence a do pai e o tamanho do pai continua valendo.
@@ -164,6 +173,9 @@ e a regra de conflito e precedência (`funcionamento-interno.md`).
 - **R32.** O tipo da prop `look` DEVE ser o do `core` (R52 da `sintaxe.md`):
   autocomplete das classes conhecidas e qualquer `string` aceita; sem erro de
   tipo para classe inválida (D126).
+- **R46.** **Nomes exportados** (D179): o `native` DEVE exportar os tipos
+  `BoxProps`, `AwTextProps` e `AwPressableProps`. O prefixo `Aw` só aparece nos
+  nomes que colidem com os do React Native (`TextProps`, `PressableProps`).
 - **R33.** Os tipos das props originais (`onPress`, `accessibilityRole`,
   `hitSlop`, `ref`) DEVEM ser preservados e funcionar com a Strict TypeScript
   API do React Native 0.88 (D14).
@@ -192,7 +204,8 @@ e a regra de conflito e precedência (`funcionamento-interno.md`).
 
 ## 4. Formato
 
-Os nomes dos componentes são os da D40. Esboço dos tipos (as props nativas são
+Os nomes dos componentes são os da D40 e os dos tipos, os da D179. Esboço dos
+tipos (as props nativas são
 as do React Native):
 
 ```ts
@@ -204,16 +217,15 @@ type Look = LookString;
 export interface BoxProps extends ViewProps {
   look?: Look;
 }
-export interface TextProps_ extends TextProps {
+export interface AwTextProps extends TextProps {
   look?: Look;
 }
-export interface PressableProps_ extends PressableProps {
+export interface AwPressableProps extends PressableProps {
   look?: Look;
 }
 ```
 
-Os sufixos `_` só evitam colidir com os tipos do React Native neste esboço; os
-nomes exportados são da tarefa de tipos.
+O prefixo `Aw` só existe onde o nome colide com o do React Native (D179).
 
 ## 5. Exemplos
 
@@ -230,6 +242,7 @@ D50, D51, D91.
 | `<Box look="pad-4" style={{ paddingTop: 2 }}>` | `{ flexDirection: 'column', paddingTop: 2, paddingRight: 16, paddingBottom: 16, paddingLeft: 16 }` |
 | `<Box look="dark(bg-surface)">` com `setColorScheme('dark')` | `{ flexDirection: 'column', backgroundColor: '#1E1E22' }` |
 | `<Box look="hover(bg-raised)">` | `{ flexDirection: 'column' }` (aviso em dev, D166) |
+| `<Box look="text-muted type-lg pad-4">` | `{ flexDirection: 'column', paddingTop: 16, paddingRight: 16, paddingBottom: 16, paddingLeft: 16 }`: sem `color` nem `fontSize` (R11, D177) |
 | `<Box look="pad-4" style={{ padding: 2 }}>` | `{ flexDirection: 'column', padding: 2, paddingTop: 16, paddingRight: 16, paddingBottom: 16, paddingLeft: 16 }`: os lados do `look` valem (D167) |
 
 ### 5.2 `Text`: padrão e `look` (R14 a R16, R20)
@@ -259,6 +272,7 @@ D50, D51, D91.
 | `<Text look="type-lg">Olá <Text look="weight-bold">mundo</Text></Text>`, claro | o `Text` interno: `{ color: '#3B3B42', fontSize: 18, fontWeight: '700' }` (R19, D164) |
 | `<Pressable look="bg-primary text-on-primary press(text-strong)"><Text/></Pressable>`, claro, pressionado | `{ color: '#141416', fontSize: 16 }` (D165) |
 | o mesmo, solto | `{ color: '#FFFFFF', fontSize: 16 }` |
+| `<Pressable look="bg-primary text-on-primary">`, claro | o `style` do `Pressable` tem `backgroundColor: '#2563EB'` e não tem `color` (R45, D177) |
 | `<Box look="hover(text-strong)"><Text/></Box>` | o padrão: `hover` não vale no `Box` (R12) |
 
 ### 5.4 `Pressable` (R21 a R26)
@@ -295,6 +309,7 @@ Look: `bg-primary hover(bg-raised) press(bg-primary-hover)`, claro.
 | `<Box look="pad-17" />` | compila (D126); o aviso é de runtime |
 | `<Pressable onPress={1} />` | erro de tipo (`@ts-expect-error`) |
 | `ref` num `Box` | recebe `View` |
+| importar `BoxProps`, `AwTextProps` e `AwPressableProps` de `@alanwind/native` | compila (R46, D179) |
 
 ## 6. Casos de borda e erros
 
@@ -325,6 +340,8 @@ Look: `bg-primary hover(bg-raised) press(bg-primary-hover)`, claro.
 - [ ] O `style` vence o `look`, propriedade a propriedade (R2).
 - [ ] O `Text` sem `look` tem a cor de `text-body` e `fontSize` 16 nos dois
       esquemas (R14).
+- [ ] O `style` do `View` e o do `Pressable` nunca recebem as propriedades de
+      texto do `look`; só os `Text` filhos as recebem (R11, R45, D177).
 - [ ] A herança segue a cascata da R29 e não herda `padding*`, fundo, bordas nem
       o `style` (R28, R30).
 - [ ] Pressionado: as classes de `press(...)` valem; solto, não. Sem evento de
@@ -334,6 +351,7 @@ Look: `bg-primary hover(bg-raised) press(bg-primary-hover)`, claro.
       `role` (R25).
 - [ ] `hitSlop` completa 44 (iOS e web) ou 48 (Android) sem mudar o tamanho
       visual, e os callbacks da pessoa continuam sendo chamados (R23, R24).
+- [ ] `BoxProps`, `AwTextProps` e `AwPressableProps` são exportados (R46).
 - [ ] O tipo da prop `look` é o do `core`; as props originais mantêm os tipos
       (R32, R33).
 - [ ] O autocomplete no editor é conferido à mão e registrado no relatório.
