@@ -22,8 +22,12 @@ const spacing = {
 
 export const defaultTheme = {
   spacing,
-  // D98: same scale as spacing, plus the relative sizes.
-  size: { ...spacing, full: '100%', screen: 'screen' },
+  // D98: same scale as spacing, plus the relative sizes, in the IR's shapes.
+  size: {
+    ...spacing,
+    full: { unit: 'percent', value: 100 },
+    screen: { unit: 'screen' },
+  },
   radius: { none: 0, sm: 4, md: 8, lg: 12, xl: 16, full: 9999 },
   fontSize: { xs: 12, sm: 14, base: 16, lg: 18, xl: 20, '2xl': 24, '3xl': 30 },
   fontWeight: { regular: 400, medium: 500, bold: 700 },
