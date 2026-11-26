@@ -12,10 +12,18 @@ Modelo baseado no Git Flow, simplificado para uma biblioteca publicada no npm.
 | Branch | Para que serve | Quem escreve nela |
 |---|---|---|
 | `main` | Só versões publicadas. Cada merge aqui é uma release, marcada com tag (`v0.3.0`). | Só via PR de `develop` ou de `hotfix/*` |
-| `develop` | Integração: onde as funcionalidades prontas se juntam. | Só via PR |
+| `develop` | Integração: onde as funcionalidades prontas se juntam. | Via PR; só `docs/` por push direto (D182) |
 
 **Nunca** commitar direto em `main` ou `develop`. **Nunca** usar `push --force`
 nelas.
+
+**Exceção (D182)**: um commit que mexe **só** em arquivos de `docs/` (specs,
+decisões, tarefas, ADRs) vai direto para a `develop`, sem PR:
+`git switch develop && git pull`, commit, `git push`. O CI roda no push; se
+falhar, corrija na hora com outro commit. Se o commit tocar qualquer arquivo
+fora de `docs/` (`CLAUDE.md`, `.claude/`, README de pacote, código), use o
+fluxo normal com PR. Só a sessão principal faz isso; os agentes continuam sem
+push.
 
 ## Branches de trabalho
 

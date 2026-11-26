@@ -202,7 +202,7 @@ próprios diferenciais**.
 | D140 | **Últimos detalhes da IR.** Cada ocorrência de variante vira sua própria camada, na ordem escrita, sem fundir condições iguais (`hover(bg-raised) press(bg-surface) hover(pad-4)`: vale `bg-surface`), para a última escrita valer sempre (D136). Os átomos de uma condição ficam na ordem da tabela de variantes (hover, press, focus, disabled, dark, light, ios, android, web, native, medium, expanded): `press(hover(x))` vira `[hover, press]`. `between` usa a propriedade abstrata `place.main` (`place.x` em linha, `place.y` em coluna), com a especificidade de `center-x`/`center-y`. |
 | D141 | **CI pronto desde já, para docs e código.** O workflow `CI` roda em toda PR e push para `develop` e `main`. A parte de documentação roda sempre e confere as regras do `CLAUDE.md`: 80 colunas, links e specs citadas que existem, `D##` registrada. A parte de código liga sozinha quando o monorepo existir (`pnpm-lock.yaml`): Biome, tipos, testes, build e Knip (D69, D74). Um check agregado `CI` resume os dois. |
 | D142 | **CD: tag manual e versão única.** Depois do merge `develop` → `main`, o Alan cria a tag `vX.Y.Z` na `main`. O workflow `Release` confere que a tag está na `main`, põe essa versão em todos os pacotes públicos (`alanwind` e `@alanwind/*`), roda as mesmas verificações do CI, publica no npm com provenance e cria a GitHub Release com notas geradas dos commits. Autenticação: secret `NPM_TOKEN` na primeira publicação; depois, trusted publishing (OIDC) sem token. Detalha a D73. |
-| D143 | **Branches protegidas.** `main` e `develop` só recebem merge por PR, com o check `CI` verde obrigatório, sem push direto e sem force push. O merge continua sendo do Alan (D73). |
+| D143 | **Branches protegidas.** `main` e `develop` só recebem merge por PR, com o check `CI` verde obrigatório, sem push direto e sem force push. O merge continua sendo do Alan (D73). *Ajuste (D182): mudanças só em `docs/` vão por push direto na `develop`.* |
 | D144 | **Diagnósticos: desempate, catálogo e erros do tema.** Dois diagnósticos na mesma posição saem em ordem de código, do menor para o maior (vale a R49 da sintaxe; a R39 da IR se ajusta). `AW303` fica reservado e fora do catálogo da fase 1, até existir criação de papéis. `lines-0` dá `AW103`. Os erros ao carregar o tema (`AW301`, `AW302`, `AW304`) trazem o nome do atalho e a posição dentro do texto dele, como o `origin` da D135. O atalho com qualquer um deles é descartado, e usá-lo num `look` dá `AW101`. |
 | D145 | **Camadas com a mesma condição se comparam como uma só.** Primeiro vale a especificidade (D58), depois a última escrita. O `core` tira da camada a declaração que perdeu, com `AW201`. Em `hover(pad-x-2) hover(pad-4)`, no hover fica 8 à esquerda e à direita e 16 em cima e embaixo. Detalha a D140. |
 | D146 | *Ajuste (D149): a sombra do claro fica em `[<condição>, light]`.* **`shadow-*` dentro de variante herda a condição.** `hover(shadow-md)` gera `[hover]` com a sombra e `[dark,hover]` com a elevação do escuro (fundo um nível acima e borda). Conta como "já escrito" (D137) o `bg-*` que vale junto: o da base ou o de uma condição contida na da sombra. Um `bg-*` em outra variante (`press`) não conta. |
@@ -241,6 +241,7 @@ próprios diferenciais**.
 | D179 | **Nomes dos tipos das props.** Exporta `BoxProps`, `AwTextProps` e `AwPressableProps`: o prefixo `Aw` só nos nomes que colidem com os do React Native. |
 | D180 | **`lines-N` no `Box` e no `Pressable` é descartado com aviso.** `numberOfLines` só vale no `Text`; em `<Box look="lines-2">` a classe não tem efeito e a borda avisa em dev. |
 | D181 | **Repetição do aviso da D166.** O aviso de variante de estado em `Box` e `Text`, sem código `AW`, aparece uma vez por combinação de `look` e posição da variante, como os avisos com código (D160). |
+| D182 | **Mudança só de `docs/` vai direto para a `develop`.** Quando o commit mexe só em arquivos de `docs/` (specs, decisões, tarefas, ADRs), a sessão principal faz o push direto na `develop`, sem PR e sem esperar o Alan. O CI roda no push. `CLAUDE.md`, `.claude/` (agentes, hooks, skills), README de pacote e código continuam por PR com merge do Alan. Ajusta a D143. |
 
 ### 3.1 Alvo técnico de referência (Expo SDK 58)
 
@@ -631,6 +632,8 @@ Pode esperar:
 - 2026-11-26 (Claude Code): `lines-N` fora do `Text` (D180) e repetição do
   aviso da D166 (D181). O Alan reaprovou `emissor-native.md` e
   `componentes.md`.
+- 2026-11-26 (Claude Code): mudança só de `docs/` vai por push direto na
+  `develop`, sem PR (D182, ajusta a D143).
 
 ## 11. Vocabulário base (rascunho em construção)
 
