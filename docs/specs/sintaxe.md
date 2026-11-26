@@ -1,10 +1,10 @@
 # Spec: sintaxe do look
 
-Status: **aprovado** (pelo Alan em 2026-11-26, de novo depois das D144 a
-D149) · Decisões de origem: D7, D13, D15 a D20,
+Status: **em revisão** (aprovada pelo Alan em 2026-11-26 depois das D144 a
+D149; volta a revisão com a D185) · Decisões de origem: D7, D13, D15 a D20,
 D23, D26 a D31, D33 a D38, D41 a D45, D49, D58, D59, D61 a D63, D66, D77, D78,
 D82 a D89, D91 a D98, D100 a D106, D110, D117, D118, D122 a D127, D129, D131,
-D133 a D140, D144 a D146, D149
+D133 a D140, D144 a D146, D149, D185
 
 Gramática do `look`: tokens, variantes aninháveis, valor livre com `=`,
 opacidade, atalhos, vocabulário da fase 1, regra de conflito e diagnósticos.
@@ -302,7 +302,9 @@ Fica de fora (outras specs):
   - em variante com um token inválido, os outros itens dela continuam valendo.
 - **R51.** Sugestão, quando houver, DEVE ser o candidato válido mais próximo
   por distância de edição de no máximo 2; em empate, o primeiro em ordem
-  alfabética (D127). Sem candidato, não há sugestão.
+  alfabética (D127). Sem candidato, não há sugestão. A distância é a de
+  Damerau-Levenshtein (alinhamento ótimo): trocar duas letras vizinhas de
+  lugar conta 1 edição. Candidato idêntico à entrada não é sugestão (D185).
 - **R52.** O tipo do `look` DEVE oferecer autocomplete das classes conhecidas e
   aceitar qualquer `string`, sem template literal estrito. A validação de
   verdade é o diagnóstico em runtime ou build (D126, D20, D66). Valor livre

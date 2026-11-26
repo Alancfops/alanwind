@@ -244,6 +244,8 @@ próprios diferenciais**.
 | D182 | **Mudança só de `docs/` vai direto para a `develop`.** Quando o commit mexe só em arquivos de `docs/` (specs, decisões, tarefas, ADRs), a sessão principal faz o push direto na `develop`, sem PR e sem esperar o Alan. O CI roda no push. `CLAUDE.md`, `.claude/` (agentes, hooks, skills), README de pacote e código continuam por PR com merge do Alan. Ajusta a D143. |
 | D183 | **Expo fixado no 58.0.26 por enquanto.** O `playground-expo` usa o mesmo `expo` do `packages/native` (58.0.26). O 58.1.0, que o `expo-doctor` pede, saiu em 2026-11-26 e foi barrado pela idade mínima de release do pnpm; não se abrem exceções na `minimumReleaseAgeExclude` para passar. O app marca `expo.install.exclude` para o doctor não exigir a versão nova. A subida para o 58.1.0 vira tarefa própria quando ele tiver alguns dias, com app e `native` juntos. |
 | D184 | **Sistema sem preferência de esquema conta como `light`.** Quando o sistema não informa esquema (`useColorScheme()` devolve `null` ou `undefined`) e não há `setColorScheme` forçando outro, o esquema do contexto é `light`. O Alan seguiu a recomendação da orquestração. Complementa a D25. |
+| D185 | **Distância da sugestão conta transposição como 1 e ignora o idêntico.** Na R51 da `sintaxe.md`, a distância de edição é a de Damerau-Levenshtein na variante de alinhamento ótimo: trocar duas letras vizinhas de lugar (`hovre` → `hover`) conta 1 edição. Candidato idêntico à entrada (distância 0) não vira sugestão. O Alan seguiu a recomendação da orquestração. Complementa a D127. |
+| D186 | **Funções de diagnóstico ficam internas ao `core`.** `createDiagnostic`, `sortDiagnostics`, `suggestClosest` e o catálogo de diagnósticos não saem pelo `index` do `@alanwind/core`; só quem está dentro do `core` (parser, vocabulário, atalhos, conflito) os usa, pelo caminho relativo. Os tipos dos diagnósticos que fazem parte da IR continuam públicos. O Alan seguiu a recomendação da orquestração. |
 
 ### 3.1 Alvo técnico de referência (Expo SDK 58)
 
@@ -640,6 +642,10 @@ Pode esperar:
   exceção na idade mínima de release do pnpm (D183).
 - 2026-11-26 (Claude Code): sistema sem preferência de esquema conta como
   `light` (D184).
+- 2026-11-26 (Claude Code): distância da sugestão com transposição e sem o
+  idêntico (D185); funções de diagnóstico internas ao `core` (D186). O Alan
+  aceitou `default-theme.ts` nas tarefas 013 e 014 e `knip.json` na 040,
+  fora dos arquivos permitidos.
 
 ## 11. Vocabulário base (rascunho em construção)
 

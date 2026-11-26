@@ -32,8 +32,11 @@ usarem o mesmo catálogo.
   - Função que ordena a lista por `position.start` crescente e, no empate,
     por código, do menor para o maior (R49, D144).
   - Função de sugestão por distância de edição de no máximo 2, com desempate
-    alfabético; sem candidato, sem sugestão (R51). Recebe a lista de
-    candidatos; quem chama decide quais são.
+    alfabético; sem candidato, sem sugestão (R51). Transposição de letras
+    vizinhas conta 1 e candidato idêntico não é sugestão (D185). Recebe a
+    lista de candidatos; quem chama decide quais são.
+  - Essas funções e o catálogo são internos ao `core`: não saem pelo
+    `index` (D186).
 - Não faz: decidir quando cada erro acontece (cada tarefa emite o seu); exibir
   aviso no console (borda, `045`); ler dev/produção (R41).
 
