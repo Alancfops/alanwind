@@ -1,10 +1,10 @@
 # Spec: sintaxe do look
 
-Status: **aprovado** (pelo Alan em 2026-11-26) ·
-Decisões de origem: D7, D13, D15 a D20,
+Status: **em revisão** (aprovada em 2026-11-26; voltou por causa das D144 a
+D146) · Decisões de origem: D7, D13, D15 a D20,
 D23, D26 a D31, D33 a D38, D41 a D45, D49, D58, D59, D61 a D63, D66, D77, D78,
 D82 a D89, D91 a D98, D100 a D106, D110, D117, D118, D122 a D127, D129, D131,
-D133 a D140
+D133 a D140, D144 a D146
 
 Gramática do `look`: tokens, variantes aninháveis, valor livre com `=`,
 opacidade, atalhos, vocabulário da fase 1, regra de conflito e diagnósticos.
@@ -160,7 +160,8 @@ Fica de fora (outras specs):
   sempre o último segmento: `bg-primary-50`, `text-strong-50` (D31). Os
   valores válidos são 0, 25, 50, 75 e 100 (D98). Outro número gera `AW103`.
 - **R28.** O nome de um papel criado pela pessoa NÃO DEVE terminar em número
-  (D31). Gera `AW303` ao carregar o tema (efetivo na fase de tema, D81).
+  (D31). O `AW303` fica **reservado e fora do catálogo da fase 1**, até existir
+  criação de papéis (fase de tema, D81, D144).
 - **R29.** Papel inexistente (`bg-banana`) DEVE gerar `AW102` com sugestão
   quando houver nome próximo (D35). Em produção é ignorado sem quebrar o app
   (D35, R46).
@@ -270,7 +271,10 @@ Fica de fora (outras specs):
   variantes e outros atalhos (D101). Ciclo entre atalhos DEVE ser erro ao
   carregar o tema (`AW301`). O nome de um atalho NÃO DEVE coincidir com uma
   classe nativa nem com o nome de uma variante: erro de colisão (`AW302`)
-  (D101, D134).
+  (D101, D134). Os erros ao carregar o tema (`AW301`, `AW302`, `AW304`) DEVEM
+  trazer o nome do atalho e a posição dentro do texto dele, como a origem da
+  R66. O atalho com qualquer um deles é **descartado**, e usá-lo num `look`
+  gera `AW101` (classe desconhecida) (D144).
 - **R45.** Um atalho DEVE expandir no lugar onde foi escrito, e o conflito
   (R36, R37, R41) DEVE valer entre as classes expandidas e as vizinhas como se
   tivessem sido escritas ali (D127).
@@ -310,6 +314,15 @@ Fica de fora (outras specs):
 - **R66.** Erro no conteúdo de um atalho DEVE ter como posição o **nome do
   atalho no `look`** (`btn` em `pad-4 btn`) e trazer um campo de origem com o
   atalho e a posição do trecho dentro do texto do `define` (D135).
+- **R67.** `lines-0` NÃO DEVE existir: gera `AW103` (D144, D127).
+- **R68.** Itens de ocorrências diferentes de variante com a **mesma condição**
+  (`hover(pad-x-2) hover(pad-4)`) são comparados como se estivessem numa só:
+  vale a especificidade (R36) e, no empate, a última escrita (R37). A classe que
+  perde só perde a propriedade disputada: no hover, `hover(pad-x-2)
+  hover(pad-4)` dá 8 à esquerda e à direita e 16 em cima e embaixo. `AW201`
+  segue a R38 (só no empate de especificidade) (D145).
+- **R69.** `shadow-*` dentro de variante vale na condição da variante; o efeito
+  no escuro (elevação) está em `funcionamento-interno.md` (D146).
 
 ## 4. Gramática (EBNF)
 
@@ -548,7 +561,7 @@ A cor da borda e a espessura são propriedades distintas (`border.color` e
 | `underline` | Sublinhado | D77 |
 | `upper` | Texto em maiúsculas | D77 |
 | `lower` | Texto em minúsculas | D77 |
-| `lines-N` | Limita o texto a `N` linhas; **vai para a parte de props da IR**, que também tem condição (`medium(lines-2) lines-4`); `N` inteiro maior ou igual a 1 | D77, D83, D127, D135 |
+| `lines-N` | Limita o texto a `N` linhas; **vai para a parte de props da IR**, que também tem condição (`medium(lines-2) lines-4`); `N` inteiro maior ou igual a 1 (`lines-0` dá `AW103`, D144) | D77, D83, D127, D135 |
 | `type=V` | Valor livre de tamanho (R21) | D30, D127 |
 | `leading=V` | Valor livre de altura de linha, aceita decimal (`leading=1.4`) | D125 |
 
@@ -629,14 +642,13 @@ Severidade: **erro** = o trecho foi descartado; **aviso** = o trecho vale, mas
 | `AW010` | erro | Item colado depois de `)` (`hover(bg-raised)pad-4`); os dois itens valem | `Falta espaço entre {a} e {b}.` | inserir um espaço antes do item | D126, D138 |
 | `AW101` | erro | Classe desconhecida (`padd-4`, `Pad-4`, `pad_4`) | `Classe {x} não existe.` | classe mais próxima | D35, D88 |
 | `AW102` | erro | Papel de cor inexistente (`bg-banana`, `text-secondary`) | `O papel {papel} não existe em {prefixo}-.` | papel mais próximo | D35, D129 |
-| `AW103` | erro | Valor fora da escala (`pad-17`, `type-4xl`, `opacity-30`, `bg-primary-30`, `border-3`) | `{valor} está fora da escala de {família}.` | valor da escala mais próximo ou o valor livre | D43, D98, D123 |
+| `AW103` | erro | Valor fora da escala (`pad-17`, `type-4xl`, `opacity-30`, `bg-primary-30`, `border-3`, `lines-0`) | `{valor} está fora da escala de {família}.` | valor da escala mais próximo ou o valor livre | D43, D98, D123 |
 | `AW104` | erro | Margem negativa na escala (`margin-top--8`) | `Margem negativa só por valor livre.` | `margin-top=-8` | D89 |
 | `AW107` | erro | Barra em classe com papel (`bg-primary/50`) | `Opacidade em papel usa sufixo, não "/".` | `bg-primary-50` | D31, D104 |
 | `AW201` | aviso | Classe descartada por empate de especificidade (R37) | `{descartada} é sobrescrita por {vencedora}.` | remover a descartada | D58 |
 | `AW202` | aviso | Condições impossíveis juntas (R15) | `As condições {a} e {b} nunca valem juntas.` | remover uma | D86 |
 | `AW301` | erro | Ciclo entre atalhos, ao carregar o tema | `Ciclo entre atalhos: {a} -> {b} -> {a}.` | — | D101 |
 | `AW302` | erro | Nome de atalho igual a uma classe ou a uma variante, ao carregar o tema | `O atalho {nome} coincide com uma classe ou variante.` | outro nome | D101, D134 |
-| `AW303` | erro | Papel criado terminando em número, ao carregar o tema | `Papel {nome} não pode terminar em número.` | `{nome}` sem o número | D31 |
 | `AW304` | erro | Nome de atalho fora do formato (maiúscula, começa com dígito ou hífen), ao carregar o tema | `O nome do atalho {nome} é inválido.` | nome em minúsculas | D134, D138 |
 
 Regras dos diagnósticos:
@@ -650,6 +662,12 @@ Regras dos diagnósticos:
   diagnóstico traz um campo de origem com o atalho e a posição dentro do texto
   do `define` (R66, D135). Formato do campo: `funcionamento-interno.md`.
 - Posição de `AW010`: o item colado (`pad-4` em `hover(bg-raised)pad-4`).
+- `AW303` (papel criado terminando em número) está **reservado** e fora do
+  catálogo da fase 1, até existir criação de papéis (D144).
+- Dois diagnósticos na mesma posição saem em ordem de código, do menor para o
+  maior (R49, D144).
+- `AW301`, `AW302` e `AW304` trazem o nome do atalho e a posição dentro do texto
+  dele; o atalho é descartado e usá-lo dá `AW101` (R44, D144).
 - `AW301` a `AW304` pertencem ao carregamento do tema e referem-se ao texto da
   definição, não a um `look` (`tema.md`).
 - O contraste (D32) não está na fase 1 (seção 10); seu código será proposto
@@ -809,6 +827,8 @@ Cor livre com tom da paleta (`bg=red-40`) não está na fase 1 (D118): ver 11.1.
 | `hover(bg-primary bg-surface)` | `[hover] bg=role(surface)` e `diag: AW201[6,16)` |
 | `dark(hover(bg-raised)) hover(dark(bg-surface))` | `[dark,hover] bg=role(surface)` e `diag: AW201[11,20)` |
 | `lines-2 lines-3` | `props: lines=3` e `diag: AW201[0,7)` |
+| `hover(pad-x-2) hover(pad-4)` | `[hover] pad.bottom=16 pad.left=8 pad.right=8 pad.top=16` |
+| `hover(pad-4) hover(pad-2)` | `[hover] pad.bottom=8 pad.left=8 pad.right=8 pad.top=8` e `diag: AW201[6,11)` |
 | `between center-y` (coluna) | `place.y=center` e `diag: AW201[0,7)` |
 | `center-y between` (coluna) | `place.y=between` e `diag: AW201[0,8)` |
 
@@ -837,6 +857,15 @@ atalho, R66):
 
 A notação da origem (`origem {atalho} em [início,fim) do define`) vale só para
 esta spec; o campo real está em `funcionamento-interno.md`.
+
+Com `defineConfig({ define: { a: 'b', b: 'a', btn: 'pad-4' } })` (ciclo entre
+`a` e `b`, D144): ao carregar o tema, `AW301` com o nome do atalho e a posição
+dentro do texto dele; `a` e `b` são descartados.
+
+| Entrada | Saída |
+|---|---|
+| `a` | vazia e `diag: AW101[0,1)` |
+| `a btn` | `pad.bottom=16 pad.left=16 pad.right=16 pad.top=16` e `diag: AW101[0,1)` |
 
 ### 7.6 Erros e sintaxe quebrada (D88)
 
@@ -876,6 +905,7 @@ esta spec; o campo real está em `funcionamento-interno.md`.
 | `pad-17` | vazia e `diag: AW103[0,6)` |
 | `bg-primary-30` | vazia e `diag: AW103[0,13)` |
 | `opacity-30` | vazia e `diag: AW103[0,10)` |
+| `lines-0` | vazia e `diag: AW103[0,7)` |
 | `margin-top--8` | vazia e `diag: AW104[0,13)` com sugestão `margin-top=-8` |
 | `bg-primary/50` | vazia e `diag: AW107[0,13)` com sugestão `bg-primary-50` |
 | `foo bar` | vazia e `diag: AW101[0,3), AW101[4,7)` |
@@ -941,6 +971,10 @@ Notas:
 | Atalho com nome de classe ou de variante | Erro ao carregar o tema (`AW302`) | R44 |
 | Atalho com nome fora do formato | Erro ao carregar o tema (`AW304`) | R64 |
 | Ciclo entre atalhos | Erro ao carregar o tema (`AW301`) | R44 |
+| Atalho com `AW301`, `AW302` ou `AW304` | Descartado; usá-lo num `look` gera `AW101`; o erro traz o nome do atalho e a posição no texto dele | R44 |
+| Dois diagnósticos na mesma posição | Ordem de código, do menor para o maior | R49 |
+| `hover(pad-x-2) hover(pad-4)` | Comparadas como uma só: 8 nas laterais, 16 em cima e embaixo | R68 |
+| `lines-0` | `AW103` | R67 |
 | Erro dentro de atalho | Posição = nome do atalho no `look`; traz a origem no `define` | R66 |
 | `bg-red-600` | `AW102`: `red-600` não é papel | R26, R29 |
 | Papel inexistente em produção | Ignorado, sem quebrar | R29, R46 |

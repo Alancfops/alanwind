@@ -1,9 +1,10 @@
 # Spec: funcionamento interno (representação intermediária, IR)
 
-Status: **aprovado** (pelo Alan em 2026-11-26) ·
+Status: **em revisão** (aprovada em 2026-11-26; voltou por causa das D144 a
+D146; a seção 8 tem 1 item) ·
 Decisões de origem: D15, D31, D33, D35, D36, D37, D38, D58, D59, D60, D61, D62,
 D65, D74, D78, D82 a D90, D92, D94, D96 a D99, D101, D103 a D108, D110, D117,
-D118, D120, D122, D124, D125, D127, D132, D133, D135 a D140
+D118, D120, D122, D124, D125, D127, D132, D133, D135 a D140, D144 a D146
 
 Formato neutro que o `core` produz e os emissores consomem: estilo, props e
 diagnósticos, sem conflitos e sem nada específico de plataforma. Contrato
@@ -76,7 +77,9 @@ Fica de fora:
 
 - **R7.** O `core` DEVE aplicar a regra de conflito da D58 uma única vez, antes
   de entregar a IR. Em cada camada de estilo, uma propriedade DEVE aparecer no
-  máximo uma vez; em cada camada de props, cada prop também (D82, D135).
+  máximo uma vez; em cada camada de props, cada prop também (D82, D135). Entre
+  camadas com a **mesma condição**, cada propriedade DEVE aparecer no máximo uma
+  vez (R51).
 - **R8.** Os emissores NÃO DEVEM reimplementar a regra de conflito (D82).
 - **R9.** Entre classes de mesma especificidade que disputam a mesma propriedade
   **sob a mesma condição**, DEVE valer a última escrita, e o `core` DEVE
@@ -112,8 +115,8 @@ Fica de fora:
   escrita, **sem fundir** condições iguais (D140). Os itens sem variante formam
   uma só camada, de condição vazia. Não DEVE haver camada com `declarations`
   vazio, tanto no estilo quanto nas props (D135). Um `look` sem declarações tem
-  `layers: []`. Duas camadas podem ter a mesma `when`; a posterior vence a
-  anterior, e o conflito gera aviso (R9).
+  `layers: []`. Duas camadas podem ter a mesma `when`, mas se comparam como uma
+  só (R51).
 - **R16.** A ordem das camadas DEVE reproduzir a precedência da D117 e da D136,
   para que aplicar na ordem da lista (a posterior vence, propriedade a
   propriedade) dê o vencedor certo. A ordem é total, sem ciclo:
@@ -276,7 +279,9 @@ Fica de fora:
   `look.length` (unidades UTF-16) na string `look` original, `end` exclusivo,
   `start <= end` (D120). Para erro dentro de atalho, ver a R49.
 - **R39.** `diagnostics` DEVE vir ordenado por `position.start` crescente;
-  no empate, mantém a ordem em que o `core` achou os problemas (D120).
+  no empate de posição, por código, do menor para o maior (como a R49 da
+  `sintaxe.md`) (D120, D144). Se o código também empata, mantém a ordem em que
+  o `core` achou os problemas.
 - **R40.** `message` é texto livre para pessoas: NÃO faz parte do contrato, e os
   testes de ouro NÃO DEVEM comparar o texto. `suggestion`, quando existir, DEVE
   ser o texto que substitui o trecho de `position` (ex.: a classe sugerida).
@@ -289,7 +294,23 @@ Fica de fora:
 - **R49.** Erro dentro do conteúdo de um atalho DEVE ter como `position` o nome
   do atalho no `look` e trazer `origin`, com o nome do atalho e a posição do
   trecho dentro do texto do `define` (D135). Diagnósticos fora de atalho NÃO
-  DEVEM ter `origin`.
+  DEVEM ter `origin`. Os erros ao carregar o tema (`AW301`, `AW302`, `AW304`)
+  trazem o mesmo par (nome do atalho e posição dentro do texto dele); o atalho
+  com qualquer um deles é descartado e usá-lo num `look` gera `AW101` (D144).
+- **R51.** Camadas com a **mesma condição**, vindas de ocorrências diferentes de
+  variante, DEVEM ser comparadas como uma só: vale a especificidade (D58) e,
+  no empate, a última escrita. O `core` DEVE tirar da camada a declaração que
+  perdeu e devolver o aviso `AW201` quando a perda for por empate de
+  especificidade (D145, D58). A camada que ficar sem declaração DEVE ser
+  removida (R15). Em `hover(pad-x-2) hover(pad-4)`, no hover valem
+  `paddingLeft: 8`, `paddingRight: 8`, `paddingTop: 16` e `paddingBottom: 16`.
+- **R52.** `shadow-*` dentro de variante DEVE herdar a condição (D146):
+  `hover(shadow-md)` gera uma camada `[hover]` com a sombra e uma camada
+  `[hover, dark]` com a elevação do escuro (fundo um nível acima, borda e a
+  sombra do escuro, R35). Para o "escrito vence" (R35), conta como já escrito o
+  `bg-*` que vale junto: o da base ou o de uma condição **contida** na da
+  sombra. Um `bg-*` em outra variante (`press`) não conta, e o ponto de partida
+  do nível de fundo é o `bg-*` que vale junto, ou `page`.
 
 ### 3.8 Vocabulário
 
@@ -542,6 +563,25 @@ layers: [
 
 E `press(hover(bg-raised))` dá uma camada com `when` `[hover, press]`.
 
+Mesma condição, ocorrências diferentes (R51, D145):
+`hover(pad-x-2) hover(pad-4)` dá duas camadas `[hover]`, sem declaração
+repetida. A `pad-x-2` vence nas laterais (especificidade), e a `pad-4` fica só
+com o que não perdeu:
+
+```ts
+layers: [
+  { when: [{ kind: 'state', state: 'hover' }],
+    declarations: { paddingLeft: 8, paddingRight: 8 } },
+  { when: [{ kind: 'state', state: 'hover' }],
+    declarations: { paddingTop: 16, paddingBottom: 16 } },
+]
+```
+
+Sem diagnóstico (a especificidade é diferente). Já `hover(pad-4) hover(pad-2)`
+empata: vale `pad-2` (última escrita), a primeira camada perde as quatro
+declarações e é removida, e o aviso `AW201` aponta `pad-4`
+(`{ start: 6, end: 11 }`).
+
 ### 5.4 Faixas de tela e precedência entre condições (R16, R18, D117)
 
 Entrada: `pad-2 medium(pad-4) expanded(pad-6)`. A mesma saída sai de
@@ -744,6 +784,49 @@ juntas; a ordem só serve para a IR ser determinística).
 | `dark(bg-surface) shadow-md` (`dark(bg...)` explícito vence) | sem `backgroundColor`; borda 1 `#34343A`; sombra `0 4px 8px` preta a 0.35 |
 | `border-2 border-strong shadow-md` (borda própria vence) | `backgroundColor`: `#1E1E22`; sem `borderColor` nem larguras de borda; sombra `0 4px 8px` preta a 0.35 |
 
+### 5.8.1 Sombra dentro de variante (R52, D146)
+
+`bg-surface hover(shadow-md)`:
+
+```ts
+layers: [
+  { when: [],
+    declarations: { backgroundColor: T('#FFFFFF', '#1E1E22') } },
+  { when: [{ kind: 'state', state: 'hover' }],
+    declarations: {
+      boxShadow: [
+        { offsetX: 0, offsetY: 4, blur: 8, spread: 0,
+          color: { rgb: '#000000', alpha: 0.08 } },
+        { offsetX: 0, offsetY: 1, blur: 2, spread: 0,
+          color: { rgb: '#000000', alpha: 0.06 } },
+      ],
+    } },
+  { when: [
+      { kind: 'state', state: 'hover' },
+      { kind: 'scheme', scheme: 'dark' },
+    ],
+    declarations: {
+      backgroundColor: T('#28282D', '#28282D'),
+      borderColor: T('#34343A', '#34343A'),
+      ...BORDER(1),
+      boxShadow: [
+        { offsetX: 0, offsetY: 4, blur: 8, spread: 0,
+          color: { rgb: '#000000', alpha: 0.35 } },
+      ],
+    } },
+]
+```
+
+| `look` | Camada `[hover, dark]` |
+|---|---|
+| `bg-primary hover(shadow-md)` (`bg-primary` da base conta, D137) | sem `backgroundColor`; borda 1 `#34343A`; sombra `0 4px 8px` preta a 0.35 |
+| `hover(bg-primary shadow-md)` (condição igual, conta) | sem `backgroundColor`; borda 1 `#34343A`; sombra `0 4px 8px` preta a 0.35 |
+| `press(bg-primary) hover(shadow-md)` (`press` não está contida em `hover`, não conta) | `backgroundColor`: `#1E1E22`; borda 1 `#34343A`; sombra `0 4px 8px` preta a 0.35 |
+
+Aqui o `[hover]` da sombra do claro não leva o átomo `light`, como diz a D146
+(`[hover]` com a sombra). Fora de variante, a R34 põe a sombra do claro sob
+`light`; a diferença está na seção 8, item 1.
+
 ### 5.9 Erros e descartes (R42, R49)
 
 | `look` | `layers` | Diagnósticos |
@@ -764,7 +847,9 @@ juntas; a ordem só serve para a IR ser determinística).
 | Mesma propriedade em condições diferentes | Camadas separadas, sem aviso; quando as duas valem, a ordem das camadas (R16) decide, pela D117 e D136 (R9) |
 | `expanded(x) hover(x) medium(x)` | Camadas na ordem `[hover]`, `[medium]`, `[expanded]`; com as três valendo, vale `expanded` (R16, D136) |
 | `between center-y` (coluna) | Uma declaração de `justifyContent` (a última escrita) e aviso de conflito (R46, D138) |
-| `dark(hover(x)) hover(dark(y))` | Duas camadas com a mesma condição `[hover, dark]`, na ordem escrita: vence `y`, com aviso (R9, R13, R15) |
+| `dark(hover(x)) hover(dark(y))` | Duas camadas com a mesma condição `[hover, dark]`, comparadas como uma só: vence `y` (último, empate), a declaração de `x` sai da camada e há aviso (R9, R13, R51) |
+| `hover(pad-x-2) hover(pad-4)` | Duas camadas `[hover]` sem propriedade repetida; sem aviso (R51, D145) |
+| Atalho com `AW301`, `AW302` ou `AW304` | Descartado; o erro de carga traz o nome e a posição no texto do atalho; usá-lo dá `AW101` (R49, D144) |
 | `hover(bg-raised) press(bg-surface) hover(pad-4)` | Três camadas, sem fusão; com `hover` e `press` ativos vale `bg-surface` (R15, D140) |
 | `press(hover(x))` | Condição `[hover, press]` (R14) |
 | `ios(native(x))`, `medium(expanded(x))` | Simplificadas em silêncio para `[ios]` e `[expanded]` (R44) |
@@ -791,7 +876,11 @@ juntas; a ordem só serve para a IR ser determinística).
 - [ ] Para qualquer `look`, a IR sobrevive a `JSON.parse(JSON.stringify(ir))`
       igual a si mesma, e duas chamadas dão resultado igual (R3, R4).
 - [ ] Em nenhuma saída uma camada (de estilo ou de props) repete propriedade,
-      há camada vazia (R7, R15). Camadas com a mesma `when` são permitidas.
+      há camada vazia (R7, R15). Camadas com a mesma `when` são permitidas,
+      mas nenhuma propriedade se repete entre elas (R51).
+- [ ] `hover(pad-x-2) hover(pad-4)` dá as duas camadas `[hover]` da seção 5.3, e
+      `hover(shadow-md)` dá as camadas da seção 5.8.1 (R51, R52).
+- [ ] Dois diagnósticos na mesma posição saem em ordem de código (R39).
 - [ ] Teste com strings arbitrárias e malformadas: nunca lança exceção, e toda
       `position` fica em `0 <= start <= end <= look.length` (R2, R38).
 - [ ] Nenhum emissor importa tema nem repete a regra de conflito, de
@@ -801,7 +890,14 @@ juntas; a ordem só serve para a IR ser determinística).
 
 ## 8. Ainda não definido
 
-Nenhuma. O que as D117 a D140 resolveram saiu daqui: precedência entre
+1. **Átomo `light` na sombra do claro dentro de variante.** A R34 manda a sombra
+   do claro numa camada com o átomo `light` (`[light]`). A D146 diz que
+   `hover(shadow-md)` gera `[hover]` com a sombra e `[hover, dark]` (escrito
+   `[dark,hover]` na decisão) com a elevação, sem falar em `light`. A sombra do
+   claro em variante fica em `[hover]` (como nos exemplos da 5.8.1, e a camada
+   do escuro a sobrepõe) ou em `[hover, light]`?
+
+O que as D117 a D146 resolveram saiu daqui: precedência entre
 condições (D117, D136), elevação no escuro (D132, D137), condições redundantes e
 impossíveis (D135, D127, D138), prop dentro de variante (D135), `x-start`,
 `x-end` e `between` sob direção (D122, D138, D140), posição de erro dentro de
