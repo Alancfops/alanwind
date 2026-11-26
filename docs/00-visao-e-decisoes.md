@@ -200,6 +200,9 @@ próprios diferenciais**.
 | D138 | **Diagnósticos que faltavam.** `between` com alinhamento no mesmo eixo segue a regra de conflito normal (D58, com aviso). Novos códigos: `AW010` (erro) para item colado depois de `)`, com posição no item colado (D126); `AW304` (erro, ao carregar o tema) para nome de atalho fora do formato (D134). `w=10,5`, `w=.5` e `bg=red-40` na fase 1 usam `AW008`, com mensagem própria. Condição impossível (`dark(light(x))`) é descartada da IR; fica só o `AW202`. |
 | D139 | **Analogias e nomes da IR aprovados.** `x-start`/`x-end`/`y-start`/`y-end` com a especificidade de `center-x`/`center-y`; `border-x`/`border-y`, raio por lado e canto e `gap-x`/`gap-y` mais específicos que a forma geral; na IR, `gap` vira `rowGap` + `columnGap` e o raio vira quatro cantos; `border-1`/`border-3` dão `AW103`; `text-secondary` dá `AW102`; `leading` e a borda por lado aceitam valor livre; papel de borda não pode se chamar `x` ou `y`. Nomes: `PropsIR` com `layers`, `PropsLayer`, `PropsMap`, campo `origin` (`shortcut` + `position`) no diagnóstico, camada `light` antes da `dark` na elevação. |
 | D140 | **Últimos detalhes da IR.** Cada ocorrência de variante vira sua própria camada, na ordem escrita, sem fundir condições iguais (`hover(bg-raised) press(bg-surface) hover(pad-4)`: vale `bg-surface`), para a última escrita valer sempre (D136). Os átomos de uma condição ficam na ordem da tabela de variantes (hover, press, focus, disabled, dark, light, ios, android, web, native, medium, expanded): `press(hover(x))` vira `[hover, press]`. `between` usa a propriedade abstrata `place.main` (`place.x` em linha, `place.y` em coluna), com a especificidade de `center-x`/`center-y`. |
+| D141 | **CI pronto desde já, para docs e código.** O workflow `CI` roda em toda PR e push para `develop` e `main`. A parte de documentação roda sempre e confere as regras do `CLAUDE.md`: 80 colunas, links e specs citadas que existem, `D##` registrada. A parte de código liga sozinha quando o monorepo existir (`pnpm-lock.yaml`): Biome, tipos, testes, build e Knip (D69, D74). Um check agregado `CI` resume os dois. |
+| D142 | **CD: tag manual e versão única.** Depois do merge `develop` → `main`, o Alan cria a tag `vX.Y.Z` na `main`. O workflow `Release` confere que a tag está na `main`, põe essa versão em todos os pacotes públicos (`alanwind` e `@alanwind/*`), roda as mesmas verificações do CI, publica no npm com provenance e cria a GitHub Release com notas geradas dos commits. Autenticação: secret `NPM_TOKEN` na primeira publicação; depois, trusted publishing (OIDC) sem token. Detalha a D73. |
+| D143 | **Branches protegidas.** `main` e `develop` só recebem merge por PR, com o check `CI` verde obrigatório, sem push direto e sem force push. O merge continua sendo do Alan (D73). |
 
 ### 3.1 Alvo técnico de referência (Expo SDK 58)
 
@@ -561,6 +564,8 @@ Pode esperar:
   precedência sem ciclo (D136), elevação no escuro (D137), diagnósticos que
   faltavam (D138) e analogias e nomes da IR (D139).
 - 2026-11-26 (Claude Code): últimos detalhes da IR (D140).
+- 2026-11-26 (Claude Code): CI para docs e código (D141), CD por tag com versão
+  única (D142) e branches protegidas (D143).
 
 ## 11. Vocabulário base (rascunho em construção)
 
