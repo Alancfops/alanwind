@@ -24,9 +24,10 @@ Cobre:
 
 Fica de fora (outras specs):
 - Tradução para React Native ou CSS (`emissor-native.md`, `emissor-css.md`).
-- Formato da IR e dos diagnósticos como tipos (`ir.md`). Esta spec define
-  **quais** diagnósticos existem e **quando**; a seção "Formato exato dos
-  diagnósticos" de `ir.md` deve referenciar a tabela da seção 6 daqui.
+- Formato da IR e dos diagnósticos como tipos (`funcionamento-interno.md`). Esta
+  spec define **quais** diagnósticos existem e **quando**; a seção "Formato
+  exato dos diagnósticos" de `funcionamento-interno.md` deve referenciar a
+  tabela da seção 6 daqui.
 - Valores de cor, escalas e papéis do tema padrão (`tema.md`). Aqui só se diz
   como as classes os nomeiam.
 - Comportamento dos componentes (`componentes.md`), inclusive herança de texto
@@ -168,7 +169,7 @@ Fica de fora (outras specs):
 - **R34.** `center` DEVE centralizar nos dois eixos; `center-x` só na
   horizontal; `center-y` só na vertical. `center-x` e `center-y` se referem à
   tela, não à direção do layout (D38). A tradução para propriedades de layout
-  com a direção final é do `core`, na IR (D85, `ir.md`).
+  com a direção final é do `core`, na IR (D85, `funcionamento-interno.md`).
 
 ### 3.6 Conflito entre classes (D58, D82)
 
@@ -547,7 +548,7 @@ Regras dos diagnósticos:
 ## 7. Exemplos
 
 Notação das saídas (proposta, a aprovar; só para esta spec, o formato real é o
-da IR em `ir.md`):
+da IR em `funcionamento-interno.md`):
 - Uma saída é uma lista `[condições] propriedade=valor` separada por espaço.
   Sem prefixo, o item vale sempre. As condições são um conjunto, escritas em
   ordem alfabética (`[dark,hover]`).

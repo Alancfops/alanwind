@@ -37,7 +37,7 @@ sujeira.
 
 Parser → IR → emissor. Emissores só conhecem a IR, nunca a string do `look` nem
 detalhes do parser. Mudar o parser não pode exigir mudança nos emissores, e
-vice-versa (ver `docs/specs/ir.md`).
+vice-versa (ver `docs/specs/funcionamento-interno.md`).
 
 ### Pureza e efeitos nas bordas
 

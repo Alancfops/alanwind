@@ -30,8 +30,8 @@ testes e docs. Esta skill existe para nada ficar pela metade.
 2. **Parser**: garanta que a classe é reconhecida, inclusive dentro de variantes
    (`hover(...)`, `medium(...)`), com valor livre (`=`) se fizer sentido, e com
    opacidade se for cor (D31).
-3. **IR**: a classe produz a representação prevista em `docs/specs/ir.md`, com a
-   especificidade correta.
+3. **IR**: a classe produz a representação prevista em
+   `docs/specs/funcionamento-interno.md`, com a especificidade correta.
 4. **Emissor RN** (`native`): tradução para estilo (ou prop, se for o caso).
 5. **Emissor CSS** (`css`), quando existir: tradução equivalente.
 6. **Tipos**: o autocomplete passa a oferecer a classe; classe errada parecida

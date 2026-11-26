@@ -1,12 +1,13 @@
 # 010. Core: tipos da IR
 
-- **Status**: bloqueada — aguarda aprovação de `docs/specs/ir.md`
+- **Status**: bloqueada — aguarda aprovação de
+  `docs/specs/funcionamento-interno.md`
 - **Fase**: 1
 - **Branch**: feature/core-ir-tipos
 - **Depende de**: 002
 - **Paralelo com**: 011, 012, 040
-- **Spec**: `docs/specs/ir.md` (regras a numerar; hoje só a seção 1 "Já
-  definido")
+- **Spec**: `docs/specs/funcionamento-interno.md` (regras a numerar; hoje só a
+  seção 1 "Já definido")
 - **Decisões**: D15, D58, D60, D65
 
 ## Objetivo
@@ -25,20 +26,20 @@ Nenhuma tarefa de emissor começa antes desta (skill `codigo-limpo`, seção 1).
   Vitest).
 
 ## Critérios de aceite
-- [ ] Os tipos exportados batem campo a campo com a gramática/tipos da `ir.md`
-      aprovada.
+- [ ] Os tipos exportados batem campo a campo com a gramática/tipos da
+  `funcionamento-interno.md` aprovada.
 - [ ] A IR carrega especificidade e ordem de escrita de cada declaração (D58).
 - [ ] A IR não contém nada específico de RN nem de CSS (serve aos dois
       emissores, D65).
 - [ ] `pnpm typecheck` e `pnpm test` passam; Knip limpo.
 
 ## Casos que o QA deve cobrir
-- Um valor de exemplo de IR para cada exemplo da `ir.md` é aceito pelo tipo
-  (`expectTypeOf`).
+- Um valor de exemplo de IR para cada exemplo da `funcionamento-interno.md` é
+  aceito pelo tipo (`expectTypeOf`).
 - Formas inválidas (campo faltando, discriminante errado) são rejeitadas pelo
   tipo (`// @ts-expect-error`).
 
-## Lacunas que bloqueiam (de `ir.md`, seção 2)
+## Lacunas que bloqueiam (de `funcionamento-interno.md`, seção 2)
 - O formato da IR em si (tipos, campos, variantes e condições).
 - Se a IR representa saídas que não são estilo (`lines-2` → `numberOfLines`,
   `tap-target`).

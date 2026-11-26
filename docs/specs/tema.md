@@ -20,9 +20,9 @@ Esta spec cobre, para a **fase 1**:
 - o **formato** do `alanwind.config.ts` na fase 1 (só atalhos);
 - o esquema de cor (segue o sistema; `setColorScheme`).
 
-Fica **de fora** o que está na seção 2 ("Fora da fase 1"). A sintaxe das
-classes (`sintaxe.md`) e a IR (`ir.md`) têm spec própria; esta spec só diz quais
-**valores** o tema entrega a elas.
+Fica **de fora** o que está na seção 2 ("Fora da fase 1"). A sintaxe das classes
+(`sintaxe.md`) e a IR (`funcionamento-interno.md`) têm spec própria; esta spec
+só diz quais **valores** o tema entrega a elas.
 
 ## 2. Fora da fase 1
 

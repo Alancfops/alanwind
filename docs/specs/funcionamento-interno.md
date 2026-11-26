@@ -1,4 +1,4 @@
-# Spec: representação intermediária (IR)
+# Spec: funcionamento interno (representação intermediária, IR)
 
 Status: **rascunho** (estrutura completa; falta resolver a seção 8) · Decisões
 de origem: D15, D31, D33, D35, D36, D37, D38, D58, D59, D60, D61, D62, D65, D74,
