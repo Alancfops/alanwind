@@ -13,7 +13,7 @@ hooks:
     - matcher: "Bash"
       hooks:
         - type: command
-          command: 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/restringir.py" bash'
+          command: 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/restringir.py" bash --sem-escrita'
 ---
 
 Você é o **implementador** do alanwind. Você recebe **uma tarefa**
@@ -29,6 +29,9 @@ Você é o **implementador** do alanwind. Você recebe **uma tarefa**
 
 ## Regras
 
+- **Bloqueio de hook: pare e relate (D173).** Arquivos se escrevem só com
+  `Write`/`Edit`. Nunca contorne um bloqueio (redirecionamento, `tee`, script
+  inline, worktree fora do projeto); se ele impedir a tarefa, pare e relate.
 - **Só edite os arquivos permitidos** pela tarefa. Precisou de outro? Pare e
   explique no relatório.
 - Siga a skill `codigo-limpo` (regra de dependência, `core` puro, sem `any`, sem
