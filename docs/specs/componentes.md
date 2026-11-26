@@ -1,7 +1,7 @@
 # Spec: componentes
 
-Status: **em revisão** (estrutura completa; só restam as fases posteriores da
-seção 8; aguarda o Alan) · Decisões de origem: D26, D27, D40, D41, D53, D54,
+Status: **aprovado** para a fase 1 (pelo Alan em 2026-11-26; a seção 8 só tem
+fases posteriores, D172) · Decisões de origem: D26, D27, D40, D41, D53, D54,
 D57, D59, D60, D62, D78, D98, D103, D107, D110 a D115, D126, D157, D158,
 D163 a D172
 

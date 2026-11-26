@@ -1,6 +1,6 @@
 # Spec: emissor React Native
 
-Status: **em revisão** (estrutura completa, sem pendências; aguarda o Alan) ·
+Status: **aprovado** (pelo Alan em 2026-11-26) ·
 Decisões de origem: D14, D15, D25, D26, D27, D35, D37, D45, D49, D57, D59, D60,
 D62, D64, D83, D84, D88, D94, D98, D103, D107, D108, D109, D110, D116, D117,
 D119, D120, D133, D135, D136, D144, D152 a D162

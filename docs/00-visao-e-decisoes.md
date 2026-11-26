@@ -611,6 +611,8 @@ Pode esperar:
 - 2026-11-26 (Claude Code): o Alan aceitou as recomendações do
   documentador para `emissor-native.md` (D152 a D162) e `componentes.md`
   (D163 a D172).
+- 2026-11-26 (Claude Code): o Alan aprovou as specs `emissor-native.md` e
+  `componentes.md` (esta para a fase 1, D172).
 
 ## 11. Vocabulário base (rascunho em construção)
 
