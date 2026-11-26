@@ -7,9 +7,12 @@ de quem usa. Escrita em TypeScript. O projeto também serve para o Alan
 
 ## Estado atual
 
-**Fase de especificação.** Ainda não existe código, `package.json` nem comandos
-de build/teste. Não crie código nem estrutura de pacotes sem pedido do Alan. As
-specs precisam ser aprovadas antes (skill `escrever-spec`).
+**Fase 1 em implementação** (desde 2026-11-26). Specs aprovadas: `sintaxe.md`,
+`funcionamento-interno.md` e `tema.md`; `emissor-native.md` e `componentes.md`
+ainda em rascunho (onda 2). As tarefas estão em `docs/tarefas/fase-1/`, com o
+status e o caminho crítico no `README.md`. Só se cria código a partir de uma
+tarefa pronta, seguindo o fluxo abaixo. Projeto de teste: cópia do
+ShadowPlatinum em `~/myProjects/shadowplatinum-alanwind` (D80, D147).
 
 ## Fontes da verdade
 
