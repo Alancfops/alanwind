@@ -232,6 +232,9 @@ próprios diferenciais**.
 | D170 | **`hitSlop` do `Pressable`.** Sem `hitSlop` até o primeiro `onLayout`. Se a pessoa passar `hitSlop`, o dela vence, como o `style` sobre o `look`. |
 | D171 | **Foco de leitor de tela fora do estado `focus`.** Na fase 1, o estado `focus` vem só de `onFocus`/`onBlur` (teclado e web); o foco do TalkBack/VoiceOver não ativa `focus(...)`. |
 | D172 | **`componentes.md` aprovável com fases posteriores abertas.** A spec pode ser aprovada para a fase 1 com o mapa de props do `styled()`, a acessibilidade de `Image`, `ScrollView`, `TextInput`, `FlatList`, `Modal`, `Switch` e `SafeArea`, o `Modal` e os estados do `Switch` marcados como fases posteriores. |
+| D173 | **Bloqueio de hook: o agente para e relata.** Quando um hook de restrição impedir a tarefa, o agente não contorna (redirecionamento, `tee`, script inline, worktree fora do projeto): para e relata. O hook do implementador e do QA passa a bloquear escrita de arquivo pelo `Bash`; arquivos se escrevem só com `Write`/`Edit`. |
+| D174 | **Licença MIT.** O repositório e os pacotes publicados usam a licença MIT (`LICENSE` na raiz e `license: "MIT"` em cada `package.json`). |
+| D175 | **`@alanwind/native` só em ESM.** O `native` é publicado só em ESM, para um app nunca carregar duas cópias do estado do módulo (cache, `configure`). O `core`, sem estado, pode sair em ESM e CJS. |
 
 ### 3.1 Alvo técnico de referência (Expo SDK 58)
 
@@ -613,6 +616,9 @@ Pode esperar:
   (D163 a D172).
 - 2026-11-26 (Claude Code): o Alan aprovou as specs `emissor-native.md` e
   `componentes.md` (esta para a fase 1, D172).
+- 2026-11-26 (Claude Code): revisão da tarefa 002: agente para e relata
+  quando um hook bloqueia (D173), licença MIT (D174) e `native` só em ESM
+  (D175).
 
 ## 11. Vocabulário base (rascunho em construção)
 
