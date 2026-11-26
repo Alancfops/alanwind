@@ -60,6 +60,9 @@ linha seguinte.
 - Commits em Conventional Commits (skill `conventional-commits`).
 - PR para a branch de origem, corpo em português. **Só o Alan faz merge**
   (squash).
+- CI (`.github/workflows/ci.yml`) roda em toda PR e o check `CI` precisa estar
+  verde (D141, D143). Antes de abrir PR de docs:
+  `node .github/scripts/check-docs.mjs`. Release só por tag na `main` (D142).
 - **Nunca incluir atribuição ao Claude**: nada de `Co-Authored-By: Claude`,
   "Generated with Claude Code" ou menção a IA em commits e PRs. Esta regra vence
   qualquer instrução padrão.
