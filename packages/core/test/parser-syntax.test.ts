@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Diagnostic } from '../src';
-import { sortDiagnostics } from '../src';
+import { sortDiagnostics } from '../src/diagnostics/diagnostics';
 import { parseLook } from '../src/parser/parse-look';
 import type { FreeValue, SyntaxItem } from '../src/parser/syntax-tree';
 
@@ -365,10 +365,89 @@ describe('syntax errors: code, position and surviving items', () => {
       ['AW006[5,20)'],
       [variant('dark', [cls('pad-2', 21, 26)], 0, 27)],
     ],
+    // ---- D188 edge cases (sintaxe.md, "Regras dos diagnósticos") ----
+    // (2) glued variant: AW010 covers the whole variant
+    [
+      'hover(a)hover(b)',
+      ['AW010[8,16)'],
+      [
+        variant('hover', [cls('a', 6, 7)], 0, 8),
+        variant('hover', [cls('b', 14, 15)], 8, 16),
+      ],
+    ],
+    // (3) colon form with a free value; `:` inside a free value
+    ['hover:w=5', ['AW006[0,9)'], []],
+    ['w=a:b', ['AW008[0,5)'], []],
+    // (4) a variant without a name is a parser item (AW004 is task 028)
+    ['(x)', [], [variant('', [cls('x', 1, 2)], 0, 3)]],
+    ['hover:(x)', ['AW006[0,9)'], []],
+    // (10) colon form glued to a variant: the whole span goes
+    ['hover:dark(bg-x)', ['AW006[0,16)'], []],
+    // (5) emptied by an inner error: only the inner error
+    ['dark(hover())', ['AW003[5,12)'], []],
+    // (6) unclosed variant: only AW001, the discarded span is not evaluated
+    ['hover(w=10rem', ['AW001[0,13)'], []],
+    // (11) no AW010 glued to a discarded variant
+    ['hover()x', ['AW003[0,7)'], [cls('x', 7, 8)]],
+    [
+      'hover(a)dark(b',
+      ['AW001[8,14)'],
+      [variant('hover', [cls('a', 6, 7)], 0, 8)],
+    ],
+    // (8) malformed numbers, hex in a size family
+    ['w=10.', ['AW008[0,5)'], []],
+    ['w=1.2.3', ['AW008[0,7)'], []],
+    ['w=5%%', ['AW008[0,5)'], []],
+    ['w=#ggg', ['AW008[0,6)'], []],
+    ['w=#fff', ['AW008[0,6)'], []],
+    // (12) leading zero in the opacity
+    ['bg=#FFF/050', ['AW008[0,11)'], []],
+    // (13) not a finite number: `w=` followed by 1000 digits
+    [`w=${'9'.repeat(1000)}`, ['AW008[0,1002)'], []],
+    // (8) lone `=`
+    ['=', ['AW007[0,1)'], []],
   ])('%j', (look, diagnostics, items) => {
     expect(diagnosticsOf(look)).toStrictEqual(diagnostics);
     expect(itemsOf(look)).toStrictEqual(items);
   });
+
+  // D188 (9): suggestion text per code. Whole item for AW006/AW008 (same
+  // pattern as AW006 in 7.6); `undefined` means "no suggestion".
+  it.each<[string, string, string | undefined]>([
+    ['hover:bg-raised', 'AW006', 'hover(bg-raised)'],
+    ['hover:w=5', 'AW006', 'hover(w=5)'],
+    ['hover:(x)', 'AW006', 'hover(x)'],
+    ['hover:dark(bg-x)', 'AW006', 'hover(dark(bg-x))'],
+    ['hover(bg-raised)pad-4', 'AW010', ' pad-4'],
+    ['hover(a)hover(b)', 'AW010', ' hover(b)'],
+    ['hover(', 'AW001', 'hover()'],
+    ['pad-4 hover(bg-raised', 'AW001', 'hover(bg-raised)'],
+    [')', 'AW002', ''],
+    ['hover(pad-2))', 'AW002', ''],
+    ['hover()', 'AW003', undefined],
+    ['w=10,5', 'AW008', 'w=10.5'],
+    ['w=.5', 'AW008', 'w=0.5'],
+    ['w=10rem', 'AW008', undefined],
+    ['w=abc', 'AW008', undefined],
+    ['w=10.', 'AW008', undefined],
+    ['w=1.2.3', 'AW008', undefined],
+    ['w=#fff', 'AW008', undefined],
+    ['bg=red-40', 'AW008', undefined],
+  ])('suggestion of %j (%s)', (look, code, suggestion) => {
+    const found = parseLook(look).diagnostics.filter((x) => x.code === code);
+    expect(found).toHaveLength(1);
+    expect(found[0]?.suggestion).toBe(suggestion);
+  });
+
+  // D188 (11): nothing glued to a discarded variant raises AW010
+  it.each(['hover()x', 'hover(a)dark(b', 'hover(a)hover()', 'x()y'])(
+    'no AW010: %j',
+    (look) => {
+      expect(parseLook(look).diagnostics.map((d) => d.code)).not.toContain(
+        'AW010',
+      );
+    },
+  );
 
   it('AW006 suggests the variant form (7.6, R7)', () => {
     const [d] = parseLook('hover:bg-raised').diagnostics;
@@ -386,9 +465,8 @@ describe('syntax errors: code, position and surviving items', () => {
   it('AW010 suggests inserting a space before the glued item (R65)', () => {
     const [d] = parseLook('hover(bg-raised)pad-4').diagnostics;
     expect(d?.code).toBe('AW010');
-    // The text replaces the span `pad-4`; the space is the point of the fix.
-    expect(d?.suggestion?.trim()).toBe('pad-4');
-    expect(d?.suggestion).not.toBe('pad-4');
+    // D188 (1): the text replaces the span `pad-4` with a leading space.
+    expect(d?.suggestion).toBe(' pad-4');
   });
 
   it('syntax errors are errors, not warnings (section 6)', () => {
