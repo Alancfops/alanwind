@@ -1,10 +1,10 @@
 # Spec: sintaxe do look
 
-Status: **em revisão** (aprovada em 2026-11-26; voltou por causa das D144 a
-D146) · Decisões de origem: D7, D13, D15 a D20,
+Status: **aprovado** (pelo Alan em 2026-11-26, de novo depois das D144 a
+D149) · Decisões de origem: D7, D13, D15 a D20,
 D23, D26 a D31, D33 a D38, D41 a D45, D49, D58, D59, D61 a D63, D66, D77, D78,
 D82 a D89, D91 a D98, D100 a D106, D110, D117, D118, D122 a D127, D129, D131,
-D133 a D140, D144 a D146
+D133 a D140, D144 a D146, D149
 
 Gramática do `look`: tokens, variantes aninháveis, valor livre com `=`,
 opacidade, atalhos, vocabulário da fase 1, regra de conflito e diagnósticos.

@@ -7,10 +7,9 @@ ainda precisa do pedido do Alan para criar estrutura (`CLAUDE.md`, "Estado
 atual"). O `native` e os componentes seguem **bloqueados** por
 `emissor-native.md` e `componentes.md`, ainda em rascunho.
 
-As tarefas citam a D144, a D145 e a D146 diretamente: o documentador está
-levando essas decisões para as specs, que voltam a "em revisão" até o Alan
-reaprovar. Isso não bloqueia as tarefas; se o texto novo da spec diferir de
-uma tarefa, vale a spec e o implementador relata.
+As tarefas citam a D144 a D146 e a D149 diretamente. Essas decisões já estão
+nas specs, que o Alan reaprovou em 2026-11-26. Se o texto de uma spec diferir
+de uma tarefa, vale a spec, e o implementador relata.
 
 Escopo da fase 1 (D60, D66, D77): parser + IR + emissor React Native + `Box`,
 `Text`, `Pressable` + tema padrão + tipo do `look` com autocomplete (D126) +

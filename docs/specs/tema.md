@@ -1,9 +1,9 @@
 # Spec: tema
 
-Status: **em revisão** (aprovada em 2026-11-26; voltou por causa das D144 e
-D146) · Decisões de origem: D6, D20, D22, D24, D25, D31 a D35, D43 a
+Status: **aprovado** (pelo Alan em 2026-11-26, de novo depois das D144 a
+D149) · Decisões de origem: D6, D20, D22, D24, D25, D31 a D35, D43 a
 D52, D63, D64, D81, D91 a D102, D118, D119, D127 a D134, D137, D138, D144,
-D146
+D146, D149
 
 Tema padrão da fase 1 (cores, escalas, sombras, fontes, breakpoints), contraste
 do tema e formato do `alanwind.config.ts` com atalhos (`define`).
@@ -140,7 +140,7 @@ WCAG 2 (skill `checar-contraste`).
   borda escrita; a sombra discreta continua (D137). Dentro de variante
   (`hover(shadow-md)`), `shadow-*` herda a condição, e conta como escrito o
   `bg-*` que vale junto: o da base ou o de uma condição contida na da sombra
-  (D146).
+  (D146). A sombra do claro fica em `[<condição>, light]` (D149).
 
 ### 4.5 Contraste
 

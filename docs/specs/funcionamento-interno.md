@@ -1,10 +1,10 @@
 # Spec: funcionamento interno (representação intermediária, IR)
 
-Status: **em revisão** (aprovada em 2026-11-26; voltou por causa das D144 a
-D146; a seção 8 tem 1 item) ·
+Status: **aprovado** (pelo Alan em 2026-11-26, de novo depois das D144 a
+D149) ·
 Decisões de origem: D15, D31, D33, D35, D36, D37, D38, D58, D59, D60, D61, D62,
 D65, D74, D78, D82 a D90, D92, D94, D96 a D99, D101, D103 a D108, D110, D117,
-D118, D120, D122, D124, D125, D127, D132, D133, D135 a D140, D144 a D146
+D118, D120, D122, D124, D125, D127, D132, D133, D135 a D140, D144 a D146, D149
 
 Formato neutro que o `core` produz e os emissores consomem: estilo, props e
 diagnósticos, sem conflitos e sem nada específico de plataforma. Contrato
@@ -304,8 +304,9 @@ Fica de fora:
   especificidade (D145, D58). A camada que ficar sem declaração DEVE ser
   removida (R15). Em `hover(pad-x-2) hover(pad-4)`, no hover valem
   `paddingLeft: 8`, `paddingRight: 8`, `paddingTop: 16` e `paddingBottom: 16`.
-- **R52.** `shadow-*` dentro de variante DEVE herdar a condição (D146):
-  `hover(shadow-md)` gera uma camada `[hover]` com a sombra e uma camada
+- **R52.** `shadow-*` dentro de variante DEVE herdar a condição (D146, D149):
+  `hover(shadow-md)` gera uma camada `[hover, light]` com a sombra do claro,
+  como a R34 faz sem variante, e uma camada
   `[hover, dark]` com a elevação do escuro (fundo um nível acima, borda e a
   sombra do escuro, R35). Para o "escrito vence" (R35), conta como já escrito o
   `bg-*` que vale junto: o da base ou o de uma condição **contida** na da
@@ -792,7 +793,10 @@ juntas; a ordem só serve para a IR ser determinística).
 layers: [
   { when: [],
     declarations: { backgroundColor: T('#FFFFFF', '#1E1E22') } },
-  { when: [{ kind: 'state', state: 'hover' }],
+  { when: [
+      { kind: 'state', state: 'hover' },
+      { kind: 'scheme', scheme: 'light' },
+    ],
     declarations: {
       boxShadow: [
         { offsetX: 0, offsetY: 4, blur: 8, spread: 0,
@@ -823,9 +827,9 @@ layers: [
 | `hover(bg-primary shadow-md)` (condição igual, conta) | sem `backgroundColor`; borda 1 `#34343A`; sombra `0 4px 8px` preta a 0.35 |
 | `press(bg-primary) hover(shadow-md)` (`press` não está contida em `hover`, não conta) | `backgroundColor`: `#1E1E22`; borda 1 `#34343A`; sombra `0 4px 8px` preta a 0.35 |
 
-Aqui o `[hover]` da sombra do claro não leva o átomo `light`, como diz a D146
-(`[hover]` com a sombra). Fora de variante, a R34 põe a sombra do claro sob
-`light`; a diferença está na seção 8, item 1.
+A sombra do claro fica em `[hover, light]`, como a R34 faz sem variante
+(D149), e a camada `[hover, dark]` traz a elevação do escuro. Nenhuma das duas
+precisa sobrescrever a outra.
 
 ### 5.9 Erros e descartes (R42, R49)
 
@@ -890,14 +894,9 @@ Aqui o `[hover]` da sombra do claro não leva o átomo `light`, como diz a D146
 
 ## 8. Ainda não definido
 
-1. **Átomo `light` na sombra do claro dentro de variante.** A R34 manda a sombra
-   do claro numa camada com o átomo `light` (`[light]`). A D146 diz que
-   `hover(shadow-md)` gera `[hover]` com a sombra e `[hover, dark]` (escrito
-   `[dark,hover]` na decisão) com a elevação, sem falar em `light`. A sombra do
-   claro em variante fica em `[hover]` (como nos exemplos da 5.8.1, e a camada
-   do escuro a sobrepõe) ou em `[hover, light]`?
+Vazio.
 
-O que as D117 a D146 resolveram saiu daqui: precedência entre
+O que as D117 a D149 resolveram saiu daqui: precedência entre
 condições (D117, D136), elevação no escuro (D132, D137), condições redundantes e
 impossíveis (D135, D127, D138), prop dentro de variante (D135), `x-start`,
 `x-end` e `between` sob direção (D122, D138, D140), posição de erro dentro de
