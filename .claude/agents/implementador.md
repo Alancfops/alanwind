@@ -9,7 +9,7 @@ hooks:
     - matcher: "Write|Edit|NotebookEdit"
       hooks:
         - type: command
-          command: 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/restringir.py" escrita "^(packages|apps)/"'
+          command: 'python3 "$CLAUDE_PROJECT_DIR/.claude/hooks/restringir.py" escrita "^(packages|apps)/" "^(package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|turbo\.json|biome\.json|knip\.json|tsconfig[^/]*\.json)$"'
     - matcher: "Bash"
       hooks:
         - type: command
