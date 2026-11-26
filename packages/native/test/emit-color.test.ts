@@ -12,8 +12,8 @@ const ctx = (scheme: ResolutionContext['scheme']): ResolutionContext => ({
   window: { width: 390, height: 844 },
 });
 
-// emissor-native.md, seções 5.1 e 5.4 (R15, R17, D154): estilo completo.
-describe('emitTextStyle: cor como estilo completo', () => {
+// emissor-native.md, sections 5.1 and 5.4 (R15, R17, D154): full style.
+describe('emitTextStyle: color as full style', () => {
   const surface: ThemedColor = {
     light: opaque('#FFFFFF'),
     dark: opaque('#1E1E22'),
@@ -105,7 +105,7 @@ describe('emitTextStyle: cor como estilo completo', () => {
     );
   });
 
-  it('bg + text + border juntos: cada um escolhe o esquema', () => {
+  it('bg + text + border together: each one picks the scheme', () => {
     const declarations = {
       backgroundColor: primary,
       color: onWarning,
@@ -118,7 +118,7 @@ describe('emitTextStyle: cor como estilo completo', () => {
     });
   });
 
-  it('alfa < 1 só no claro: o escuro sai opaco e vice-versa', () => {
+  it('alpha < 1 only in light: dark comes out opaque', () => {
     const mixed: ThemedColor = {
       light: { rgb: '#FFFFFF', alpha: 0.5 },
       dark: opaque('#FFFFFF'),
@@ -132,9 +132,9 @@ describe('emitTextStyle: cor como estilo completo', () => {
   });
 });
 
-// docs/specs/emissor-native.md, R17 e seção 5.1: cor opaca sai como '#RRGGBB'
-// da IR, escolhida pelo esquema do contexto.
-describe('emitThemedColor: cor opaca por esquema (R17, 5.1)', () => {
+// docs/specs/emissor-native.md, R17 and section 5.1: an opaque color comes out
+// as '#RRGGBB' from the IR, chosen by the context scheme.
+describe('emitThemedColor: opaque color per scheme (R17, 5.1)', () => {
   const surface: ThemedColor = {
     light: opaque('#FFFFFF'),
     dark: opaque('#1E1E22'),
@@ -153,7 +153,7 @@ describe('emitThemedColor: cor opaca por esquema (R17, 5.1)', () => {
   };
 
   it.each([
-    // nome, cor, esquema, esperado
+    // name, color, scheme, expected
     ['bg-surface', surface, 'light', '#FFFFFF'],
     ['bg-surface', surface, 'dark', '#1E1E22'],
     ['bg-primary', primary, 'light', '#2563EB'],
@@ -162,14 +162,14 @@ describe('emitThemedColor: cor opaca por esquema (R17, 5.1)', () => {
     ['text-on-warning', onWarning, 'dark', '#3B2A00'],
     ['border-danger', danger, 'light', '#D02424'],
     ['border-danger', danger, 'dark', '#FF8A80'],
-  ] as const)('%s no esquema %s', (_name, themed, scheme, expected) => {
+  ] as const)('%s in scheme %s', (_name, themed, scheme, expected) => {
     expect(emitThemedColor(themed, scheme)).toBe(expected);
   });
 });
 
-// R17 e seção 5.4 (D154): com alfa menor que 1, 'rgba(r, g, b, a)'.
-describe('emitThemedColor: cor com alfa (R17, 5.4, D154)', () => {
-  it('bg-primary-50 no claro vira rgba(37, 99, 235, 0.5)', () => {
+// R17 and section 5.4 (D154): with alpha below 1, 'rgba(r, g, b, a)'.
+describe('emitThemedColor: color with alpha (R17, 5.4, D154)', () => {
+  it('bg-primary-50 in light becomes rgba(37, 99, 235, 0.5)', () => {
     const themed: ThemedColor = {
       light: { rgb: '#2563EB', alpha: 0.5 },
       dark: { rgb: '#8AB4FF', alpha: 0.5 },
@@ -177,7 +177,7 @@ describe('emitThemedColor: cor com alfa (R17, 5.4, D154)', () => {
     expect(emitThemedColor(themed, 'light')).toBe('rgba(37, 99, 235, 0.5)');
   });
 
-  it('bg-primary-50 no escuro usa o canal escuro (138, 180, 255)', () => {
+  it('bg-primary-50 in dark uses the dark channel (138, 180, 255)', () => {
     const themed: ThemedColor = {
       light: { rgb: '#2563EB', alpha: 0.5 },
       dark: { rgb: '#8AB4FF', alpha: 0.5 },
@@ -186,7 +186,7 @@ describe('emitThemedColor: cor com alfa (R17, 5.4, D154)', () => {
   });
 
   it.each([['light'], ['dark']] as const)(
-    'bg=#e11d48/50 em qualquer esquema (%s)',
+    'bg=#e11d48/50 in any scheme (%s)',
     (scheme) => {
       const same: Color = { rgb: '#E11D48', alpha: 0.5 };
       expect(emitThemedColor({ light: same, dark: same }, scheme)).toBe(
@@ -195,7 +195,7 @@ describe('emitThemedColor: cor com alfa (R17, 5.4, D154)', () => {
     },
   );
 
-  it('claro e escuro com alfas diferentes: cada esquema usa o seu', () => {
+  it('light and dark with different alphas: each scheme uses its own', () => {
     const themed: ThemedColor = {
       light: { rgb: '#000000', alpha: 0.08 },
       dark: { rgb: '#000000', alpha: 0.35 },
@@ -204,7 +204,7 @@ describe('emitThemedColor: cor com alfa (R17, 5.4, D154)', () => {
     expect(emitThemedColor(themed, 'dark')).toBe('rgba(0, 0, 0, 0.35)');
   });
 
-  it('esquema claro com alfa 1 e escuro com alfa < 1 não se misturam', () => {
+  it('light with alpha 1 and dark with alpha < 1 do not get mixed up', () => {
     const themed: ThemedColor = {
       light: { rgb: '#FFFFFF', alpha: 1 },
       dark: { rgb: '#FFFFFF', alpha: 0.5 },
@@ -214,10 +214,10 @@ describe('emitThemedColor: cor com alfa (R17, 5.4, D154)', () => {
   });
 });
 
-// R17 (conversão exportada para a 043 usar na sombra, R18, D155).
+// R17 (conversion exported for task 043 to use on shadows, R18, D155).
 describe('emitColor (R17)', () => {
   it.each([
-    // rgb, alfa, esperado
+    // rgb, alpha, expected
     ['#2563EB', 1, '#2563EB'],
     ['#000000', 1, '#000000'],
     ['#FFFFFF', 1, '#FFFFFF'],
@@ -227,22 +227,22 @@ describe('emitColor (R17)', () => {
     ['#000000', 0.35, 'rgba(0, 0, 0, 0.35)'],
     ['#E11D48', 0.5, 'rgba(225, 29, 72, 0.5)'],
     ['#FFFFFF', 0.25, 'rgba(255, 255, 255, 0.25)'],
-    // limites: o menor e o maior valor de canal, e alfa quase 1 / quase 0
+    // limits: lowest and highest channel value, alpha near 1 / near 0
     ['#000000', 0.99, 'rgba(0, 0, 0, 0.99)'],
     ['#FFFFFF', 0.01, 'rgba(255, 255, 255, 0.01)'],
-    // canais com zero à esquerda no hex: 0x0A = 10, 0x01 = 1
+    // hex channels with a leading zero: 0x0A = 10, 0x01 = 1
     ['#0A0101', 0.5, 'rgba(10, 1, 1, 0.5)'],
-    // alfa 0 é menor que 1: vira rgba, não o hex
+    // alpha 0 is below 1: becomes rgba, not the hex
     ['#2563EB', 0, 'rgba(37, 99, 235, 0)'],
-  ] as const)('%s com alfa %s', (rgb, alpha, expected) => {
+  ] as const)('%s with alpha %s', (rgb, alpha, expected) => {
     expect(emitColor({ rgb, alpha })).toBe(expected);
   });
 
-  it('alfa 1 devolve o rgb exatamente como veio da IR', () => {
+  it('alpha 1 returns the rgb exactly as it came from the IR', () => {
     expect(emitColor({ rgb: '#AbCdEf', alpha: 1 })).toBe('#AbCdEf');
   });
 
-  it('o alfa sai como o número, sem zeros a mais (0.5, não 0.50)', () => {
+  it('alpha comes out as the number, no extra zeros (0.5, not 0.50)', () => {
     expect(emitColor({ rgb: '#102030', alpha: 0.5 })).toBe(
       'rgba(16, 32, 48, 0.5)',
     );

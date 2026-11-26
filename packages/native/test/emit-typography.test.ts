@@ -9,8 +9,8 @@ import {
 
 const ratio = (value: number) => ({ unit: 'ratio', value }) as const;
 
-// Contexto padrão dos exemplos (emissor-native.md, seção 5): compact, ios,
-// janela 390 x 844.
+// Default context of the examples (emissor-native.md, section 5): compact,
+// ios, window 390 x 844.
 const ctx = (
   platform: ResolutionContext['platform'] = 'ios',
   scheme: ResolutionContext['scheme'] = 'light',
@@ -21,10 +21,10 @@ const ctx = (
   window: { width: 390, height: 844 },
 });
 
-// docs/specs/emissor-native.md, seção 5.3 e R21 (D156): as nove linhas.
+// docs/specs/emissor-native.md, section 5.3 and R21 (D156): the nine rows.
 describe('emitFontFamily (R21, 5.3, D156)', () => {
   it.each([
-    // genérica, plataforma, esperado
+    // generic, platform, expected
     ['sans', 'ios', 'System'],
     ['sans', 'android', 'Roboto'],
     ['sans', 'web', 'system-ui, sans-serif'],
@@ -34,55 +34,79 @@ describe('emitFontFamily (R21, 5.3, D156)', () => {
     ['mono', 'ios', 'Menlo'],
     ['mono', 'android', 'monospace'],
     ['mono', 'web', 'ui-monospace, monospace'],
-  ] as const)('font-%s em %s', (family, platform, expected) => {
+  ] as const)('font-%s on %s', (family, platform, expected) => {
     expect(emitFontFamily(family, platform)).toBe(expected);
   });
 });
 
-// R16 e seção 5.4 (D154): fontWeight sempre string.
+// R16 and section 5.4 (D154): fontWeight is always a string.
 describe('emitFontWeight (R16, 5.4, D154)', () => {
   it.each([
     [400, '400'],
     [500, '500'],
     [700, '700'],
-  ] as const)('%s vira a string %j', (weight, expected) => {
+  ] as const)('%s becomes the string %j', (weight, expected) => {
     const out = emitFontWeight(weight);
     expect(typeof out).toBe('string');
     expect(out).toBe(expected);
   });
 });
 
-// R20 e seção 5.1/5.4 (D157): tamanho final × value, a duas casas.
+// R20 and section 5.1/5.4 (D157): final size x value, to two decimals.
 describe('emitLineHeight (R20, D157, D176)', () => {
   it.each([
-    // nome, razão, tamanho recebido, esperado
+    // name, ratio, received size, expected
     ['type-lg leading-normal (5.1)', 1.5, 18, 27],
     ['type-sm leading-tight (5.1)', 1.25, 14, 17.5],
     ['type-2xl leading=1.4 (5.4)', 1.4, 24, 33.6],
-    ['leading-normal direto, tamanho 16 (D176)', 1.5, 16, 24],
-    // tamanho recebido manda, não um tamanho fixo
-    ['leading-normal com tamanho 20', 1.5, 20, 30],
-    ['razão 1 devolve o tamanho', 1, 16, 16],
-    // arredondamento a duas casas (D157), valores longe de meio-termo
-    ['arredonda para baixo: 17 × 1.333 = 22.661', 1.333, 17, 22.66],
-    ['arredonda para cima: 17 × 1.336 = 22.712', 1.336, 17, 22.71],
-    ['13 × 1.4 = 18.2 sem ruído de ponto flutuante', 1.4, 13, 18.2],
-    ['15 × 1.1 = 16.5 sem ruído de ponto flutuante', 1.1, 15, 16.5],
-    ['11 × 1.37 = 15.07', 1.37, 11, 15.07],
-    ['resultado inteiro sai sem decimais', 1.5, 14, 21],
-    // razão e tamanho fracionários
-    ['tamanho fracionário 12.5 × 1.5 = 18.75', 1.5, 12.5, 18.75],
+    ['leading-normal direct, size 16 (D176)', 1.5, 16, 24],
+    // the received size rules, not a fixed size
+    ['leading-normal with size 20', 1.5, 20, 30],
+    ['ratio 1 returns the size', 1, 16, 16],
+    // rounding to two decimals (D157), values far from the midpoint
+    ['rounds down: 17 x 1.333 = 22.661', 1.333, 17, 22.66],
+    ['rounds up: 17 x 1.336 = 22.712', 1.336, 17, 22.71],
+    ['13 x 1.4 = 18.2 without floating point noise', 1.4, 13, 18.2],
+    ['15 x 1.1 = 16.5 without floating point noise', 1.1, 15, 16.5],
+    ['11 x 1.37 = 15.07', 1.37, 11, 15.07],
+    ['integer result comes out without decimals', 1.5, 14, 21],
+    // fractional ratio and size
+    ['fractional size 12.5 x 1.5 = 18.75', 1.5, 12.5, 18.75],
   ] as const)('%s', (_name, value, fontSize, expected) => {
     expect(emitLineHeight(ratio(value), fontSize)).toBe(expected);
   });
 
-  it('devolve número, não string', () => {
+  it('returns a number, not a string', () => {
     expect(typeof emitLineHeight(ratio(1.4), 24)).toBe('number');
   });
 });
 
-// emissor-native.md, seções 5.1, 5.3 e 5.4: estilo completo de texto.
-describe('emitTextStyle: seção 5.1 (R19, R20)', () => {
+// Half-up pending decision: the exact product sits on a midpoint and floating
+// point noise decides the side. Rounding is half up until Alan confirms; if he
+// picks half to even, only the expected values of these cases change.
+describe('emitLineHeight: half-up pending decision (D157)', () => {
+  it.each([
+    // name, ratio, received size, expected (half up)
+    ['15 x 1.035 = 15.525 becomes 15.53', 1.035, 15, 15.53],
+    ['13 x 1.005 = 13.065 becomes 13.07', 1.005, 13, 13.07],
+    ['23 x 0.435 = 10.005 becomes 10.01', 0.435, 23, 10.01],
+  ] as const)('%s', (_name, value, fontSize, expected) => {
+    expect(emitLineHeight(ratio(value), fontSize)).toBe(expected);
+  });
+
+  it.each([
+    ['15 x 1.035 = 15.525 becomes 15.53', 1.035, 15, 15.53],
+    ['13 x 1.005 = 13.065 becomes 13.07', 1.005, 13, 13.07],
+    ['23 x 0.435 = 10.005 becomes 10.01', 0.435, 23, 10.01],
+  ] as const)('via emitTextStyle: %s', (_name, value, fontSize, expected) => {
+    expect(
+      emitTextStyle({ fontSize, lineHeight: ratio(value) }, ctx(), 16),
+    ).toStrictEqual({ fontSize, lineHeight: expected });
+  });
+});
+
+// emissor-native.md, sections 5.1, 5.3 and 5.4: full text style.
+describe('emitTextStyle: section 5.1 (R19, R20)', () => {
   it.each([
     [
       'type-lg leading-normal',
@@ -96,9 +120,9 @@ describe('emitTextStyle: seção 5.1 (R19, R20)', () => {
       14,
       { fontSize: 14, lineHeight: 17.5 },
     ],
-    // D176: look() direto, sem type-* nem herança, quem chama passa 16.
+    // D176: direct look(), no type-* or inheritance, the caller passes 16.
     [
-      'leading-normal (look() direto)',
+      'leading-normal (direct look())',
       { lineHeight: ratio(1.5) },
       16,
       { lineHeight: 24 },
@@ -125,19 +149,19 @@ describe('emitTextStyle: seção 5.1 (R19, R20)', () => {
   });
 });
 
-// R15 e seção 6: IR vazia dá {}, sem valor padrão acrescentado (D83).
-describe('emitTextStyle: IR vazia (R15)', () => {
-  it('{} vira {}', () => {
+// R15 and section 6: empty IR gives {}, no default value added (D83).
+describe('emitTextStyle: empty IR (R15)', () => {
+  it('{} becomes {}', () => {
     expect(emitTextStyle({}, ctx(), 16)).toStrictEqual({});
   });
 
-  it('o tamanho recebido sozinho não vira fontSize nem lineHeight', () => {
+  it('the received size alone does not become fontSize or lineHeight', () => {
     expect(emitTextStyle({}, ctx(), 24)).toStrictEqual({});
   });
 });
 
-// Seção 5.3 e R21 (D156): as nove linhas como estilo completo.
-describe('emitTextStyle: seção 5.3 (R21)', () => {
+// Section 5.3 and R21 (D156): the nine rows as full style.
+describe('emitTextStyle: section 5.3 (R21)', () => {
   it.each([
     ['font-sans', 'sans', 'ios', 'System'],
     ['font-sans', 'sans', 'android', 'Roboto'],
@@ -148,24 +172,27 @@ describe('emitTextStyle: seção 5.3 (R21)', () => {
     ['font-mono', 'mono', 'ios', 'Menlo'],
     ['font-mono', 'mono', 'android', 'monospace'],
     ['font-mono', 'mono', 'web', 'ui-monospace, monospace'],
-  ] as const)('%s em %s', (_look, family, platform, expected) => {
+  ] as const)('%s on %s', (_look, family, platform, expected) => {
     expect(
       emitTextStyle({ fontFamily: family }, ctx(platform), 16),
     ).toStrictEqual({ fontFamily: expected });
   });
 });
 
-// Seção 5.4 (D154, D157) e R16.
-describe('emitTextStyle: seção 5.4 (D154, D157)', () => {
+// Section 5.4 (D154, D157) and R16.
+describe('emitTextStyle: section 5.4 (D154, D157)', () => {
   it.each([
     [400, '400'],
     [500, '500'],
     [700, '700'],
-  ] as const)('fontWeight %s sai como a string %j', (weight, expected) => {
-    expect(emitTextStyle({ fontWeight: weight }, ctx(), 16)).toStrictEqual({
-      fontWeight: expected,
-    });
-  });
+  ] as const)(
+    'fontWeight %s comes out as the string %j',
+    (weight, expected) => {
+      expect(emitTextStyle({ fontWeight: weight }, ctx(), 16)).toStrictEqual({
+        fontWeight: expected,
+      });
+    },
+  );
 
   it('type-2xl leading=1.4', () => {
     expect(
@@ -174,14 +201,14 @@ describe('emitTextStyle: seção 5.4 (D154, D157)', () => {
   });
 });
 
-// R22 (D115): a escala de fonte do sistema fica no padrão do React Native.
-describe('emitTextStyle: escala de fonte (R22)', () => {
+// R22 (D115): the system font scale stays at the React Native default.
+describe('emitTextStyle: font scale (R22)', () => {
   it.each([
     ['ios', 'light'],
     ['android', 'dark'],
     ['web', 'light'],
   ] as const)(
-    'sem allowFontScaling nem maxFontSizeMultiplier (%s, %s)',
+    'no allowFontScaling or maxFontSizeMultiplier (%s, %s)',
     (platform, scheme) => {
       const style = emitTextStyle(
         {
@@ -218,27 +245,33 @@ describe('emitTextStyle: escala de fonte (R22)', () => {
   );
 });
 
-// Tentar quebrar.
-describe('emitTextStyle: bordas (R15, R20)', () => {
-  it('lineHeight sem fontSize declarado usa o tamanho recebido e não cria fontSize', () => {
+// Trying to break it.
+describe('emitTextStyle: edges (R15, R20)', () => {
+  it('lineHeight without declared fontSize uses the received size and creates no fontSize', () => {
     expect(emitTextStyle({ lineHeight: ratio(1.5) }, ctx(), 20)).toStrictEqual({
       lineHeight: 30,
     });
   });
 
-  it('arredonda a duas casas dentro do estilo completo (D157)', () => {
+  it('declared fontSize wins over the received size (R20)', () => {
+    expect(
+      emitTextStyle({ fontSize: 18, lineHeight: ratio(1.5) }, ctx(), 20),
+    ).toStrictEqual({ fontSize: 18, lineHeight: 27 });
+  });
+
+  it('rounds to two decimals inside the full style (D157)', () => {
     expect(
       emitTextStyle({ fontSize: 17, lineHeight: ratio(1.333) }, ctx(), 17),
     ).toStrictEqual({ fontSize: 17, lineHeight: 22.66 });
   });
 
-  it('não acrescenta propriedades que a IR não declarou (D83)', () => {
+  it('adds no properties the IR did not declare (D83)', () => {
     expect(emitTextStyle({ fontWeight: 500 }, ctx(), 16)).toStrictEqual({
       fontWeight: '500',
     });
   });
 
-  it('ignora propriedades que não são de cor nem de texto (R14, R15)', () => {
+  it('ignores properties that are neither color nor text (R14, R15)', () => {
     expect(
       emitTextStyle({ paddingTop: 16, opacity: 0.5 }, ctx(), 16),
     ).toStrictEqual({});
