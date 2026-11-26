@@ -1,4 +1,6 @@
-// docs/specs/tema.md 5.6 and 5.8: fixed values, nothing is computed (R5).
+import { defaultColors } from './colors/index.js';
+
+// docs/specs/tema.md 5.1 to 5.8: fixed values, nothing is computed (R5).
 
 const spacing = {
   0: 0,
@@ -21,6 +23,7 @@ const spacing = {
 } as const;
 
 export const defaultTheme = {
+  colors: defaultColors,
   spacing,
   // D98: same scale as spacing, plus the relative sizes, in the IR's shapes.
   size: {
