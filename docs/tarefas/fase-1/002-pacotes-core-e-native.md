@@ -40,9 +40,9 @@ publicáveis, com a regra de dependência valendo.
 - Implementador: `packages/core/**` e `packages/native/**` (só configuração e
   `src/index.ts`).
 - QA: nenhum arquivo permanente; verificação por comando.
-- Se faltar algo na raiz (`turbo.json`, `pnpm-lock.yaml` fora do que o
-  `pnpm install` gera), **pare e relate**: a mudança vai para a sessão
-  principal.
+- Na raiz, só os arquivos da lista da D148, se precisar (`turbo.json`,
+  `pnpm-lock.yaml`, `package.json`, `biome.json`). Fora dela, **pare e
+  relate**: a mudança vai para a sessão principal.
 
 ## Critérios de aceite
 - [ ] `pnpm run build`, `pnpm run typecheck`, `pnpm run test` e

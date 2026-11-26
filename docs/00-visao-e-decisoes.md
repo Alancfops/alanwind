@@ -205,9 +205,10 @@ próprios diferenciais**.
 | D143 | **Branches protegidas.** `main` e `develop` só recebem merge por PR, com o check `CI` verde obrigatório, sem push direto e sem force push. O merge continua sendo do Alan (D73). |
 | D144 | **Diagnósticos: desempate, catálogo e erros do tema.** Dois diagnósticos na mesma posição saem em ordem de código, do menor para o maior (vale a R49 da sintaxe; a R39 da IR se ajusta). `AW303` fica reservado e fora do catálogo da fase 1, até existir criação de papéis. `lines-0` dá `AW103`. Os erros ao carregar o tema (`AW301`, `AW302`, `AW304`) trazem o nome do atalho e a posição dentro do texto dele, como o `origin` da D135. O atalho com qualquer um deles é descartado, e usá-lo num `look` dá `AW101`. |
 | D145 | **Camadas com a mesma condição se comparam como uma só.** Primeiro vale a especificidade (D58), depois a última escrita. O `core` tira da camada a declaração que perdeu, com `AW201`. Em `hover(pad-x-2) hover(pad-4)`, no hover fica 8 à esquerda e à direita e 16 em cima e embaixo. Detalha a D140. |
-| D146 | **`shadow-*` dentro de variante herda a condição.** `hover(shadow-md)` gera `[hover]` com a sombra e `[dark,hover]` com a elevação do escuro (fundo um nível acima e borda). Conta como "já escrito" (D137) o `bg-*` que vale junto: o da base ou o de uma condição contida na da sombra. Um `bg-*` em outra variante (`press`) não conta. |
+| D146 | *Ajuste (D149): a sombra do claro fica em `[<condição>, light]`.* **`shadow-*` dentro de variante herda a condição.** `hover(shadow-md)` gera `[hover]` com a sombra e `[dark,hover]` com a elevação do escuro (fundo um nível acima e borda). Conta como "já escrito" (D137) o `bg-*` que vale junto: o da base ou o de uma condição contida na da sombra. Um `bg-*` em outra variante (`press`) não conta. |
 | D147 | **Validação no ShadowPlatinum com pacote local.** A cópia do app (D80) instala os `.tgz` gerados por `pnpm pack`, como se viessem do npm, para testar o que será publicado. O Alan escolhe as telas quando chegar a tarefa 061. |
 | D148 | **Hook do implementador libera as configs da raiz.** Além de `packages/` e `apps/`, o implementador pode editar só a lista exata de arquivos de config da raiz (`package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `turbo.json`, `biome.json`, `tsconfig*.json`, `knip.json`). `.github/`, `.claude/` e `docs/` continuam bloqueados. |
+| D149 | **Sombra do claro em variante e aviso de camada.** Em variante, a sombra do claro fica na camada `[<condição>, light]`, como sem variante (R34): `hover(shadow-md)` gera `[hover, light]` com a sombra e `[hover, dark]` com a elevação do escuro. Ajusta a D146. O `AW201` da D145 só aparece no empate de especificidade (R38): `hover(pad-x-2) hover(pad-4)` não avisa e `hover(pad-4) hover(pad-2)` avisa. |
 
 ### 3.1 Alvo técnico de referência (Expo SDK 58)
 
@@ -576,6 +577,8 @@ Pode esperar:
 - 2026-11-26 (Claude Code): perguntas do planejador ao revisar as tarefas:
   diagnósticos (D144), camadas com a mesma condição (D145), sombra em variante
   (D146), validação com `pnpm pack` (D147) e configs da raiz no hook (D148).
+- 2026-11-26 (Claude Code): sombra do claro em variante e aviso de camada
+  (D149). O Alan reaprovou sintaxe, funcionamento interno e tema.
 
 ## 11. Vocabulário base (rascunho em construção)
 

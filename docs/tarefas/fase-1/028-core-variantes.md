@@ -1,12 +1,10 @@
 # 028. Core: variantes viram condições
 
-- **Status**: pronta (depois da 021, 012, 022, 023 e 025), com ressalva:
-  segue a D138 em `dark(light(x))` enquanto a linha da `sintaxe.md` 7.3 não
-  for corrigida (abaixo)
+- **Status**: pronta (depois da 021, 012, 022, 023 e 025)
 - **Fase**: 1
 - **Branch**: feature/core-variantes
 - **Depende de**: 021, 012; 022, 023, 025 (classes usadas nos casos do QA)
-- **Paralelo com**: 024, 026, 027, 030
+- **Paralelo com**: 024, 026, 027
 - **Spec**: `docs/specs/sintaxe.md` R8 a R16, R53, seções 5.1 e 7.3, linhas de
   variante da 7.6; `docs/specs/funcionamento-interno.md` R13, R14, R18 a R21,
   R44, seção 6
@@ -67,11 +65,3 @@ redundâncias simplificadas e as impossíveis descartadas.
   (`funcionamento-interno.md` 5.9).
 - `hover(bg-banana pad-2)`: só o token ruim sai; `pad-2` vale sob `[hover]`
   (R50).
-
-## Ponto em aberto (aguarda o Alan)
-- A `sintaxe.md` 7.3 (aprovada) mostra `dark(light(bg-raised))` →
-  `[dark,light] bg=role(raised)` (declaração presente), mas a D138 e a
-  `funcionamento-interno.md` R44 (aprovada) dizem que o trecho é descartado
-  da IR. Esta tarefa segue a D138 (sem camada); as linhas de
-  `dark(light(bg-raised))` e `ios(web(row))` da 7.3 precisam de correção na
-  spec, e o QA testa pela R44.

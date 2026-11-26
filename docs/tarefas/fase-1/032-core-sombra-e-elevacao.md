@@ -1,7 +1,6 @@
 # 032. Core: `shadow-*` e elevação no escuro
 
-- **Status**: pronta (depois da 014, 025, 027, 029 e 033), com ressalva:
-  `shadow-*` dentro de variante aguarda resposta do Alan (abaixo)
+- **Status**: pronta (depois da 014, 025, 027, 029 e 033)
 - **Fase**: 1
 - **Branch**: feature/core-sombra-elevacao
 - **Depende de**: 014, 025, 027, 029, 033
@@ -9,7 +8,7 @@
 - **Spec**: `docs/specs/funcionamento-interno.md` R34, R35, seção 5.8;
   `docs/specs/sintaxe.md` R63 (`shadow-none`), seção 5.8;
   `docs/specs/tema.md` R17, R18, R34, seções 5.7, 7.2 e 8
-- **Decisões**: D45, D96, D97, D108, D124, D132, D137, D139
+- **Decisões**: D45, D96, D97, D108, D124, D132, D137, D139, D146
 
 ## Objetivo
 Registrar `shadow-sm|md|lg` e expandir cada uma, no `core`, numa camada do
@@ -32,6 +31,12 @@ acima, borda fina, sombra discreta), respeitando o que o `look` já escreve.
     escreve (`border-2 border-strong`: nem larguras nem cor); a sombra fica
     sempre.
   - A camada `light` vem antes da `dark` (seção 5.8).
+  - **Dentro de variante, herda a condição** (D146): `hover(shadow-md)` gera
+    uma camada `[hover]` com a sombra e uma `[hover, dark]` (átomos na ordem
+    da R14) com a elevação do escuro (fundo um nível acima e borda). Conta
+    como "já escrito" (D137) o `bg-*` que vale junto com a sombra: o da base
+    ou o de uma condição contida na da sombra; um `bg-*` em outra variante
+    (`press(...)`) não conta.
   - Valores lidos da `014`.
 - Não faz: tradução do `boxShadow` para RN (`043`).
 
@@ -52,12 +57,18 @@ acima, borda fina, sombra discreta), respeitando o que o `look` já escreve.
   `border-2 border-strong shadow-md`.
 - `tema.md` 7.2: as três sombras do claro e as quatro linhas do escuro.
 - `shadow-none` → erro, nada na IR.
+- D146: `hover(shadow-md)` → camadas `[hover]` (sombra do claro) e
+  `[hover, dark]` (fundo `#1E1E22`, partindo de `page`; borda 1 `#34343A`;
+  sombra do escuro).
+- `bg-surface hover(shadow-md)` → a camada `[hover, dark]` sobe para `raised`
+  (`#28282D`): o `bg-*` da base vale junto.
+- `hover(bg-primary shadow-md)` → a camada `[hover, dark]` não declara
+  `backgroundColor` (o `bg-*` está na mesma condição).
+- `press(bg-primary) hover(shadow-md)` → o `bg-primary` não conta: a camada
+  `[hover, dark]` parte de `page`.
 
-## Ponto em aberto (aguarda o Alan)
-Sem resposta, a PR cobre só `shadow-*` fora de variante e o implementador
-relata.
-- **`shadow-*` dentro de variante** (`hover(shadow-md)`): pela soma de átomos
-  (R13), as camadas seriam `[hover, light]` e `[hover, dark]`, mas a spec não
-  tem exemplo. E qual `bg-*` conta como "já escrito" quando o fundo está
-  noutra condição (`hover(bg-primary) shadow-md`, `bg-surface
-  hover(shadow-md)`)? A R35 só fala do `look` sem variante e de `dark(bg...)`.
+## Observação
+- O documentador está levando a D146 para as specs (que voltam a "em
+  revisão" até o Alan reaprovar). Se o exemplo novo da spec diferir destes
+  casos (ex.: a sombra do claro em `[hover, light]` em vez de `[hover]`), vale
+  a spec, e o implementador relata.

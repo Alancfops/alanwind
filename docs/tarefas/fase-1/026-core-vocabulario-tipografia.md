@@ -1,7 +1,6 @@
 # 026. Core: vocabulário de tipografia
 
-- **Status**: pronta (depois da 021 e da 012), com ressalva: o código de
-  `lines-0` aguarda resposta do Alan (abaixo)
+- **Status**: pronta (depois da 021 e da 012)
 - **Fase**: 1
 - **Branch**: feature/core-vocabulario-tipografia
 - **Depende de**: 021, 012
@@ -9,7 +8,7 @@
 - **Spec**: `docs/specs/sintaxe.md` R21, R54, seções 4.2 (`typography`), 5.7,
   5.9, 7.1 e 7.2; `docs/specs/funcionamento-interno.md` R27, R33, R36, R48,
   seções 5.6 e 5.7; `docs/specs/tema.md` R14, R15
-- **Decisões**: D23, D49, D77, D83, D98, D120, D125, D127, D133
+- **Decisões**: D23, D49, D77, D83, D98, D120, D125, D127, D133, D144
 
 ## Objetivo
 Registrar as classes de texto da fase 1, com `lines-N` indo para a parte de
@@ -28,7 +27,7 @@ props da IR.
     `lower` → `textTransform`, disputando a mesma propriedade abstrata `case`
     (seção 5.9).
   - `lines-N`, `N` inteiro ≥ 1 → `props`, `numberOfLines: N`, não `style`
-    (R27).
+    (R27); `lines-0` → `AW103` (D144).
   - Nível único de especificidade para todas (seção 5.9); `AW103` fora da
     escala (`type-4xl`); `AW009` em família sem valor livre (`weight=600`).
 - Não faz: herança de texto (`050`); escala de fonte do sistema e mapeamento
@@ -50,10 +49,4 @@ props da IR.
 - `sintaxe.md` 7.1: `type-lg`, `weight-bold`, `leading-tight`,
   `align-center`, `font-mono`, `upper`, `lines-2`; 7.2: `leading=1.4`.
 - `type-xs` 12 … `type-3xl` 30; `type-4xl` → `AW103`; `weight=600` →
-  `AW009[0,10)`.
-
-## Ponto em aberto (aguarda o Alan)
-Se a resposta não vier antes, `lines-0` fica fora desta PR e o implementador
-relata.
-- `lines-0` (N fora de "inteiro ≥ 1", D127): qual código? A `sintaxe.md` não
-  diz (`AW103` é "fora da escala", e `lines` não tem escala).
+  `AW009[0,10)`; `lines-0` → `AW103[0,7)`, nada em `props` (D144).

@@ -2,8 +2,7 @@
 
 - **Status**: pronta para começar (aguarda só o pedido do Alan para criar
   estrutura, conforme o `CLAUDE.md`)
-- **Executor**: sessão principal (os arquivos são da raiz; o hook do
-  `implementador` só libera `packages/` e `apps/`)
+- **Executor**: `implementador` (o hook libera as configs da raiz, D148)
 - **Fase**: 1
 - **Branch**: chore/repo-monorepo-base
 - **Depende de**: nenhuma
@@ -11,7 +10,7 @@
 - **Spec**: nenhuma (fundação). Estrutura na seção 14 de
   `docs/00-visao-e-decisoes.md`; workflows em `.github/workflows/ci.yml` e
   `.github/workflows/release.yml`
-- **Decisões**: D3, D14, D20, D67, D69, D74, D114, D141, D142, D143
+- **Decisões**: D3, D14, D20, D67, D69, D74, D114, D141, D142, D143, D148
 
 ## Objetivo
 Criar a raiz do monorepo com pnpm workspaces, Turborepo, TypeScript estrito e
@@ -47,11 +46,13 @@ pacotes da fase 1 tenham onde nascer.
   workflows (já existem, D141 e D142).
 
 ## Arquivos permitidos
-- Implementador (sessão principal): `package.json`, `pnpm-workspace.yaml`,
-  `turbo.json`, `tsconfig.base.json`, `biome.json`, `pnpm-lock.yaml`,
-  `.gitignore`, `.npmrc` (se o pnpm exigir) e `.github/scripts/*.mjs` (só
-  formatação, se o Biome pedir).
+- Implementador: `package.json`, `pnpm-workspace.yaml`, `turbo.json`,
+  `tsconfig.base.json`, `biome.json`, `pnpm-lock.yaml` (lista da D148).
 - QA: nenhum arquivo; verificação por comando.
+- Fora da lista da D148: `.gitignore`, `.npmrc` e `.github/`. Se o pnpm
+  exigir `.npmrc`, se faltar entrada no `.gitignore` (ex.: `node_modules`,
+  `dist`, `.turbo`) ou se o `biome ci` reclamar de `.github/scripts/*.mjs`,
+  **pare e relate**: a sessão principal faz essa parte.
 
 ## Critérios de aceite
 - [ ] `pnpm install --frozen-lockfile` termina sem erro em Node 22.13+.

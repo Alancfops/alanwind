@@ -1,14 +1,14 @@
 # 003. Knip no CI
 
 - **Status**: pronta para começar (depois da 002)
-- **Executor**: sessão principal (`knip.json` e `package.json` ficam na raiz; o
-  hook do `implementador` não libera)
+- **Executor**: `implementador` (o hook libera `knip.json`, `package.json` e
+  `pnpm-lock.yaml` na raiz, D148)
 - **Fase**: 1
 - **Branch**: chore/repo-knip
 - **Depende de**: 002
 - **Paralelo com**: 004
 - **Spec**: nenhuma (fundação). Workflow em `.github/workflows/ci.yml`
-- **Decisões**: D69, D74, D141
+- **Decisões**: D69, D74, D141, D148
 
 ## Objetivo
 Ligar o Knip (código, exports, arquivos e dependências sem uso) no CI. O
@@ -23,8 +23,8 @@ workflow já existe (D141) e roda `pnpm exec knip` sozinho quando há um
 - Não faz: mexer no `ci.yml` ou no `release.yml` (D141, D142); publicação.
 
 ## Arquivos permitidos
-- Implementador (sessão principal): `knip.json`, `package.json` (raiz, só para
-  adicionar Knip e o script), `pnpm-lock.yaml`.
+- Implementador: `knip.json`, `package.json` (raiz, só para adicionar Knip e o
+  script), `pnpm-lock.yaml`. `.github/` continua fora (D148).
 - QA: nenhum arquivo; verificação por comando e pela PR.
 
 ## Critérios de aceite
@@ -45,5 +45,5 @@ workflow já existe (D141) e roda `pnpm exec knip` sozinho quando há um
 
 ## Observação
 - Se a `004` entrar antes, o `knip.json` já precisa cobrir o app. Se entrar
-  depois e o app exigir ajuste no `knip.json`, o implementador da `004` relata
-  e a sessão principal ajusta.
+  depois e o app exigir ajuste no `knip.json`, o implementador da `004` pode
+  fazê-lo (D148).

@@ -26,8 +26,10 @@ Ter um app Expo SDK 58 dentro do monorepo, não publicado, que importa
 ## Arquivos permitidos
 - Implementador: `apps/playground-expo/**`.
 - QA: nenhum arquivo; verificação por comando.
-- Se o Expo exigir mudança na raiz (`.npmrc`, `pnpm-workspace.yaml`,
-  `knip.json`), **pare e relate**: a mudança vai para a sessão principal.
+- Na raiz, só os arquivos da lista da D148, se o Expo exigir
+  (`pnpm-workspace.yaml`, `knip.json`, `pnpm-lock.yaml`). Se precisar de
+  `.npmrc` ou de outro arquivo fora dela, **pare e relate**: a mudança vai
+  para a sessão principal.
 
 ## Critérios de aceite
 - [ ] `pnpm --filter playground-expo exec expo-doctor` sem erros.

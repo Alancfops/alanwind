@@ -1,14 +1,16 @@
 # Fase 1: tarefas
 
-**Status do plano: revisado em 2026-11-26** contra as decisões até a D143 e
-as specs `sintaxe.md`, `funcionamento-interno.md` e `tema.md` **aprovadas**.
-A fundação (001 a 004) e quase todo o `core` estão prontos para começar,
-respeitando as dependências entre tarefas; a fundação ainda precisa do pedido
-do Alan para criar estrutura (`CLAUDE.md`, "Estado atual"). Duas tarefas do
-`core` (029, 034) esperam resposta a uma pergunta; quatro (011, 026, 028, 032)
-estão prontas com uma ressalva pontual. O `native` e os componentes seguem
-**bloqueados** por `emissor-native.md` e `componentes.md`, ainda em
-rascunho.
+**Status do plano: revisado em 2026-11-26** contra as decisões até a D148.
+A fundação (001 a 004), todo o `core` (010 a 035) e a validação (061) estão
+prontos para começar, respeitando as dependências entre tarefas; a fundação
+ainda precisa do pedido do Alan para criar estrutura (`CLAUDE.md`, "Estado
+atual"). O `native` e os componentes seguem **bloqueados** por
+`emissor-native.md` e `componentes.md`, ainda em rascunho.
+
+As tarefas citam a D144, a D145 e a D146 diretamente: o documentador está
+levando essas decisões para as specs, que voltam a "em revisão" até o Alan
+reaprovar. Isso não bloqueia as tarefas; se o texto novo da spec diferir de
+uma tarefa, vale a spec e o implementador relata.
 
 Escopo da fase 1 (D60, D66, D77): parser + IR + emissor React Native + `Box`,
 `Text`, `Pressable` + tema padrão + tipo do `look` com autocomplete (D126) +
@@ -24,9 +26,9 @@ CSS (fase 2, D60).
 
 | Spec | Status | Tarefas que ainda espera |
 |---|---|---|
-| `funcionamento-interno.md` | aprovado | — |
-| `sintaxe.md` | aprovado | — |
-| `tema.md` | aprovado | — |
+| `funcionamento-interno.md` | aprovado (D144 a D146 em propagação) | — |
+| `sintaxe.md` | aprovado (D144 a D146 em propagação) | — |
+| `tema.md` | aprovado (D144 em propagação) | — |
 | `emissor-native.md` | rascunho (seção 2 aberta) | 040 a 046, 053 |
 | `componentes.md` | rascunho (seção 2 aberta) | 050 a 054 |
 
@@ -36,12 +38,12 @@ CSS (fase 2, D60).
 
 | # | Tarefa | Pacote | Depende de | Status |
 |---|---|---|---|---|
-| 001 | [Raiz do monorepo e ferramentas](001-raiz-do-monorepo.md) | raiz | — | pronta (sessão principal) |
+| 001 | [Raiz do monorepo e ferramentas](001-raiz-do-monorepo.md) | raiz | — | pronta |
 | 002 | [Esqueleto de `core` e `native`](002-pacotes-core-e-native.md) | core, native | 001 | pronta |
-| 003 | [Knip no CI](003-ci-minimo-com-knip.md) | raiz | 002 | pronta (sessão principal) |
+| 003 | [Knip no CI](003-ci-minimo-com-knip.md) | raiz | 002 | pronta |
 | 004 | [App `playground-expo`](004-playground-expo.md) | playground | 002 | pronta |
 | 010 | [Tipos da IR](010-core-tipos-da-ir.md) | core | 002 | pronta |
-| 011 | [Catálogo de diagnósticos](011-core-diagnosticos.md) | core | 010 | pronta, com ressalva (empate, `AW303`) |
+| 011 | [Catálogo de diagnósticos](011-core-diagnosticos.md) | core | 010 | pronta |
 | 012 | [Tema: escalas e breakpoints](012-core-tema-escalas.md) | core | 002 | pronta |
 | 013 | [Tema: cores](013-core-tema-cores.md) | core | 012 | pronta |
 | 014 | [Tema: sombras e elevação](014-core-tema-sombras.md) | core | 010, 012 | pronta |
@@ -51,15 +53,15 @@ CSS (fase 2, D60).
 | 023 | [Vocabulário: espaçamento](023-core-vocabulario-espacamento.md) | core | 021, 012 | pronta |
 | 024 | [Vocabulário: tamanho](024-core-vocabulario-tamanho.md) | core | 021, 012 | pronta |
 | 025 | [Vocabulário: cor](025-core-vocabulario-cor.md) | core | 021, 013 | pronta |
-| 026 | [Vocabulário: tipografia](026-core-vocabulario-tipografia.md) | core | 021, 012 | pronta, com ressalva (`lines-0`) |
+| 026 | [Vocabulário: tipografia](026-core-vocabulario-tipografia.md) | core | 021, 012 | pronta |
 | 027 | [Vocabulário: borda, raio, opacidade](027-core-vocabulario-borda-raio-sombra.md) | core | 021, 012 | pronta |
-| 028 | [Variantes → condições](028-core-variantes.md) | core | 021, 012, 022, 023, 025 | pronta, com ressalva (`sintaxe.md` 7.3) |
-| 029 | [Regra de conflito](029-core-regra-de-conflito.md) | core | 033, 023 a 027 | bloqueada: pergunta (camadas com a mesma condição) |
+| 028 | [Variantes → condições](028-core-variantes.md) | core | 021, 012, 022, 023, 025 | pronta |
+| 029 | [Regra de conflito](029-core-regra-de-conflito.md) | core | 033, 023 a 027 | pronta |
 | 030 | [Tipo do `look` com autocomplete](030-core-tipagem-estrita.md) | core | 022 a 027, 032 | pronta |
 | 031 | [Alinhamento pela direção](031-core-alinhamento-e-direcao.md) | core | 022, 029, 033 | pronta |
-| 032 | [`shadow-*` e elevação no escuro](032-core-sombra-e-elevacao.md) | core | 014, 025, 027, 029, 033 | pronta, com ressalva (sombra em variante) |
+| 032 | [`shadow-*` e elevação no escuro](032-core-sombra-e-elevacao.md) | core | 014, 025, 027, 029, 033 | pronta |
 | 033 | [Camadas e precedência](033-core-camadas-e-precedencia.md) | core | 028, 026 | pronta |
-| 034 | [Atalhos: validação](034-core-atalhos-validacao.md) | core | 028, 022, 023 | bloqueada: pergunta (diagnóstico de carregamento) |
+| 034 | [Atalhos: validação](034-core-atalhos-validacao.md) | core | 028, 022, 023 | pronta |
 | 035 | [Atalhos: expansão](035-core-atalhos-expansao.md) | core | 029, 034 | pronta |
 | 040 | [Contexto: esquema, faixa, plataforma](040-native-contexto-de-resolucao.md) | native | 002, 012 | bloqueada: `emissor-native.md` |
 | 041 | [Emissor: layout, espaço, borda, raio](041-native-emissor-layout-espaco-borda.md) | native | 010 | bloqueada: `emissor-native.md` |
@@ -74,15 +76,14 @@ CSS (fase 2, D60).
 | 053 | [`Pressable`](053-native-componente-pressable.md) | native | 045, 050 | bloqueada: `componentes.md` |
 | 054 | [Tipo da prop `look`](054-native-tipagem-da-prop-look.md) | native | 030, 051, 052, 053 | bloqueada: `componentes.md` |
 | 060 | [Tela de demonstração no playground](060-playground-tela-de-validacao.md) | playground | 004, 046, 051, 052, 053 | bloqueada: tarefas anteriores |
-| 061 | [Validação no ShadowPlatinum](061-validacao-no-shadowplatinum.md) | fora do repo | 054, 060 | bloqueada: decisões |
+| 061 | [Validação no ShadowPlatinum](061-validacao-no-shadowplatinum.md) | fora do repo | 054, 060 | pronta (telas escolhidas pelo Alan, D147) |
 
 "Pronta" = pode começar assim que as tarefas da coluna "Depende de"
-estiverem na `develop`. "Com ressalva" = um caso isolado aguarda resposta; a
-tarefa diz o que fazer se a resposta não vier antes.
+estiverem na `develop`.
 
 ## O que mudou nesta revisão
 
-**Removidas** (os arquivos ficaram com uma nota e devem ser apagados):
+**Removidas** (arquivos apagados):
 
 - **015** (paleta por tons): fora da fase 1. A paleta e o tom no valor livre
   (`bg=red-40`) ficaram para a fase de tema (D99, D118); `bg=red-40` dá
@@ -116,7 +117,13 @@ tarefa diz o que fazer se a resposta não vier antes.
   tipo para classe inválida.
 - 043 encolheu: só traduz `boxShadow` (D108); a elevação é do `core` (032).
 - 060 deixou de ser "a tela do app do Alan" e virou uma tela de demonstração
-  no playground; a validação real é a 061 (D80).
+  no playground; a validação real é a 061 (D80), com os `.tgz` de
+  `pnpm pack` (D147).
+- Respostas do Alan (D144 a D148): empate de diagnósticos por código e
+  `AW303` fora do catálogo (011); `lines-0` = `AW103` (026); camadas com a
+  mesma condição comparadas como uma (029); sombra dentro de variante (032);
+  diagnósticos de carregamento e atalho com erro descartado (034, 035); 001
+  e 003 passam para o `implementador` (D148).
 
 ## Grafo de dependências
 
@@ -235,7 +242,7 @@ que já chegam por 029).
 
 | Onda | Tarefas em paralelo | Observação |
 |---|---|---|
-| 0 | 001 → 002 → (003 ‖ 004) | Fundação; 001 e 003 são da sessão principal. |
+| 0 | 001 → 002 → (003 ‖ 004) | Fundação. |
 | 1 | 010 ‖ 012 | Contratos: IR e escalas do tema. |
 | 2 | 011 ‖ 013 ‖ 014 ‖ 040 ‖ 041 ‖ 042 ‖ 043 | Com a IR fechada, os emissores testam com IR escrita à mão. |
 | 3 | 020 ‖ 044 | Parser; condições no emissor (depois da 040). |
@@ -254,30 +261,18 @@ que já chegam por 029).
 Caminho crítico: 001 → 002 → 010 → 011 → 020 → 021 → 022/023/025 → 028 →
 033 → 029 → 031/032 → 045 → 050 → 051/052/053 → 060 → 061.
 
-## Perguntas em aberto (lacunas reais nas specs)
+## Perguntas em aberto
 
-Cada uma está detalhada na tarefa citada.
-
-- Ordem dos diagnósticos no empate de posição: R39 da
-  `funcionamento-interno.md` × R49 da `sintaxe.md` (011).
-- `AW303` no catálogo da fase 1 sem caso que o provoque (011).
-- `lines-0`: qual código (026).
-- `dark(light(x))`: a seção 7.3 da `sintaxe.md` mostra a declaração, a D138
-  descarta (028).
-- Especificidade e empate entre camadas com a mesma condição (029).
-- `shadow-*` dentro de variante e o `bg-*` "já escrito" noutra condição (032).
-- Forma (`position`) dos diagnósticos de carregamento e destino do atalho
-  após `AW302`/`AW304` (034).
 - `emissor-native.md` e `componentes.md` ainda têm seção 2 aberta; as
   lacunas que travam 040 a 046 e 050 a 053 estão listadas em cada tarefa.
-- Telas e forma de consumo do alanwind na cópia do ShadowPlatinum (061).
 
 ## Observações para a orquestração
 
-- **Hook do implementador**: ele só escreve em `packages/` e `apps/`. As
-  tarefas 001 e 003 mexem na raiz (`package.json`, `turbo.json`,
-  `biome.json`, `knip.json`), por isso estão marcadas para a sessão
-  principal. A 061 é fora do repositório.
+- **Hook do implementador** (D148): além de `packages/` e `apps/`, ele edita
+  `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `turbo.json`,
+  `biome.json`, `tsconfig*.json` e `knip.json` da raiz. `.gitignore`,
+  `.npmrc` e `.github/` continuam com a sessão principal (ver 001). A 061 é
+  fora do repositório.
 - **CI** (D141): assim que o `pnpm-lock.yaml` entra na `develop` (001), o job
   `Code` passa a rodar `biome ci`, `typecheck`, `test` e `build` em toda PR; o
   passo do Knip liga quando existir `knip.json` (003).

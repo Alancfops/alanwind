@@ -8,7 +8,7 @@
 - **Spec**: `docs/specs/sintaxe.md` R43 a R45, R66, seção 7.5;
   `docs/specs/funcionamento-interno.md` R6, R38, R49, seção 5.9;
   `docs/specs/tema.md` R23, R24
-- **Decisões**: D36, D101, D127, D135, D139
+- **Decisões**: D36, D101, D127, D135, D139, D144
 
 ## Objetivo
 Expandir os atalhos válidos (da `034`) no lugar onde aparecem no `look`,
@@ -57,6 +57,11 @@ Com `a: 'pad-4', b: 'a round-md'` (`tema.md` 7.3):
 
 Sem atalhos:
 - `btn` → `AW101` (nenhum diagnóstico com `origin`).
+
+Com atalho descartado pela `034` (D144):
+- `define: { a: 'b', b: 'a' }` e `look` `a pad-4` → `AW101[0,1)` e `PAD(16)`.
+- `define: { row: 'pad-4' }` e `look` `row` → vale a classe nativa `row`
+  (o atalho foi descartado; a classe continua existindo).
 
 ## Observação
 - Erro dentro de um atalho usado por outro atalho (`b` usa `a`, erro em `a`):
