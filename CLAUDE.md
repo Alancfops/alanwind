@@ -61,6 +61,8 @@ linha seguinte.
 - `main` = versões publicadas (tag); `develop` = integração; trabalho em
   `feature/`, `fix/`, `docs/`, `chore/`... (skill `fluxo-de-branches`).
 - Nunca commitar direto em `main`/`develop`; nunca `push --force` nelas.
+  Exceção: commit que mexe **só** em `docs/` vai por push direto na
+  `develop`, sem PR (D182). `CLAUDE.md`, `.claude/` e código seguem por PR.
 - Commits em Conventional Commits (skill `conventional-commits`).
 - PR para a branch de origem, corpo em português. **Só o Alan faz merge**
   (squash).
