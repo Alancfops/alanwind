@@ -1,12 +1,12 @@
 # 028. Core: variantes viram condições na IR
 
 - **Status**: bloqueada — aguarda aprovação de `docs/specs/sintaxe.md` e
-  `docs/specs/ir.md`
+  `docs/specs/funcionamento-interno.md`
 - **Fase**: 1
 - **Branch**: feature/core-variantes
 - **Depende de**: 021
 - **Paralelo com**: 022, 023, 024, 025, 026, 027
-- **Spec**: `docs/specs/sintaxe.md` §1.4; `docs/specs/ir.md`
+- **Spec**: `docs/specs/sintaxe.md` §1.4; `docs/specs/funcionamento-interno.md`
 - **Decisões**: D28, D29, D37, D59, D61
 
 ## Objetivo

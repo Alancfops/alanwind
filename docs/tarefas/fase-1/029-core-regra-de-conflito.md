@@ -1,12 +1,13 @@
 # 029. Regra de conflito entre classes (D58)
 
-- **Status**: bloqueada — aguarda aprovação de `docs/specs/ir.md` (onde a regra
-  é aplicada) e `docs/specs/sintaxe.md` §1.9
+- **Status**: bloqueada — aguarda aprovação de
+  `docs/specs/funcionamento-interno.md` (onde a regra é aplicada) e
+  `docs/specs/sintaxe.md` §1.9
 - **Fase**: 1
 - **Branch**: feature/core-regra-de-conflito
 - **Depende de**: 023, 025 (as famílias usadas nos casos de teste)
 - **Paralelo com**: 022, 024, 026, 027, 028
-- **Spec**: `docs/specs/sintaxe.md` §1.9; `docs/specs/ir.md`
+- **Spec**: `docs/specs/sintaxe.md` §1.9; `docs/specs/funcionamento-interno.md`
 - **Decisões**: D58
 
 ## Objetivo
@@ -15,7 +16,7 @@ escrita; aviso em dev quando duas de mesma especificidade disputam a mesma
 propriedade.
 
 ## Escopo
-- Faz: os três itens da D58, no lugar que a `ir.md` definir.
+- Faz: os três itens da D58, no lugar que a `funcionamento-interno.md` definir.
 - Não faz: nada de RN; se a spec decidir que a regra vive no emissor, esta
   tarefa muda de pacote (ver lacunas).
 
@@ -37,7 +38,8 @@ propriedade.
   spec confirmar.
 
 ## Lacunas que bloqueiam
-- `ir.md` §2: onde a regra é aplicada (parser, IR ou emissor).
+- `funcionamento-interno.md` §2: onde a regra é aplicada (parser, IR ou
+  emissor).
 - Conflito entre a mesma propriedade em variantes diferentes
   (`medium(pad-2) expanded(pad-4)`).
 - Código do aviso (via `011`).

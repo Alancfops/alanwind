@@ -22,29 +22,29 @@ Emissor CSS: fase 2 (D60).
 | 002 | [Esqueleto de `core` e `native`](002-pacotes-core-e-native.md) | core, native | 001 | pronta |
 | 003 | [CI mínimo com Knip](003-ci-minimo-com-knip.md) | raiz | 001, 002 | pronta (sessão principal) |
 | 004 | [App `playground-expo`](004-playground-expo.md) | playground | 002 | pronta |
-| 010 | [Tipos da IR](010-core-tipos-da-ir.md) | core | 002 | bloqueada: `ir.md` |
-| 011 | [Diagnósticos](011-core-diagnosticos.md) | core | 002 | bloqueada: `sintaxe.md`, `ir.md` |
+| 010 | [Tipos da IR](010-core-tipos-da-ir.md) | core | 002 | bloqueada: `funcionamento-interno.md` |
+| 011 | [Diagnósticos](011-core-diagnosticos.md) | core | 002 | bloqueada: `sintaxe.md`, `funcionamento-interno.md` |
 | 012 | [Tema: escalas](012-core-tema-escalas.md) | core | 002 | bloqueada: `tema.md` |
 | 013 | [Tema: cores](013-core-tema-cores.md) | core | 012 | bloqueada: `tema.md` |
 | 014 | [Tema: sombras](014-core-tema-sombras.md) | core | 012 | bloqueada: `tema.md` |
 | 015 | [Tema: paleta por tons](015-core-paleta-por-tons.md) | core | 012 | bloqueada: `tema.md` + escopo |
 | 020 | [Parser: tokenização e variantes](020-core-parser-tokenizacao.md) | core | 011 | bloqueada: `sintaxe.md` |
-| 021 | [Registro do vocabulário e resolução](021-core-registro-do-vocabulario.md) | core | 010, 020 | bloqueada: `sintaxe.md`, `ir.md` |
+| 021 | [Registro do vocabulário e resolução](021-core-registro-do-vocabulario.md) | core | 010, 020 | bloqueada: `sintaxe.md`, `funcionamento-interno.md` |
 | 022 | [Vocabulário: layout](022-core-vocabulario-layout.md) | core | 021 | bloqueada: `sintaxe.md` |
 | 023 | [Vocabulário: espaçamento](023-core-vocabulario-espacamento.md) | core | 021, 012 | bloqueada: `sintaxe.md`, `tema.md` |
 | 024 | [Vocabulário: tamanho](024-core-vocabulario-tamanho.md) | core | 021, 012 | bloqueada: `sintaxe.md`, `tema.md` + escopo |
 | 025 | [Vocabulário: cor](025-core-vocabulario-cor.md) | core | 021, 013 | bloqueada: `sintaxe.md`, `tema.md` |
-| 026 | [Vocabulário: tipografia](026-core-vocabulario-tipografia.md) | core | 021, 012 | bloqueada: `sintaxe.md`, `tema.md`, `ir.md` |
+| 026 | [Vocabulário: tipografia](026-core-vocabulario-tipografia.md) | core | 021, 012 | bloqueada: `sintaxe.md`, `tema.md`, `funcionamento-interno.md` |
 | 027 | [Vocabulário: borda, raio, sombra](027-core-vocabulario-borda-raio-sombra.md) | core | 021, 012, 014 | bloqueada: `sintaxe.md`, `tema.md` |
-| 028 | [Variantes → condições](028-core-variantes.md) | core | 021 | bloqueada: `sintaxe.md`, `ir.md` |
-| 029 | [Regra de conflito (D58)](029-core-regra-de-conflito.md) | core (a confirmar) | 023, 025 | bloqueada: `ir.md`, `sintaxe.md` |
+| 028 | [Variantes → condições](028-core-variantes.md) | core | 021 | bloqueada: `sintaxe.md`, `funcionamento-interno.md` |
+| 029 | [Regra de conflito (D58)](029-core-regra-de-conflito.md) | core (a confirmar) | 023, 025 | bloqueada: `funcionamento-interno.md`, `sintaxe.md` |
 | 030 | [Tipagem estrita do `look`](030-core-tipagem-estrita.md) | core | 022 a 028 | bloqueada: `sintaxe.md` |
 | 040 | [Contexto: esquema, largura, plataforma](040-native-contexto-de-resolucao.md) | native | 002 | bloqueada: `emissor-native.md`, `tema.md` |
-| 041 | [Emissor: layout, espaço, borda](041-native-emissor-layout-espaco-borda.md) | native | 010 | bloqueada: `emissor-native.md`, `ir.md` |
-| 042 | [Emissor: cor e tipografia](042-native-emissor-cor-e-texto.md) | native | 010 | bloqueada: `emissor-native.md`, `ir.md` |
+| 041 | [Emissor: layout, espaço, borda](041-native-emissor-layout-espaco-borda.md) | native | 010 | bloqueada: `emissor-native.md`, `funcionamento-interno.md` |
+| 042 | [Emissor: cor e tipografia](042-native-emissor-cor-e-texto.md) | native | 010 | bloqueada: `emissor-native.md`, `funcionamento-interno.md` |
 | 043 | [Emissor: sombras](043-native-emissor-sombras.md) | native | 010, 014 | bloqueada: `emissor-native.md`, `tema.md` |
-| 044 | [Emissor: condições](044-native-condicoes-variantes.md) | native | 010, 040 | bloqueada: `emissor-native.md`, `ir.md` |
-| 045 | [Resolução ponta a ponta e cache](045-native-resolucao-e-cache.md) | native | 029, 040 a 044 | bloqueada: `emissor-native.md`, `ir.md`, `sintaxe.md` |
+| 044 | [Emissor: condições](044-native-condicoes-variantes.md) | native | 010, 040 | bloqueada: `emissor-native.md`, `funcionamento-interno.md` |
+| 045 | [Resolução ponta a ponta e cache](045-native-resolucao-e-cache.md) | native | 029, 040 a 044 | bloqueada: `emissor-native.md`, `funcionamento-interno.md`, `sintaxe.md` |
 | 050 | [Herança de texto](050-native-heranca-de-texto.md) | native | 045 | bloqueada: `componentes.md` |
 | 051 | [`Box`](051-native-componente-box.md) | native | 045, 050 | bloqueada: `componentes.md` |
 | 052 | [`Text`](052-native-componente-text.md) | native | 045, 050 | bloqueada: `componentes.md` |
@@ -159,7 +159,7 @@ que implementar.
 
 | Ordem | Spec | Destrava (sozinha ou junto das anteriores) | Por quê primeiro |
 |---|---|---|---|
-| 1 | `ir.md` | 010; com as próximas: 011, 021, 026, 028, 029, 041, 042, 044, 045 | É o contrato entre `core` e `native` (skill `codigo-limpo`). Fechada a IR, `core` e `native` avançam em paralelo. |
+| 1 | `funcionamento-interno.md` | 010; com as próximas: 011, 021, 026, 028, 029, 041, 042, 044, 045 | É o contrato entre `core` e `native` (skill `codigo-limpo`). Fechada a IR, `core` e `native` avançam em paralelo. |
 | 2 | `sintaxe.md` | 011, 020, 021, 022, 028, 030; com `tema.md`: 023 a 027 | Gramática, códigos de erro e vocabulário. |
 | 3 | `tema.md` | 012 a 015; com `sintaxe.md`: 023 a 027; com `emissor-native.md`: 040, 043 | Valores finais das cores e breakpoints. |
 | 4 | `emissor-native.md` | 040 a 045 | Tabela de tradução IR → RN e cache. |

@@ -1,12 +1,13 @@
 # 021. Core: registro único do vocabulário e resolução para IR
 
 - **Status**: bloqueada — aguarda aprovação de `docs/specs/sintaxe.md` e
-  `docs/specs/ir.md`
+  `docs/specs/funcionamento-interno.md`
 - **Fase**: 1
 - **Branch**: feature/core-vocabulario-registro
 - **Depende de**: 010, 020
 - **Paralelo com**: 013, 014, 015
-- **Spec**: `docs/specs/sintaxe.md` §1.3, §1.10; `docs/specs/ir.md`
+- **Spec**: `docs/specs/sintaxe.md` §1.3, §1.10;
+  `docs/specs/funcionamento-interno.md`
 - **Decisões**: D18, D20, D35, D58, D66
 
 ## Objetivo

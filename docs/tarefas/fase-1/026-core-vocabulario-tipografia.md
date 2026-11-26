@@ -1,7 +1,7 @@
 # 026. Core: vocabulário de tipografia
 
 - **Status**: bloqueada — aguarda aprovação de `docs/specs/sintaxe.md`,
-  `docs/specs/tema.md` e `docs/specs/ir.md`
+  `docs/specs/tema.md` e `docs/specs/funcionamento-interno.md`
 - **Fase**: 1
 - **Branch**: feature/core-vocabulario-tipografia
 - **Depende de**: 021, 012
@@ -39,4 +39,4 @@ repassar.
 - Valores de `weight-*`, `leading-*` e mapeamento de `font-sans/serif/mono` no
   RN.
 - `lines-2` vira prop (`numberOfLines`), não estilo: a IR representa isso?
-  (`ir.md` §2)
+  (`funcionamento-interno.md` §2)

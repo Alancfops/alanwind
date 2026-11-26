@@ -1,12 +1,13 @@
 # 011. Core: diagnósticos (códigos de erro e aviso)
 
 - **Status**: bloqueada — aguarda aprovação de `docs/specs/sintaxe.md` (códigos
-  e mensagens) e `docs/specs/ir.md` (transporte)
+  e mensagens) e `docs/specs/funcionamento-interno.md` (transporte)
 - **Fase**: 1
 - **Branch**: feature/core-diagnosticos
 - **Depende de**: 002
 - **Paralelo com**: 010, 012, 040
-- **Spec**: `docs/specs/sintaxe.md` §1.9 item 3, §1.10; `docs/specs/ir.md` §2
+- **Spec**: `docs/specs/sintaxe.md` §1.9 item 3, §1.10;
+  `docs/specs/funcionamento-interno.md` §2
 - **Decisões**: D35, D58, D66
 
 ## Objetivo
@@ -38,7 +39,8 @@ que os carrega, para parser, vocabulário e emissores usarem o mesmo catálogo.
 
 ## Lacunas que bloqueiam
 - `sintaxe.md` §2: "Códigos e textos das mensagens de erro".
-- `ir.md` §2: "Como erros e avisos são representados e transportados".
+- `funcionamento-interno.md` §2: "Como erros e avisos são representados e
+  transportados".
 - D35 diz "aviso **ou** erro em desenvolvimento": falta decidir qual, por caso.
 - Como o `core` sabe se está em desenvolvimento ou produção (entrada da função?
   opção?).

@@ -1,7 +1,7 @@
 # Spec: emissor React Native
 
 Status: **rascunho, só o já decidido** · Decisões de origem: D14, D15, D45, D57,
-D59, D60, D62, D64, D107 a D110, D116
+D59, D60, D62, D64, D107 a D110, D116, D117, D119, D120, D133, D135, D136
 
 Tradução da IR em objetos de estilo e props do React Native, com cache por
 contexto.
@@ -33,6 +33,18 @@ contexto.
 - **Esquema de cor**: segue o sistema e pode ser forçado com `setColorScheme`
   sem Provider (D64).
 - Texto respeita a **escala de fonte do sistema** (seção 5 da visão).
+- **Camadas**: o emissor aplica as camadas de estilo **e as de props** na ordem
+  da lista; entre as que valem no momento, a posterior vence, propriedade a
+  propriedade. A precedência (com condição vence sem condição, mais condições
+  vencem menos, faixa maior vence) já está na ordem da IR e o emissor não a
+  reimplementa (D117, D135, `funcionamento-interno.md`).
+- **Fontes por plataforma** (D133): `fontFamily` genérica da IR vira
+  `font-sans` = San Francisco no iOS e Roboto no Android; `font-serif` =
+  Georgia no iOS e `serif` no Android; `font-mono` = Menlo no iOS e
+  `monospace` no Android. Nenhuma fonte é baixada.
+- **Configuração no RN** (D119): `defineConfig` e `configure` vêm de
+  `@alanwind/native`; o app chama `configure(config)` uma vez, no arquivo de
+  entrada. Sem a chamada, os atalhos ficam desligados, com aviso em dev.
 
 ## 2. Ainda não definido
 

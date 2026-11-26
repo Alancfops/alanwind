@@ -1,7 +1,7 @@
 # 041. Native: emissor de layout, espaçamento, tamanho, borda e raio
 
 - **Status**: bloqueada — aguarda aprovação de `docs/specs/emissor-native.md` e
-  `docs/specs/ir.md`
+  `docs/specs/funcionamento-interno.md`
 - **Fase**: 1
 - **Branch**: feature/native-emissor-layout
 - **Depende de**: 010
@@ -24,7 +24,7 @@ e raio para um objeto de estilo do RN.
   `packages/native/src/emit/spacing.ts`, `packages/native/src/emit/sizing.ts`,
   `packages/native/src/emit/border.ts`, `packages/native/src/emit/index.ts`.
 - QA: `packages/native/test/emit-layout.test.ts` (entrada: IR escrita à mão a
-  partir dos exemplos da `ir.md`).
+  partir dos exemplos da `funcionamento-interno.md`).
 
 ## Critérios de aceite
 - [ ] Cada linha da tabela de tradução da spec produz o estilo exato

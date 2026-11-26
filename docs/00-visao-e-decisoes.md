@@ -151,7 +151,7 @@ próprios diferenciais**.
 | D89 | **Margem `auto` na escala; negativa só com valor livre.** `margin-x-auto` existe. Margem negativa só por `=` (`margin-top=-8`), porque é caso raro e um `-` na escala confundiria com o hífen da sintaxe. |
 | D90 | **Arquitetura por presets adiada.** Não entra na fase 1: o vocabulário fica direto no `core`, como fonte única. Se um dia houver um segundo vocabulário, ele vira preset. Coerente com não criar abstração para o futuro (D74). |
 | D91 | **Cores de estado do tema padrão aprovadas.** Claro (cor / on / soft / texto do soft / hover): `success` #15803D / #FFFFFF / #DCFCE7 / #14532D / #116932; `warning` #F2B200 / #3B2A00 / #FEF3C7 / #713F12 / #D99F00; `danger` #D02424 / #FFFFFF / #FEE2E2 / #991B1B / #B91C1C; `info` #0B63B6 / #FFFFFF / #E0EFFF / #0B4A8B / #09529A. Escuro: `success` #5FD68E / #052E16 / #123A22 / #A7F0C4 / #7CE2A4; `warning` #FFD166 / #3B2A00 / #3A2C06 / #FDE68A / #FFDD8A; `danger` #FF8A80 / #450A0A / #4A1515 / #FECACA / #FFA59D; `info` #7CC4FF / #04203D / #0E2E4F / #B8DCFF / #9BD2FF. Todos os pares (cor/on, hover/on, soft/texto) passam 4,5:1; o menor é 5,02 (`success` claro). O `info` é um azul mais fechado que o `primary`, para não parecer botão (D48). |
-| D92 | **`text-<papel>` com tom automático.** `text-<papel>` usa a cor do papel quando ela passa 4,5:1 sobre os fundos (`page`, `surface`, `raised`); se não passa, o alanwind escolhe um tom mais escuro (claro) ou mais claro (escuro) da mesma cor. Vale para papéis criados pela pessoa (D35). Ex.: `text-warning` no claro vira #8A5A00 (5,49:1), enquanto `bg-warning` continua #F2B200. |
+| D92 | *Ajuste (D129): não vale para o `secondary`; `text-secondary` não existe.* **`text-<papel>` com tom automático.** `text-<papel>` usa a cor do papel quando ela passa 4,5:1 sobre os fundos (`page`, `surface`, `raised`); se não passa, o alanwind escolhe um tom mais escuro (claro) ou mais claro (escuro) da mesma cor. Vale para papéis criados pela pessoa (D35). Ex.: `text-warning` no claro vira #8A5A00 (5,49:1), enquanto `bg-warning` continua #F2B200. |
 | D93 | **`text-subtle` só para elementos desabilitados**, que o WCAG isenta de contraste. A documentação avisa para não usar em texto que a pessoa precisa ler; para texto de apoio, use `text-muted`. |
 | D94 | **Breakpoints: `medium` a partir de 600 e `expanded` a partir de 840** (valores do Material Design, de onde vieram os nomes, D29). Abaixo de 600 é a faixa `compact`. |
 | D95 | **Cores neutras e de marca finais.** Os valores ilustrativos de `primary` (D46), `secondary` (D52), fundos e textos (D50, D51) passam a ser finais. Novos: `text-link` claro #1D4FD8 / escuro #8AB4FF (6,15 / 7,02); `border-focus` #2563EB / #8AB4FF (4,79 / 7,02, mínimo 3); `border-strong` #8E8E96 / #74747E (3,01 / 3,17, mínimo 3); `border-subtle` #E3E3E8 / #34343A (decorativa); `primary-hover` #1D4FD8 / #A6C6FF (6,64 / 9,23 com o `on-`). `text-muted` no escuro sobre `bg-raised` passa justo (4,51). |
@@ -176,11 +176,30 @@ próprios diferenciais**.
 | D114 | **Testes: Vitest no `core` e nos emissores, Jest nos componentes.** O pacote `native`, com componentes, usa `jest-expo` + `@testing-library/react-native`, o caminho suportado pelo Expo. Código TypeScript puro continua no Vitest. Ajusta a D69. |
 | D115 | **Acessibilidade padrão dos componentes da fase 1.** `Pressable`: `accessibilityRole='button'` por padrão (a pessoa pode trocar), `accessibilityState.disabled` ligado à prop `disabled` e foco visível na web, além da área de toque (D111). `Box` e `Text` não forçam papel (são genéricos); o `Text` respeita a escala de fonte do sistema. |
 | D116 | **Política de versões do Expo**: enquanto o alanwind estiver em 0.x, só o SDK atual (hoje o 58; muda quando sair um novo). A partir da 1.0, o atual e o anterior. |
-| D117 | **Precedência entre condições diferentes: vence a mais específica.** Quando a mesma propriedade aparece com condições que valem ao mesmo tempo: com condição vence sem condição (`bg-primary hover(bg-raised)` mostra `bg-raised` no hover, mesmo escrito antes); mais condições vencem menos (`dark(hover(...))` vence `hover(...)`); entre faixas de tela, a maior vence; no empate, a última escrita. Complementa a D58, que cobre classes sem condição. |
+| D117 | *Ajuste (D136): ordem fixa de critérios, sem ciclo.* **Precedência entre condições diferentes: vence a mais específica.** Quando a mesma propriedade aparece com condições que valem ao mesmo tempo: com condição vence sem condição (`bg-primary hover(bg-raised)` mostra `bg-raised` no hover, mesmo escrito antes); mais condições vencem menos (`dark(hover(...))` vence `hover(...)`); entre faixas de tela, a maior vence; no empate, a última escrita. Complementa a D58, que cobre classes sem condição. |
 | D118 | **Tons da paleta fora da fase 1.** Na fase 1, cor livre só em hex (`bg=#e11d48`, `bg=#e11d48/50`). `bg=red-40` entra junto com a paleta, na fase de tema (D99). Ajusta a D105 e resolve a contradição entre D99 e D105. |
 | D119 | **Config no RN por `configure()`.** `defineConfig` e `configure` vêm de `@alanwind/native` na fase 1; o app chama `configure(config)` uma vez, no arquivo de entrada. Sem plugin de build, coerente com o runtime da D15. Sem a chamada, os atalhos ficam desligados, com aviso em dev. |
-| D120 | **Propostas de formato da IR aprovadas em bloco** (as 12 da `docs/specs/ir.md`): estilo como lista ordenada de camadas, cada uma com uma condição (átomos combinados por E, em ordem canônica); cor sempre com o par `{light, dark}` já resolvido no valor; lados explícitos já na IR (estende a D107 ao `core`); o `core` desfaz `center-x`/`center-y` com valores iniciais quando a direção muda numa camada; elevação do escuro expandida pelo `core` sob a condição `dark`; aviso de conflito aponta a classe que perdeu; diagnósticos com posição `[início, fim)` em UTF-16, ordenados por posição; hex de 3 dígitos expandido e de 8 dígitos convertido em alfa; `fontFamily` genérica (`sans`/`serif`/`mono`) mapeada pelo emissor; `lines-N` em `props`; nomes de tipos e campos como na spec. |
+| D120 | *Ajuste (D135): `props` passa a ter camadas com condição.* **Propostas de formato da IR aprovadas em bloco** (as 12 da `docs/specs/funcionamento-interno.md`): estilo como lista ordenada de camadas, cada uma com uma condição (átomos combinados por E, em ordem canônica); cor sempre com o par `{light, dark}` já resolvido no valor; lados explícitos já na IR (estende a D107 ao `core`); o `core` desfaz `center-x`/`center-y` com valores iniciais quando a direção muda numa camada; elevação do escuro expandida pelo `core` sob a condição `dark`; aviso de conflito aponta a classe que perdeu; diagnósticos com posição `[início, fim)` em UTF-16, ordenados por posição; hex de 3 dígitos expandido e de 8 dígitos convertido em alfa; `fontFamily` genérica (`sans`/`serif`/`mono`) mapeada pelo emissor; `lines-N` em `props`; nomes de tipos e campos como na spec. |
 | D121 | **Nome definitivo: alanwind.** Deixa de ser nome provisório (ajusta a D12). Antes de publicar, ainda é preciso conferir se `alanwind` e o escopo `@alanwind` estão livres no npm (D68). |
+| D122 | **Layout: alinhamento, `between`, `wrap` e `fill`.** Início e fim de um eixo com `x-start`, `x-end`, `y-start`, `y-end`, sempre relativos à tela, como `center-x`/`center-y` (D38), e sem colidir com os lados da D87. `between` distribui a sobra entre os filhos no eixo principal. `wrap` deixa os filhos quebrarem de linha (sem ele, não quebram). `fill` ocupa o espaço restante no eixo do pai (flex 1). |
+| D123 | **Borda: espessura, lados e cor.** `border` = 1, `border-0`, `border-2` e `border-4`; outros valores por valor livre (`border=3`). Existem `border-x`/`border-y` e as formas por lado (`border-top`, `border-bottom-2`). A cor aceita todos os papéis do tema (`border-primary`, `border-danger`), além de `subtle`, `strong` e `focus` (D95). Sem cor por lado. |
+| D124 | **Raio por lado e por canto; sem `shadow-none`.** Por lado: `round-top-lg`, `round-bottom-md`, `round-left-*`, `round-right-*` (os dois cantos daquele lado). Por canto: `round-top-left-lg` etc. `shadow-none` fica fora da fase 1. |
+| D125 | **Extras de tamanho, `gap` por eixo, decimal e texto.** `size-full` e `size-screen` existem (largura e altura juntas, D98). `gap-x-N` (entre colunas) e `gap-y-N` (entre linhas), relativos à tela, com valor livre (`gap-x=V`). Valor livre aceita decimal com ponto e dígito antes dele (`w=10.5`, `leading=1.4`, `0.5`); vírgula é erro. Confirmados `align-left\|center\|right` e `font-sans\|serif\|mono` (D77). |
+| D126 | **Item colado depois de `)` e tipagem do `look`.** `hover(bg-raised)pad-4` gera erro de falta de espaço com sugestão, mas aplica os dois itens. O tipo do `look` oferece autocomplete das classes conhecidas e aceita qualquer `string`; a validação real é o diagnóstico em runtime/build (sem template literal estrito). |
+| D127 | **Propostas da `docs/specs/sintaxe.md` (seção 11.2) aprovadas em bloco**: diagnósticos (códigos `AW###`, mensagens, severidades, posição `[início, fim)` em UTF-16, ordem, trecho descartado e sugestão por distância de edição até 2); leitura do texto (tab e quebra de linha como separador, espaços dentro de `()` ignorados, `look` vazio sem aviso, maiúscula = classe desconhecida, `motion-safe` com `AW004`, variante impossível aceita com `AW202`); valor livre e cor (famílias que aceitam `=` e `AW009`, negativo só em `margin`, hex em maiúsculas, barra só com a escala de opacidade e recusada em hex de 8 dígitos, `auto` em todas as formas de `margin`); estrutura (atalho dentro de variante expandido no lugar, especificidade por analogia, `lines-N` com N ≥ 1, papel de borda não pode se chamar como um lado, notação das saídas). |
+| D128 | **Neutros do tema que faltavam.** `bg-raised` no claro = `#FFFFFF`, igual ao `surface`; a elevação vem da sombra (D51). `text-subtle` (só desabilitado, D93): claro `#A1A1AA`, escuro `#5C5C64` (2,2 a 2,8:1, isento do 4,5:1 por ser desabilitado; o aviso de contraste ignora esse par). |
+| D129 | **`text-secondary` não existe.** O `secondary` é neutro e a cor do papel não passa como texto (1,1 a 1,5:1); para texto já existem `text-body` e `text-muted`. `text-secondary` é classe desconhecida. Exceção à D92 para esse papel. |
+| D130 | **`secondary-hover` e `secondary-soft`.** Hover: claro `#DCDCE2` (texto `#25252B`, 11,16:1), escuro `#3E3E45` (texto `#F2F2F4`, 9,49:1). Soft: claro `#F1F1F4` com texto `#3B3B42` (9,86:1), escuro `#232328` com texto `#C9C9CF` (9,49:1). Completa a D35 para o `secondary`. |
+| D131 | **Texto sobre `-soft`: `text-on-<papel>-soft`.** Segue o padrão `on-<fundo>`: `bg-danger-soft` pede `text-on-danger-soft`, com a cor da D91. |
+| D132 | *Ajuste (D137): uma camada só por classe; o escrito vence.* **Elevação no escuro com valores.** Borda de 1 (`#34343A`). Sombra preta com as camadas do claro e mais opacidade: `shadow-sm` 0 1px 2px a 30%; `shadow-md` 0 4px 8px a 35%; `shadow-lg` 0 12px 24px a 40%. As três clareiam o fundo no mesmo um nível; quem já está em `bg-raised` fica em `raised`; sem `bg-*`, parte de `page`. Detalha a D97. |
+| D133 | **Famílias de fonte do sistema.** `font-sans`: San Francisco (iOS), Roboto (Android), pilha `system-ui` (web). `font-serif`: Georgia (iOS), `serif` (Android), pilha Georgia/serif (web). `font-mono`: Menlo (iOS), `monospace` (Android), pilha `ui-monospace` (web). Nenhuma fonte para baixar. Detalha a D49 e a D77. |
+| D134 | **Nome de atalho (`define`)**: começa com letra minúscula e aceita minúsculas, dígitos e hífen (`btn`, `card-title`, `btn-2`). Não pode repetir o nome de uma classe nativa nem de uma variante (erro de colisão). Detalha a D101. |
+| D135 | **Lacunas da IR fechadas.** Condições redundantes são simplificadas em silêncio para a forma mínima (`ios(native(x))` → `[ios]`, `medium(expanded(x))` → `[expanded]`); as impossíveis seguem a D127 (`AW202`). `props` passa a ter camadas com condição, como o estilo e com a mesma precedência (D117): `medium(lines-2) lines-4` funciona. Erro dentro de atalho aponta o nome do atalho no `look` e traz um campo de origem com o atalho e a posição dentro do texto do `define`. Centralização numa variante e direção em outra (`dark(center-x) medium(row)`): o `core` gera uma camada combinada (`[dark, medium]`) com a tradução certa, que vence pela D117. Ajusta a D120 (`props` deixa de ser plana). |
+| D136 | **Precedência entre condições em ordem fixa, sem ciclo.** 1) mais condições vence; 2) faixa de tela maior vence (sem faixa < `medium` < `expanded`), mesmo contra outro tipo de condição; 3) última escrita. Em `expanded(x) hover(x) medium(x)`, vale `expanded`. Ajusta a D117, que podia formar ciclo. |
+| D137 | **Elevação no escuro: uma camada de sombra e o escrito vence.** Cada `shadow-*` do escuro tem só a camada listada na D132 (o texto "camadas do claro" não vale). A elevação só preenche o que falta: `bg-*` fora de `page`/`surface`/`raised` ou `dark(bg...)` explícito mantêm o fundo escrito; `border` próprio mantém a borda escrita; a sombra discreta continua. Ajusta a D132 e detalha a D97. |
+| D138 | **Diagnósticos que faltavam.** `between` com alinhamento no mesmo eixo segue a regra de conflito normal (D58, com aviso). Novos códigos: `AW010` (erro) para item colado depois de `)`, com posição no item colado (D126); `AW304` (erro, ao carregar o tema) para nome de atalho fora do formato (D134). `w=10,5`, `w=.5` e `bg=red-40` na fase 1 usam `AW008`, com mensagem própria. Condição impossível (`dark(light(x))`) é descartada da IR; fica só o `AW202`. |
+| D139 | **Analogias e nomes da IR aprovados.** `x-start`/`x-end`/`y-start`/`y-end` com a especificidade de `center-x`/`center-y`; `border-x`/`border-y`, raio por lado e canto e `gap-x`/`gap-y` mais específicos que a forma geral; na IR, `gap` vira `rowGap` + `columnGap` e o raio vira quatro cantos; `border-1`/`border-3` dão `AW103`; `text-secondary` dá `AW102`; `leading` e a borda por lado aceitam valor livre; papel de borda não pode se chamar `x` ou `y`. Nomes: `PropsIR` com `layers`, `PropsLayer`, `PropsMap`, campo `origin` (`shortcut` + `position`) no diagnóstico, camada `light` antes da `dark` na elevação. |
+| D140 | **Últimos detalhes da IR.** Cada ocorrência de variante vira sua própria camada, na ordem escrita, sem fundir condições iguais (`hover(bg-raised) press(bg-surface) hover(pad-4)`: vale `bg-surface`), para a última escrita valer sempre (D136). Os átomos de uma condição ficam na ordem da tabela de variantes (hover, press, focus, disabled, dark, light, ios, android, web, native, medium, expanded): `press(hover(x))` vira `[hover, press]`. `between` usa a propriedade abstrata `place.main` (`place.x` em linha, `place.y` em coluna), com a especificidade de `center-x`/`center-y`. |
 
 ### 3.1 Alvo técnico de referência (Expo SDK 58)
 
@@ -529,6 +548,19 @@ Pode esperar:
   (D117), tons da paleta fora da fase 1 (D118), config por `configure()` (D119)
   e propostas da IR aprovadas (D120).
 - 2026-11-25 (Claude Code): o Alan definiu alanwind como nome definitivo (D121).
+- 2026-11-26 (Claude Code): rodada 11 (sintaxe): layout (D122), borda (D123),
+  raio por lado e canto, sem `shadow-none` (D124), extras de tamanho, `gap`,
+  decimal e texto (D125), item colado e tipagem (D126) e propostas da sintaxe
+  aprovadas (D127). Conflito entre condições e paleta confirmados como na D117
+  e na D118.
+- 2026-11-26 (Claude Code): rodada 12 (tema): neutros (D128), sem
+  `text-secondary` (D129), `secondary` hover e soft (D130), texto sobre soft
+  (D131), elevação no escuro (D132), fontes (D133) e nome de atalho (D134).
+  Perguntas soltas da IR fechadas (D135).
+- 2026-11-26 (Claude Code): perguntas do documentador após propagar D117–D135:
+  precedência sem ciclo (D136), elevação no escuro (D137), diagnósticos que
+  faltavam (D138) e analogias e nomes da IR (D139).
+- 2026-11-26 (Claude Code): últimos detalhes da IR (D140).
 
 ## 11. Vocabulário base (rascunho em construção)
 
@@ -544,7 +576,7 @@ de 4 (`pad-4` = 16); abreviar só `w`, `h`, `x`, `y` (D19); valor livre com `=`
 | Esquema de cor | `dark(...)`, `light(...)` (os papéis de cor já mudam sozinhos; estas servem para exceções) |
 | Plataforma | `ios(...)`, `android(...)`, `web(...)`, `native(...)` |
 | Tamanho de tela (D29, D37, D61) | `medium(...)`, `expanded(...)`; valem "a partir de" (`medium(...)` vale em `medium` e acima). Sem variante = todos os tamanhos. |
-| Acessibilidade | `motion-safe(...)` |
+| Acessibilidade | `motion-safe(...)` (fora da fase 1, D78) |
 
 Exemplo:
 `<Box look="col gap-2 pad-4 medium(row gap-6) bg-surface hover(bg-raised shadow-md)">`
@@ -554,9 +586,9 @@ Exemplo:
 | O que | Classes |
 |---|---|
 | Direção | `row`, `col` |
-| Alinhamento | `center` (dois eixos), `center-x` (horizontal), `center-y` (vertical), `between`, `start`, `end` (D38) |
-| Fluxo | `wrap`, `fill` (ocupa o espaço restante) |
-| Espaço entre filhos | `gap-4` |
+| Alinhamento | `center` (dois eixos), `center-x` (horizontal), `center-y` (vertical) (D38); `x-start`, `x-end`, `y-start`, `y-end`, sempre relativos à tela; `between` (distribui a sobra no eixo principal) (D122) |
+| Fluxo | `wrap` (quebra de linha), `fill` (ocupa o espaço restante) (D122) |
+| Espaço entre filhos | `gap-4`; `gap-x-4` (entre colunas) e `gap-y-4` (entre linhas), relativos à tela (D125) |
 
 **Espaçamento** (D43)
 
@@ -570,14 +602,14 @@ Exemplo:
 
 | O que | Classes |
 |---|---|
-| Largura e altura | `w-full`, `h-10`, `size-10` (largura e altura iguais) |
-| Valor livre | `w=137`, `pad=10`, `w=50%` |
+| Largura e altura | `w-full`, `h-10`, `size-10` (largura e altura iguais), `size-full`, `size-screen` (D125) |
+| Valor livre | `w=137`, `pad=10`, `w=50%`, `w=10.5` (decimal com ponto, D125) |
 
 **Atalhos** (D36)
 
-`define('btn', 'bg-primary pad-4 round-md')` cria o atalho `btn`, usado como uma
-classe qualquer. Os atalhos são declarados no arquivo de tema (D63); o formato
-exato fica para a spec.
+`define: { btn: 'bg-primary pad-4 round-md' }` no `defineConfig` cria o atalho
+`btn`, usado como uma classe qualquer. Os atalhos são declarados no
+`alanwind.config.ts` (D63, D100); o formato está em `docs/specs/tema.md`.
 
 **Cor** (D46 a D52)
 
@@ -589,14 +621,14 @@ e `-hover` (D22, D24). A paleta base não aparece nas classes (D34).
 | Grupo | Papéis |
 |---|---|
 | Fundos | `bg-page` (fundo do app), `bg-surface` (cards), `bg-raised` (elevado, como modais). No escuro: cinza-grafite (D50). No claro: página cinza bem clara e card branco (D51). |
-| Marca | `bg-primary` (azul elétrico, D46), `bg-secondary` (cinza neutro, D52), com `text-on-primary`, `text-on-secondary` |
+| Marca | `bg-primary` (azul elétrico, D46), `bg-secondary` (cinza neutro, D52), com `text-on-primary`, `text-on-secondary`. `text-secondary` não existe (D129); `secondary-hover` e `secondary-soft` existem (D130). |
 | Estados (semáforo, D47) | `bg-success` (verde), `bg-warning` (amarelo, texto escuro por cima), `bg-danger` (vermelho), `bg-info` (azul, D48), com `text-on-success` etc. |
 | `-hover` (estado de elemento interativo) | `bg-primary-hover`: mesma ênfase, um pouco mais claro no tema escuro e mais escuro no claro (ex.: botão primário). No celular vira o estado pressionado. |
-| `-soft` (baixa ênfase, estático) | `bg-danger-soft`, `bg-primary-soft`: avisos, selos, etiquetas, destaques, item selecionado. Não precisa ser botão. Também pode ser o fundo de hover de um botão fantasma ou item de lista: `hover(bg-primary-soft)`. |
+| `-soft` (baixa ênfase, estático) | `bg-danger-soft`, `bg-primary-soft`: avisos, selos, etiquetas, destaques, item selecionado. Não precisa ser botão. Também pode ser o fundo de hover de um botão fantasma ou item de lista: `hover(bg-primary-soft)`. O texto por cima é `text-on-danger-soft` etc. (D131). |
 | Opacidade na cor (D31) | `bg-primary-50`, `text-strong-50` (50 = 50% de opacidade) |
-| Cor livre (D33) | `bg=red-96` (tom 96 do vermelho), `bg=#e11d48` (cor exata). Sem o par `on-`; o aviso de contraste (D32) cobre. |
+| Cor livre (D33, D118) | `bg=#e11d48` (cor exata, só hex na fase 1); `bg=red-40` (tom da paleta) entra na fase de tema. Sem o par `on-`; o aviso de contraste (D32) cobre. |
 | Texto | `text-strong` (títulos), `text-body` (padrão), `text-muted`, `text-subtle`, `text-link` |
-| Bordas | `border-subtle`, `border-strong`, `border-focus` |
+| Bordas | `border-subtle`, `border-strong`, `border-focus` e `border-<papel>` (`border-danger`) (D123) |
 | Opacidade do elemento | `opacity-50` |
 
 **Tipografia** (D23, D49)
@@ -622,9 +654,9 @@ escala de fonte no RN), conforme a seção 5.
 
 | O que | Classes |
 |---|---|
-| Borda | `border` (1), `border-2`, mais cor com `border-subtle` etc. |
-| Raio | `round-none` 0, `round-sm` 4, `round-md` 8, `round-lg` 12, `round-xl` 16, `round-full` (pílula ou círculo) |
-| Sombra | `shadow-sm`, `shadow-md`, `shadow-lg`. No claro: sombra real. No escuro: fundo mais claro (`bg-raised`) mais borda fina, com sombra discreta (D45). Cada emissor traduz: `box-shadow` na web, propriedades de sombra no iOS e elevação no Android. |
+| Borda | `border` (1), `border-0`, `border-2`, `border-4`, `border=3` (valor livre); `border-x`, `border-y`, `border-top`, `border-bottom-2`; cor com `border-subtle`, `border-danger` etc., sem cor por lado (D123) |
+| Raio | `round-none` 0, `round-sm` 4, `round-md` 8, `round-lg` 12, `round-xl` 16, `round-full` (pílula ou círculo); por lado (`round-top-lg`) e por canto (`round-top-left-lg`) (D124) |
+| Sombra | `shadow-sm`, `shadow-md`, `shadow-lg` (sem `shadow-none`, D124). No claro: sombra real. No escuro: fundo um nível mais claro, borda fina e sombra discreta, e o que a pessoa escreveu vence (D45, D97, D132, D137). Nativo e web usam `boxShadow` (D108). |
 
 ## 12. Feedback de terceiros (separado das decisões)
 
@@ -641,8 +673,10 @@ O **modelo** está decidido. Os valores de cor abaixo são **ilustrativos**; os
 valores finais virão do tema padrão.
 
 ```ts
-// alanwind.config.ts (opcional: o tema padrão já traz tudo isto)
-export default defineTheme({
+// alanwind.config.ts (opcional: o tema padrão já traz tudo isto).
+// `palette` e `roles` são da fase de tema; na fase 1 só existe `define`
+// (D81, D99, D100).
+export default defineConfig({
   // Camada 1: paleta base. Tons de 0 (preto) a 100 (branco).
   // A pessoa define só alguns tons-âncora; os demais são calculados.
   palette: {
@@ -678,9 +712,9 @@ Uso nas classes:
   <Text look="text-danger type-sm">Algo deu errado</Text>
 </Box>
 
-<Pressable look="bg-danger text-on-danger hover(bg-danger-hover) tap-target focus-ring">
+<Pressable look="bg-danger text-on-danger hover(bg-danger-hover)">
 
-<Box look="bg=red-96 dark(bg=red-20)">   // tom livre, sem mexer no tema
+<Box look="bg=#e11d48 dark(bg=#FF8A80)">   // cor livre em hex, sem mexer no tema
 ```
 
 ## 14. Estrutura do repositório (D67 a D70)

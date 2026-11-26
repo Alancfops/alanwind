@@ -1,7 +1,7 @@
 # 044. Native: avaliação das condições (variantes)
 
 - **Status**: bloqueada — aguarda aprovação de `docs/specs/emissor-native.md` e
-  `docs/specs/ir.md`
+  `docs/specs/funcionamento-interno.md`
 - **Fase**: 1
 - **Branch**: feature/native-condicoes
 - **Depende de**: 010, 040

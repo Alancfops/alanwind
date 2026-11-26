@@ -1,7 +1,7 @@
 # Spec: emissor CSS
 
 Status: **rascunho, só o já decidido** · Decisões de origem: D4, D42, D45, D55,
-D56, D59, D65
+D56, D59, D65, D117, D120, D133, D135, D136
 
 Tradução da IR em CSS, reescrita do `look` em classe gerada e script da CDN.
 
@@ -24,6 +24,11 @@ Tradução da IR em CSS, reescrita do `look` em classe gerada e script da CDN.
 - **Sombras**: `box-shadow`; no escuro, fundo mais claro + borda fina (D45).
 - Texto em unidades que respeitam zoom (`rem`) (seção 5 da visão).
 - Vem **depois** do emissor RN (D60).
+- **Camadas**: as camadas de estilo e as de props chegam em ordem; a precedência
+  entre condições (D117, D135) já está na IR e o emissor não a reimplementa.
+- **Fontes na web** (D133): `font-sans` = pilha `system-ui`; `font-serif` =
+  pilha Georgia/serif; `font-mono` = pilha `ui-monospace`. Nenhuma fonte é
+  baixada.
 
 ## 2. Ainda não definido
 

@@ -1,7 +1,7 @@
 # 042. Native: emissor de cor e tipografia
 
 - **Status**: bloqueada — aguarda aprovação de `docs/specs/emissor-native.md` e
-  `docs/specs/ir.md`
+  `docs/specs/funcionamento-interno.md`
 - **Fase**: 1
 - **Branch**: feature/native-emissor-cor-texto
 - **Depende de**: 010

@@ -1,7 +1,7 @@
 # Spec: componentes
 
 Status: **rascunho, só o já decidido** · Decisões de origem: D26, D27, D40, D41,
-D53, D54, D57, D60, D62, D78, D111 a D115
+D53, D54, D57, D60, D62, D78, D111 a D115, D126
 
 `Box`, `Text`, `Pressable` e demais componentes, `contentLook` e `styled()`.
 
@@ -12,7 +12,9 @@ D53, D54, D57, D60, D62, D78, D111 a D115
   funcionam na web via react-native-web (D26).
 - Os componentes são o lugar da **acessibilidade por padrão** (ex.: `Pressable`
   com papel de botão e área mínima de toque) (D26).
-- Prop de estilo: **`look`** (D27).
+- Prop de estilo: **`look`** (D27). O tipo da prop oferece autocomplete das
+  classes conhecidas e aceita qualquer `string`, sem template literal estrito; a
+  validação de verdade é o diagnóstico em runtime ou build (D126).
 - **Lista** (D40): `Box`, `Text`, `Pressable`, `Image`, `ScrollView`,
   `TextInput`, `FlatList`, `Modal`, `Switch`, `SafeArea`. O resto é adicional.
 - **Fase 1**: `Box`, `Text` e `Pressable` (D60).

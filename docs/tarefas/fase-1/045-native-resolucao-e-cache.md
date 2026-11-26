@@ -1,7 +1,7 @@
 # 045. Native: resolução ponta a ponta com cache
 
 - **Status**: bloqueada — aguarda aprovação de `docs/specs/emissor-native.md`,
-  `docs/specs/ir.md` e `docs/specs/sintaxe.md`
+  `docs/specs/funcionamento-interno.md` e `docs/specs/sintaxe.md`
 - **Fase**: 1
 - **Branch**: feature/native-resolucao-cache
 - **Depende de**: 029, 040, 041, 042, 043, 044
