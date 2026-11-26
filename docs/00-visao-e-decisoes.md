@@ -199,6 +199,7 @@ próprios diferenciais**.
 | D137 | **Elevação no escuro: uma camada de sombra e o escrito vence.** Cada `shadow-*` do escuro tem só a camada listada na D132 (o texto "camadas do claro" não vale). A elevação só preenche o que falta: `bg-*` fora de `page`/`surface`/`raised` ou `dark(bg...)` explícito mantêm o fundo escrito; `border` próprio mantém a borda escrita; a sombra discreta continua. Ajusta a D132 e detalha a D97. |
 | D138 | **Diagnósticos que faltavam.** `between` com alinhamento no mesmo eixo segue a regra de conflito normal (D58, com aviso). Novos códigos: `AW010` (erro) para item colado depois de `)`, com posição no item colado (D126); `AW304` (erro, ao carregar o tema) para nome de atalho fora do formato (D134). `w=10,5`, `w=.5` e `bg=red-40` na fase 1 usam `AW008`, com mensagem própria. Condição impossível (`dark(light(x))`) é descartada da IR; fica só o `AW202`. |
 | D139 | **Analogias e nomes da IR aprovados.** `x-start`/`x-end`/`y-start`/`y-end` com a especificidade de `center-x`/`center-y`; `border-x`/`border-y`, raio por lado e canto e `gap-x`/`gap-y` mais específicos que a forma geral; na IR, `gap` vira `rowGap` + `columnGap` e o raio vira quatro cantos; `border-1`/`border-3` dão `AW103`; `text-secondary` dá `AW102`; `leading` e a borda por lado aceitam valor livre; papel de borda não pode se chamar `x` ou `y`. Nomes: `PropsIR` com `layers`, `PropsLayer`, `PropsMap`, campo `origin` (`shortcut` + `position`) no diagnóstico, camada `light` antes da `dark` na elevação. |
+| D140 | **Últimos detalhes da IR.** Cada ocorrência de variante vira sua própria camada, na ordem escrita, sem fundir condições iguais (`hover(bg-raised) press(bg-surface) hover(pad-4)`: vale `bg-surface`), para a última escrita valer sempre (D136). Os átomos de uma condição ficam na ordem da tabela de variantes (hover, press, focus, disabled, dark, light, ios, android, web, native, medium, expanded): `press(hover(x))` vira `[hover, press]`. `between` usa a propriedade abstrata `place.main` (`place.x` em linha, `place.y` em coluna), com a especificidade de `center-x`/`center-y`. |
 
 ### 3.1 Alvo técnico de referência (Expo SDK 58)
 
@@ -559,6 +560,7 @@ Pode esperar:
 - 2026-11-26 (Claude Code): perguntas do documentador após propagar D117–D135:
   precedência sem ciclo (D136), elevação no escuro (D137), diagnósticos que
   faltavam (D138) e analogias e nomes da IR (D139).
+- 2026-11-26 (Claude Code): últimos detalhes da IR (D140).
 
 ## 11. Vocabulário base (rascunho em construção)
 
