@@ -1,8 +1,136 @@
 import type { Color, ThemedColor } from '@alanwind/core';
 import { describe, expect, it } from 'vitest';
-import { emitColor, emitThemedColor } from '../src/emit/index';
+import type { ResolutionContext } from '../src/context/types';
+import { emitColor, emitTextStyle, emitThemedColor } from '../src/emit/index';
 
 const opaque = (rgb: string): Color => ({ rgb, alpha: 1 });
+
+const ctx = (scheme: ResolutionContext['scheme']): ResolutionContext => ({
+  scheme,
+  band: 'compact',
+  platform: 'ios',
+  window: { width: 390, height: 844 },
+});
+
+// emissor-native.md, seções 5.1 e 5.4 (R15, R17, D154): estilo completo.
+describe('emitTextStyle: cor como estilo completo', () => {
+  const surface: ThemedColor = {
+    light: opaque('#FFFFFF'),
+    dark: opaque('#1E1E22'),
+  };
+  const primary: ThemedColor = {
+    light: opaque('#2563EB'),
+    dark: opaque('#8AB4FF'),
+  };
+  const onWarning: ThemedColor = {
+    light: opaque('#3B2A00'),
+    dark: opaque('#3B2A00'),
+  };
+  const danger: ThemedColor = {
+    light: opaque('#D02424'),
+    dark: opaque('#FF8A80'),
+  };
+  const primary50: ThemedColor = {
+    light: { rgb: '#2563EB', alpha: 0.5 },
+    dark: { rgb: '#8AB4FF', alpha: 0.5 },
+  };
+  const rose50: Color = { rgb: '#E11D48', alpha: 0.5 };
+
+  it.each([
+    [
+      'bg-surface',
+      { backgroundColor: surface },
+      'light',
+      { backgroundColor: '#FFFFFF' },
+    ],
+    [
+      'bg-surface',
+      { backgroundColor: surface },
+      'dark',
+      { backgroundColor: '#1E1E22' },
+    ],
+    [
+      'bg-primary',
+      { backgroundColor: primary },
+      'light',
+      { backgroundColor: '#2563EB' },
+    ],
+    [
+      'bg-primary',
+      { backgroundColor: primary },
+      'dark',
+      { backgroundColor: '#8AB4FF' },
+    ],
+    ['text-on-warning', { color: onWarning }, 'light', { color: '#3B2A00' }],
+    ['text-on-warning', { color: onWarning }, 'dark', { color: '#3B2A00' }],
+    [
+      'border-danger',
+      { borderColor: danger },
+      'light',
+      { borderColor: '#D02424' },
+    ],
+    [
+      'border-danger',
+      { borderColor: danger },
+      'dark',
+      { borderColor: '#FF8A80' },
+    ],
+    [
+      'bg-primary-50',
+      { backgroundColor: primary50 },
+      'light',
+      { backgroundColor: 'rgba(37, 99, 235, 0.5)' },
+    ],
+    [
+      'bg-primary-50',
+      { backgroundColor: primary50 },
+      'dark',
+      { backgroundColor: 'rgba(138, 180, 255, 0.5)' },
+    ],
+    [
+      'bg=#e11d48/50',
+      { backgroundColor: { light: rose50, dark: rose50 } },
+      'light',
+      { backgroundColor: 'rgba(225, 29, 72, 0.5)' },
+    ],
+    [
+      'bg=#e11d48/50',
+      { backgroundColor: { light: rose50, dark: rose50 } },
+      'dark',
+      { backgroundColor: 'rgba(225, 29, 72, 0.5)' },
+    ],
+  ] as const)('%s (%s)', (_look, declarations, scheme, expected) => {
+    expect(emitTextStyle(declarations, ctx(scheme), 16)).toStrictEqual(
+      expected,
+    );
+  });
+
+  it('bg + text + border juntos: cada um escolhe o esquema', () => {
+    const declarations = {
+      backgroundColor: primary,
+      color: onWarning,
+      borderColor: danger,
+    };
+    expect(emitTextStyle(declarations, ctx('dark'), 16)).toStrictEqual({
+      backgroundColor: '#8AB4FF',
+      color: '#3B2A00',
+      borderColor: '#FF8A80',
+    });
+  });
+
+  it('alfa < 1 só no claro: o escuro sai opaco e vice-versa', () => {
+    const mixed: ThemedColor = {
+      light: { rgb: '#FFFFFF', alpha: 0.5 },
+      dark: opaque('#FFFFFF'),
+    };
+    expect(
+      emitTextStyle({ backgroundColor: mixed }, ctx('light'), 16),
+    ).toStrictEqual({ backgroundColor: 'rgba(255, 255, 255, 0.5)' });
+    expect(
+      emitTextStyle({ backgroundColor: mixed }, ctx('dark'), 16),
+    ).toStrictEqual({ backgroundColor: '#FFFFFF' });
+  });
+});
 
 // docs/specs/emissor-native.md, R17 e seção 5.1: cor opaca sai como '#RRGGBB'
 // da IR, escolhida pelo esquema do contexto.
