@@ -1,7 +1,7 @@
 # Spec: emissor React Native
 
 Status: **rascunho, só o já decidido** · Decisões de origem: D14, D15, D45, D57,
-D59, D60, D62, D64, D107 a D110, D116, D117, D119, D120, D133, D135
+D59, D60, D62, D64, D107 a D110, D116, D117, D119, D120, D133, D135, D136
 
 Tradução da IR em objetos de estilo e props do React Native, com cache por
 contexto.

@@ -3,7 +3,7 @@
 Status: **rascunho** (estrutura completa; a seção 8 ainda tem lacunas) ·
 Decisões de origem: D15, D31, D33, D35, D36, D37, D38, D58, D59, D60, D61, D62,
 D65, D74, D78, D82 a D90, D92, D94, D96 a D99, D101, D103 a D108, D110, D117,
-D118, D120, D122, D124, D125, D127, D132, D133, D135
+D118, D120, D122, D124, D125, D127, D132, D133, D135 a D139
 
 Formato neutro que o `core` produz e os emissores consomem: estilo, props e
 diagnósticos, sem conflitos e sem nada específico de plataforma. Contrato
@@ -11,8 +11,7 @@ central entre os pacotes (ADR 0002).
 
 Os nomes de tipos e de campos da seção 4 foram aprovados na D120 (as propostas
 de formato em bloco), com os ajustes da D135 (`props` com camadas, origem do
-diagnóstico). Os poucos nomes que esta atualização acrescentou por analogia
-estão marcados "(a confirmar)" e reunidos na seção 8, item 5.
+diagnóstico) e os nomes da D139 (`PropsIR`, `PropsLayer`, `PropsMap`, `origin`).
 
 ## 1. Escopo
 
@@ -97,7 +96,7 @@ Fica de fora:
   `gap` DEVE sair como `rowGap` e `columnGap` (D125) e o raio como os quatro
   cantos `borderTopLeftRadius`, `borderTopRightRadius`,
   `borderBottomRightRadius` e `borderBottomLeftRadius` (D124); estender a regra
-  a `gap` e ao raio é consequência, a confirmar (seção 8, item 5).
+  a `gap` e ao raio foi aprovado na D139.
 
 ### 3.3 Condições e camadas
 
@@ -110,18 +109,20 @@ Fica de fora:
 - **R15.** A IR DEVE ter uma camada por condição distinta, sem camada com
   `declarations` vazio, tanto no estilo quanto nas props (D135). Um `look` sem
   declarações tem `layers: []`.
-- **R16.** A ordem das camadas DEVE reproduzir a precedência da D117, para que
-  aplicar na ordem da lista (a posterior vence, propriedade a propriedade) dê o
-  vencedor certo:
-  1. a camada de condição vazia, se existir, vem primeiro;
-  2. camadas com menos átomos vêm antes das com mais átomos (`[hover]` antes
-     de `[dark, hover]`);
-  3. com o mesmo número de átomos, entre camadas com faixa de tela diferente, a
-     faixa menor vem antes da maior (`medium` antes de `expanded`), pois
-     `medium(x) expanded(y)` desfaz no tamanho maior (D37, D106, D117);
-  4. no mais, vale a ordem de escrita (a última escrita vem depois).
-  Isso vale para as camadas de estilo e para as de props (D135). Quando a regra
-  da D117 não cabe numa única ordem, ver a seção 8, item 2.
+- **R16.** A ordem das camadas DEVE reproduzir a precedência da D117 e da D136,
+  para que aplicar na ordem da lista (a posterior vence, propriedade a
+  propriedade) dê o vencedor certo. A ordem é total, sem ciclo:
+  1. menos átomos antes de mais átomos (a camada de condição vazia, se existir,
+     vem primeiro; `[hover]` antes de `[dark, hover]`);
+  2. com o mesmo número de átomos, a camada sem faixa de tela vem antes da de
+     `medium`, que vem antes da de `expanded`, mesmo contra outro tipo de
+     átomo (`[hover]` antes de `[medium]`), pois `medium(x) expanded(y)` desfaz
+     no tamanho maior (D37, D106, D136);
+  3. no mais, a ordem de escrita (a última escrita vem depois).
+  Isso vale para as camadas de estilo e para as de props (D135). Em
+  `expanded(x) hover(x) medium(x)`, a ordem é `[hover]`, `[medium]`,
+  `[expanded]` e vale `expanded`. Um caso que a ordem por camada não cobre
+  está na seção 8, item 1.
 - **R17.** Os emissores DEVEM aplicar as camadas na ordem da lista: entre as
   camadas cuja condição vale no momento, a posterior vence a anterior,
   propriedade a propriedade (D117, D135).
@@ -142,8 +143,8 @@ Fica de fora:
   diagnóstico, para a forma mínima, antes de formar a camada: `ios(native(x))`
   vira a condição `[ios]` e `medium(expanded(x))` vira `[expanded]`. Condições
   impossíveis (`dark` com `light`, `ios` com `web`) seguem a D127: o diagnóstico
-  `AW202` (aviso) é devolvido e o trecho nunca vale (D135, D127). Como a camada
-  impossível é representada na IR está na seção 8, item 3.
+  `AW202` (aviso) é devolvido e o trecho é **descartado da IR**: nenhuma camada
+  é criada com a condição contraditória (D135, D127, D138).
 
 ### 3.4 Centralização e alinhamento
 
@@ -183,8 +184,10 @@ Fica de fora:
   D135).
 - **R46.** `between` DEVE virar `justifyContent: 'space-between'` e não depende
   da direção: vale no eixo principal (D122). `wrap` DEVE virar
-  `flexWrap: 'wrap'` e `fill` DEVE virar `flex: 1` (D122). Como `between` se
-  combina com o alinhamento no mesmo eixo está na seção 8, item 4.
+  `flexWrap: 'wrap'` e `fill` DEVE virar `flex: 1` (D122). `between` junto com
+  um alinhamento que escreve o mesmo `justifyContent` (ou `alignItems`, conforme
+  a direção final) é um conflito normal: o `core` aplica a regra da D58, vale a
+  última escrita e devolve o aviso de conflito (D138).
 
 ### 3.5 Props
 
@@ -233,17 +236,20 @@ Fica de fora:
   `0 1px 2px a 6%`), com `spread` 0 e cor preta com a opacidade em `alpha`. As
   camadas do claro DEVEM ficar numa camada de estilo com o átomo de esquema
   `light` (D96, D108).
-- **R35.** **Elevação automática no escuro** (D97, D132): o `core` DEVE expandir
-  `shadow-*` numa camada de estilo com o átomo `scheme: dark`, com declarações
-  comuns: `backgroundColor` um nível acima, `borderColor` `#34343A`, largura de
-  borda 1 nos quatro lados e `boxShadow` preto com a opacidade do escuro
+- **R35.** **Elevação automática no escuro** (D97, D132, D137): o `core` DEVE
+  expandir `shadow-*` numa camada de estilo com o átomo `scheme: dark`, com
+  declarações comuns: `backgroundColor` um nível acima, `borderColor` `#34343A`,
+  largura de borda 1 nos quatro lados e `boxShadow` preto com **uma só camada**
   (`shadow-sm` 0 1px 2px a 30%; `shadow-md` 0 4px 8px a 35%; `shadow-lg`
   0 12px 24px a 40%). As três classes clareiam o fundo no mesmo um nível: quem
   já está em `bg-raised` fica em `raised`; sem `bg-*`, parte de `page`.
   `backgroundColor` e `borderColor` dessa camada têm as duas cores iguais, como
-  cor livre, porque a camada só vale no escuro. Os emissores NÃO DEVEM conhecer
-  o conceito de elevação (D45, D82). O que ainda falta está na seção 8,
-  item 1.
+  cor livre, porque a camada só vale no escuro.
+  **O escrito vence** (D137): a elevação só preenche o que falta. Com `bg-*`
+  fora de `page`, `surface` e `raised` (`bg-primary`) ou com `dark(bg...)`
+  explícito, a camada NÃO DEVE declarar `backgroundColor`; com `border` próprio,
+  NÃO DEVE declarar a borda que o `look` já escreve; a sombra discreta continua
+  sempre. Os emissores NÃO DEVEM conhecer o conceito de elevação (D45, D82).
 - **R36.** Valores fixos de `StyleMap` (`fontWeight`: 400, 500, 700;
   `round-full` = 9999 em cada um dos quatro raios) seguem o tema padrão (D44,
   D98).
@@ -384,8 +390,8 @@ export interface StyleMap {
   readonly justifyContent?:
     | 'flex-start' | 'center' | 'flex-end' | 'space-between';
   readonly alignItems?: 'stretch' | 'flex-start' | 'center' | 'flex-end';
-  readonly rowGap?: Dimension; // gap-y (a confirmar, R12)
-  readonly columnGap?: Dimension; // gap-x (a confirmar, R12)
+  readonly rowGap?: Dimension; // gap-y (R12, D139)
+  readonly columnGap?: Dimension; // gap-x (R12, D139)
 
   // espaço (sempre por lado, R12)
   readonly paddingTop?: Dimension;
@@ -411,7 +417,7 @@ export interface StyleMap {
   readonly borderRightWidth?: number;
   readonly borderBottomWidth?: number;
   readonly borderLeftWidth?: number;
-  readonly borderTopLeftRadius?: number; // (a confirmar, R12)
+  readonly borderTopLeftRadius?: number; // (R12, D139)
   readonly borderTopRightRadius?: number;
   readonly borderBottomRightRadius?: number;
   readonly borderBottomLeftRadius?: number;
@@ -459,7 +465,7 @@ Notas sobre o formato:
   no vocabulário decidido (D123); só a largura tem.
 - `Position` e `DiagnosticOrigin` e o nome do campo `origin` seguem o texto da
   D135 ("campo de origem com o atalho e a posição dentro do texto do `define`");
-  os nomes exatos são a confirmar (seção 8, item 5).
+  os nomes foram aprovados na D139.
 
 ## 5. Exemplos
 
@@ -492,8 +498,8 @@ Códigos `AW###` aparecem como marcador `AW<nome>`, porque o catálogo é da
 | `pad-top-2 pad-y-4` | `[{ when: [], declarations: { paddingTop: 8, paddingBottom: 16 } }]` | nenhum |
 | `bg-primary bg-surface` | `[{ when: [], declarations: { backgroundColor: T('#FFFFFF', '#1E1E22') } }]` | `warning` `AW<conflito>`, `position` `{ start: 0, end: 10 }` (o `bg-primary`, que perdeu) |
 | `bg-surface hover(bg-primary-hover)` | duas camadas: `[]` com `backgroundColor: T('#FFFFFF', '#1E1E22')` e `[{ kind: 'state', state: 'hover' }]` com `backgroundColor: T('#1D4FD8', '#A6C6FF')` | nenhum (condições diferentes) |
-| `gap-4 gap-x-2` | `[{ when: [], declarations: { rowGap: 16, columnGap: 8 } }]` (a confirmar) | nenhum |
-| `round-top-lg round-md` | `[{ when: [], declarations: { borderTopLeftRadius: 12, borderTopRightRadius: 12, borderBottomRightRadius: 8, borderBottomLeftRadius: 8 } }]` (a confirmar) | nenhum |
+| `gap-4 gap-x-2` | `[{ when: [], declarations: { rowGap: 16, columnGap: 8 } }]` | nenhum |
+| `round-top-lg round-md` | `[{ when: [], declarations: { borderTopLeftRadius: 12, borderTopRightRadius: 12, borderBottomRightRadius: 8, borderBottomLeftRadius: 8 } }]` | nenhum |
 
 ### 5.3 Variante aninhada (R13, R14)
 
@@ -650,9 +656,9 @@ layers: [
 | `size-10` | `width: 40`, `height: 40` |
 | `size-full` | `width` e `height`: `{ unit: 'percent', value: 100 }` |
 | `size-screen` | `width` e `height`: `{ unit: 'screen' }` |
-| `gap-4` | `rowGap: 16`, `columnGap: 16` (a confirmar) |
-| `gap-x-4` | `columnGap: 16` (a confirmar) |
-| `gap-y-2` | `rowGap: 8` (a confirmar) |
+| `gap-4` | `rowGap: 16`, `columnGap: 16` |
+| `gap-x-4` | `columnGap: 16` |
+| `gap-y-2` | `rowGap: 8` |
 | `margin-x-auto` | `marginLeft: 'auto'`, `marginRight: 'auto'` |
 | `margin-top=-8` | `marginTop: -8` |
 | `border` | `BORDER(1)` |
@@ -660,10 +666,10 @@ layers: [
 | `border-y-2` | `borderTopWidth: 2`, `borderBottomWidth: 2` |
 | `border=3` | `BORDER(3)` |
 | `border-danger` | `borderColor` com o par do `danger` |
-| `round-full` | `RADIUS(9999)` (a confirmar) |
-| `round-md` | `RADIUS(8)` (a confirmar) |
-| `round-top-lg` | `borderTopLeftRadius: 12`, `borderTopRightRadius: 12` (a confirmar) |
-| `round-bottom-left-md` | `borderBottomLeftRadius: 8` (a confirmar) |
+| `round-full` | `RADIUS(9999)` |
+| `round-md` | `RADIUS(8)` |
+| `round-top-lg` | `borderTopLeftRadius: 12`, `borderTopRightRadius: 12` |
+| `round-bottom-left-md` | `borderBottomLeftRadius: 8` |
 | `opacity-50` | `opacity: 0.5` |
 | `weight-bold upper` | `fontWeight: 700`, `textTransform: 'uppercase'` |
 | `font-mono` | `fontFamily: 'mono'` |
@@ -710,6 +716,9 @@ juntas; a ordem só serve para a IR ser determinística).
 | `shadow-sm` (sem `bg-*`, parte de `page`) | `backgroundColor`: `#1E1E22` nas duas cores; borda 1 `#34343A`; sombra `0 1px 2px` preta a 0.30 |
 | `bg-page shadow-md` | `backgroundColor`: `#1E1E22`; borda 1 `#34343A`; sombra `0 4px 8px` preta a 0.35 |
 | `bg-raised shadow-lg` (já em `raised`, fica em `raised`) | `backgroundColor`: `#28282D`; borda 1 `#34343A`; sombra `0 12px 24px` preta a 0.40 |
+| `bg-primary shadow-md` (fora dos níveis: o escrito vence, D137) | sem `backgroundColor`; borda 1 `#34343A`; sombra `0 4px 8px` preta a 0.35 |
+| `dark(bg-surface) shadow-md` (`dark(bg...)` explícito vence) | sem `backgroundColor`; borda 1 `#34343A`; sombra `0 4px 8px` preta a 0.35 |
+| `border-2 border-strong shadow-md` (borda própria vence) | `backgroundColor`: `#1E1E22`; sem `borderColor` nem larguras de borda; sombra `0 4px 8px` preta a 0.35 |
 
 ### 5.9 Erros e descartes (R42, R49)
 
@@ -728,10 +737,12 @@ juntas; a ordem só serve para a IR ser determinística).
 | Espaços repetidos entre tokens | Sem efeito na IR; as posições dos diagnósticos continuam sendo da string original (R38) |
 | Todo o `look` inválido | `layers: []`, `props: { layers: [] }` e um diagnóstico por trecho (R42) |
 | `dark(bg=#e11d48)` sobre `bg-primary` | Duas camadas: `[]` (papel) e `[scheme dark]` (cor livre); a segunda sobrepõe no escuro (R30, R17) |
-| Mesma propriedade em condições diferentes | Camadas separadas, sem aviso; quando as duas valem, a ordem das camadas (R16) decide, pela D117 (R9) |
+| Mesma propriedade em condições diferentes | Camadas separadas, sem aviso; quando as duas valem, a ordem das camadas (R16) decide, pela D117 e D136 (R9) |
+| `expanded(x) hover(x) medium(x)` | Camadas na ordem `[hover]`, `[medium]`, `[expanded]`; com as três valendo, vale `expanded` (R16, D136) |
+| `between center-y` (coluna) | Uma declaração de `justifyContent` (a última escrita) e aviso de conflito (R46, D138) |
 | `dark(hover(x)) hover(dark(y))` | Mesma condição canônica: disputa, vence `y`, aviso (R9, R13) |
 | `ios(native(x))`, `medium(expanded(x))` | Simplificadas em silêncio para `[ios]` e `[expanded]` (R44) |
-| `dark(light(x))`, `ios(web(x))` | `AW202` (aviso); o trecho nunca vale (R44); ver seção 8, item 3 |
+| `dark(light(x))`, `ios(web(x))` | `AW202` (aviso); o trecho é descartado da IR, sem camada (R44) |
 | `medium(lines-2) lines-4` | Props com duas camadas (R28) |
 | Cor livre com 3 ou 8 dígitos | `#E1F` vira `#EE11FF`; 8 dígitos viram `rgb` + `alpha` (R31) |
 | Erro de sintaxe dentro de variante (`hover(bg-raised`) | O trecho todo é descartado; o resto do `look` vale (D88) |
@@ -746,8 +757,7 @@ juntas; a ordem só serve para a IR ser determinística).
       inválidas (discriminante errado, campo desconhecido) são rejeitadas
       (`@ts-expect-error`).
 - [ ] Todo exemplo da seção 5 produz exatamente a saída indicada (testes de
-      ouro; mensagens de diagnóstico não são comparadas, R40). Linhas marcadas
-      "(a confirmar)" só viram teste depois de confirmadas.
+      ouro; mensagens de diagnóstico não são comparadas, R40).
 - [ ] `dark(hover(x))` e `hover(dark(x))` produzem IR igual por `toEqual` (R13).
 - [ ] `pad-4 pad-x-2` e `pad-x-2 pad-4` produzem IR igual (R10).
 - [ ] `hover(bg-raised) bg-primary` e `bg-primary hover(bg-raised)` produzem IR
@@ -766,37 +776,22 @@ juntas; a ordem só serve para a IR ser determinística).
 ## 8. Ainda não definido
 
 Lacunas que precisam de decisão do Alan. Nada aqui foi inventado na spec. O que
-as D117 a D135 resolveram saiu daqui: precedência entre condições (D117),
-valores da elevação no escuro (D132), condições redundantes e impossíveis
-(D135, D127), prop dentro de variante (D135), `x-start`, `x-end` e `between`
-sob direção (D122), posição de erro dentro de atalho (D135) e centralização numa
-variante com direção em outra (D135).
+as D117 a D139 resolveram saiu daqui: precedência entre condições (D117,
+D136), elevação no escuro (D132, D137), condições redundantes e impossíveis
+(D135, D127, D138), prop dentro de variante (D135), `x-start`, `x-end` e
+`between` sob direção (D122, D138), posição de erro dentro de atalho (D135),
+centralização numa variante com direção em outra (D135) e os nomes novos
+(D139).
 
-1. **Elevação no escuro: o que sobrou.** (a) Quando o `look` já tem `bg-*` fora
-   da escala de níveis (`bg-primary`), um `border` próprio ou um `dark(bg...)`
-   explícito, o que a camada do escuro faz? (b) Nas sombras do escuro, a D132
-   lista uma camada por classe (`shadow-md` 0 4px 8px a 35%) e diz "com as
-   camadas do claro e mais opacidade". No claro, `shadow-md` e `shadow-lg`
-   têm duas camadas. O escuro tem só a camada listada, ou também a segunda
-   camada do claro (com qual opacidade)? Os exemplos da seção 5.8 usam só a
-   listada. A mesma pergunta está no `tema.md`.
-2. **Ordem das camadas quando a D117 não cabe numa ordem só.** Com `expanded(x)
-   hover(x) medium(x)`, a faixa maior vence entre faixas, mas a última escrita
-   vence nos outros empates, e as três regras formam um ciclo quando as três
-   condições valem juntas. Também não está dito qual posição vale para uma
-   mesma condição escrita em mais de um lugar (`medium(a) hover(b) medium(c)`).
-   A pergunta é a mesma do item 3 da seção 11.1 da `sintaxe.md`.
-3. **Condição impossível na IR.** `dark(light(x))` nunca vale. A IR guarda a
-   camada com a condição contraditória (`[scheme dark, scheme light]`) ou a
-   descarta, deixando só o diagnóstico `AW202`? (A ordem dos átomos de mesmo
-   tipo na condição também não está definida.)
-4. **`between` e o alinhamento no mesmo eixo.** `between` (`space-between`) e
-   `center-y` em coluna, ou `y-start`/`y-end`, escrevem a mesma propriedade
-   flex (`justifyContent`). Qual vence, ou há um aviso? A pergunta é a do item
-   2 da seção 11.1 da `sintaxe.md`.
-5. **Nomes e estruturas acrescentados por analogia (a confirmar).** O `gap`
-   como `rowGap` + `columnGap` (D125) e o raio em quatro cantos (D124), por
-   analogia com o R12 da D120; `PropsIR` com `layers`, `PropsLayer` e
-   `PropsMap` (D135, espelhando `StyleIR`); o campo `origin` com `shortcut` e
-   `position` no `Diagnostic` (D135); a camada `light` antes da `dark` na
-   elevação.
+1. **Mesma condição escrita em mais de um lugar.** A D136 dá uma ordem total
+   entre condições, mas a IR tem uma camada por condição (R15). Em
+   `hover(a) press(b) hover(c)`, se `a` e `b` definem a mesma propriedade `p`
+   e `c` define outra, com as duas condições ativas vale `b` (a última escrita
+   de `p`, R41). Mas a camada `[hover]` reúne `a` e `c` e, pela R16, fica na
+   posição da última ocorrência, depois de `[press]`; então `a` venceria `b`. A
+   IR não representa isso com uma camada por condição. O que o `core` deve
+   fazer (dividir a camada, ou aceitar a divergência)?
+2. **Átomos de mesmo tipo na condição.** Fora do caso impossível (descartado,
+   D138), a ordem entre átomos do mesmo tipo (`platform`, `state`) na condição
+   canônica (R14) não está definida, por exemplo `[hover, press]` ou
+   `[press, hover]`.

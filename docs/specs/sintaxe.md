@@ -1,19 +1,17 @@
 # Spec: sintaxe do look
 
-Status: **rascunho** (estrutura completa, mas "Ainda não definido" tem itens e
-há pontos a confirmar; ver seção 11) · Decisões de origem: D7, D13, D15 a D20,
+Status: **em revisão** (estrutura completa; "Ainda não definido" vazio;
+aguarda o Alan aprovar) · Decisões de origem: D7, D13, D15 a D20,
 D23, D26 a D31, D33 a D38, D41 a D45, D49, D58, D59, D61 a D63, D66, D77, D78,
 D82 a D89, D91 a D98, D100 a D106, D110, D117, D118, D122 a D127, D129, D131,
-D133 a D135
+D133 a D139
 
 Gramática do `look`: tokens, variantes aninháveis, valor livre com `=`,
 opacidade, atalhos, vocabulário da fase 1, regra de conflito e diagnósticos.
 
-Convenção deste documento: **(a confirmar)** marca o pouco que não é derivação
-direta de uma decisão registrada, só consequência por analogia delas. As
-propostas anteriores (códigos `AW###`, leitura do texto, valor livre e
-estrutura) foram aprovadas na D127 e já não têm marcador. O que ainda precisa
-de confirmação está reunido na seção 11.2.
+Esta spec não tem mais propostas pendentes: os códigos `AW###`, a leitura do
+texto, o valor livre e a estrutura foram aprovados na D127, e as analogias e
+códigos que faltavam, nas D138 e D139.
 
 ## 1. Escopo
 
@@ -146,8 +144,8 @@ Fica de fora (outras specs):
   `AW107` com sugestão `bg-primary-50` (D104).
 - **R54.** O valor livre numérico PODE ter parte decimal, escrita com ponto e
   com ao menos um dígito antes dele (`w=10.5`, `leading=1.4`, `w=0.5`). Vírgula
-  decimal (`w=10,5`) e ponto sem dígito antes (`w=.5`) são erro (D125). O código
-  do erro está em "Ainda não definido" (11.1, item 1).
+  decimal (`w=10,5`) e ponto sem dígito antes (`w=.5`) são erro `AW008`, com
+  mensagem própria (D125, D138).
 
 ### 3.4 Cor por papel
 
@@ -173,8 +171,7 @@ Fica de fora (outras specs):
 - **R56.** `text-secondary` NÃO DEVE existir: o `secondary` é neutro e a cor do
   papel não passa como texto. Para texto neutro existem `text-body` e
   `text-muted`. `text-secondary` gera `AW102`, como papel que não existe em
-  `text-` (D129; o código é derivação, a confirmar na seção 11.2). Exceção à
-  D92 só para esse papel.
+  `text-` (D129, D139). Exceção à D92 só para esse papel.
 - **R57.** `border-<papel>` DEVE aceitar todos os papéis do tema
   (`border-primary`, `border-danger`), além de `subtle`, `strong` e `focus`
   (D95, D123). Não existe cor por lado: a cor é uma só para a borda (D123).
@@ -202,12 +199,16 @@ Fica de fora (outras specs):
 - **R59.** `between` DEVE distribuir a sobra do espaço entre os filhos **no eixo
   principal** do layout (o eixo da direção, não o da tela). `wrap` DEVE deixar
   os filhos quebrarem de linha; sem ele, não quebram. `fill` DEVE ocupar o
-  espaço restante no eixo do pai (flex 1) (D122).
+  espaço restante no eixo do pai (flex 1) (D122). `between` junto com um
+  alinhamento que cai no mesmo eixo (`center-y`, `y-start`, `y-end` em `col`;
+  `center-x`, `x-start`, `x-end` em `row`) segue a regra de conflito normal:
+  vale a última escrita, com aviso `AW201` (D138). Para esse fim, `between`
+  define a propriedade `place.main` (`place.y` em `col`, `place.x` em `row`), no
+  nível de `center-x`/`center-y`.
 - **R60.** `gap-N` DEVE aplicar o espaço aos dois eixos; `gap-x-N` DEVE aplicar
   o espaço entre colunas e `gap-y-N` entre linhas, sempre relativos à tela,
   qualquer que seja a direção. `gap-x` e `gap-y` aceitam valor livre
-  (`gap-x=V`) (D125). Que `gap-N` seja o par `gap.x` + `gap.y` é consequência,
-  a confirmar (11.2).
+  (`gap-x=V`) (D125). `gap-N` é o par `gap.x` + `gap.y` (D139).
 - **R61.** `size-full` e `size-screen` DEVEM existir e valer para largura e
   altura juntas, como `size-N` (D125, D98).
 - **R62.** Espessura de borda: `border` DEVE valer 1; `border-0`, `border-2` e
@@ -215,7 +216,7 @@ Fica de fora (outras specs):
   (D123). `border-x` e `border-y` e as formas por lado (`border-top`,
   `border-bottom-2`) DEVEM existir, com a mesma escala (D123). Valor numérico
   fora de 0, 2 e 4 na forma de classe (`border-3`) gera `AW103`, com sugestão
-  do valor livre (a confirmar, 11.2).
+  do valor livre (D139).
 - **R63.** Raio por lado: `round-top-<tam>`, `round-bottom-<tam>`,
   `round-left-<tam>` e `round-right-<tam>` DEVEM arredondar os dois cantos
   daquele lado. Raio por canto: `round-top-left-<tam>`, `round-top-right-<tam>`,
@@ -241,18 +242,20 @@ Fica de fora (outras specs):
 - **R40.** A especificidade de cada família é a da tabela da seção 5.9.
 - **R41.** Quando classes com **conjuntos de condições diferentes** definem a
   mesma propriedade e as condições valem **ao mesmo tempo**, vence, nesta ordem
-  de critério (D117):
-  1. a que tem condição vence a que não tem, mesmo escrita antes e mesmo que a
-     outra tenha especificidade maior (`bg-primary hover(bg-raised)` mostra
-     `bg-raised` no hover);
-  2. a que tem **mais** condições vence a que tem menos (`dark(hover(x))` vence
-     `hover(x)`);
-  3. com o mesmo número de condições, se as duas incluem faixa de tela e as
-     faixas são diferentes, vence a **maior** faixa (`expanded` vence `medium`);
-  4. no empate, vence a última escrita.
+  fixa de critérios (D117, D136):
+  1. a que tem **mais** condições (`dark(hover(x))` vence `hover(x)`; quem tem
+     condição vence quem não tem, mesmo escrita antes e mesmo que a outra tenha
+     especificidade maior: `bg-primary hover(bg-raised)` mostra `bg-raised` no
+     hover);
+  2. no empate, a de **faixa de tela maior** (sem faixa < `medium` <
+     `expanded`), mesmo contra outra condição de tipo diferente
+     (`expanded(x)` vence `hover(x)`);
+  3. no empate, a última escrita.
 
-  Essa disputa NÃO DEVE gerar `AW201`: cada item vale na sua condição. A
-  contagem de condições é feita depois da simplificação da R53.
+  Os critérios formam uma ordem total, sem ciclo: em
+  `expanded(x) hover(x) medium(x)`, vale `expanded`. Essa disputa NÃO DEVE
+  gerar `AW201`: cada item vale na sua condição. A contagem de condições é
+  feita depois da simplificação da R53.
 
 ### 3.7 Atalhos
 
@@ -272,8 +275,7 @@ Fica de fora (outras specs):
   tivessem sido escritas ali (D127).
 - **R64.** O nome de um atalho DEVE começar com letra minúscula e aceitar
   minúsculas, dígitos e hífen (`btn`, `card-title`, `btn-2`). Fora disso, é erro
-  ao carregar o tema (D134). O código desse erro está em "Ainda não definido"
-  (11.1, item 1).
+  ao carregar o tema com o código `AW304` (D134, D138).
 
 ### 3.8 Diagnósticos e sintaxe quebrada
 
@@ -301,9 +303,9 @@ Fica de fora (outras specs):
   verdade é o diagnóstico em runtime ou build (D126, D20, D66). Valor livre
   (`w=137`) e variantes aninhadas passam pelo tipo como `string`.
 - **R65.** Item colado depois de `)` (`hover(bg-raised)pad-4`) DEVE gerar erro
-  de falta de espaço, com sugestão (`hover(bg-raised) pad-4`), e a resolução
-  DEVE aplicar os dois itens mesmo assim (D126). Código e posição do erro estão
-  em "Ainda não definido" (11.1, item 1).
+  de falta de espaço (`AW010`), com sugestão de inserir o espaço, e a resolução
+  DEVE aplicar os dois itens mesmo assim. A posição é o item colado (`pad-4`)
+  (D126, D138).
 - **R66.** Erro no conteúdo de um atalho DEVE ter como posição o **nome do
   atalho no `look`** (`btn` em `pad-4 btn`) e trazer um campo de origem com o
   atalho e a posição do trecho dentro do texto do `define` (D135).
@@ -423,7 +425,7 @@ lower         = "a" | "b" | (* ... *) | "z" ;
 Desambiguação de `border-`: se o segmento após `border` é um lado, um eixo
 (`x`, `y`), uma espessura (número) ou nada, é espessura; caso contrário, é papel
 de cor. Por isso um papel de borda NÃO DEVE se chamar `top`, `bottom`, `left`,
-`right` (D127), nem `x` ou `y` (a confirmar, 11.2).
+`right` (D127), nem `x` ou `y` (D139).
 
 ## 5. Vocabulário da fase 1
 
@@ -568,19 +570,19 @@ A cor da borda e a espessura são propriedades distintas (`border.color` e
 A especificidade só compara classes que definem a **mesma propriedade** com o
 **mesmo conjunto de condições**. Nível maior vence (R36). Para conjuntos de
 condições diferentes, vale a R41. A tabela é derivada da D58; as linhas de
-`size`, `center` e espessura da borda são por analogia (D127). As linhas com
-(a confirmar) são consequência dessa mesma analogia para classes novas.
+`size`, `center` e espessura da borda são por analogia (D127), e as das classes
+novas (`x-start`, `border-x`, raio, `gap-x`) seguem a mesma analogia (D139).
 
 | Família | Nível 1 | Nível 2 | Nível 3 |
 |---|---|---|---|
 | Espaço interno | `pad` (4 lados) | `pad-x`, `pad-y` (2 lados) | `pad-top`, `pad-bottom`, `pad-left`, `pad-right` (1 lado) |
 | Espaço externo | `margin` | `margin-x`, `margin-y` | `margin-top`, `margin-bottom`, `margin-left`, `margin-right` |
 | Tamanho | `size` (largura e altura) | `w`, `h` | — |
-| Posição na tela | `center` (eixos x e y) | `center-x`, `x-start`, `x-end` (eixo x); `center-y`, `y-start`, `y-end` (eixo y) (a confirmar para `x-*` e `y-*`) | — |
-| Espessura da borda | `border` (4 lados) | `border-x`, `border-y` (a confirmar) | `border-<lado>` |
-| Raio (a confirmar) | `round` (4 cantos) | `round-top`, `round-bottom`, `round-left`, `round-right` | `round-top-left`, `round-top-right`, `round-bottom-left`, `round-bottom-right` |
-| Espaço entre filhos (a confirmar) | `gap` (x e y) | `gap-x`, `gap-y` | — |
-| Qualquer outra | Nível único: `bg`, `text`, `border-<papel>`, `type`, `weight`, `leading`, `align`, `font`, `italic`, `underline`, `upper`/`lower`, `lines`, `shadow`, `opacity`, `row`/`col`, `fill`, `wrap`, `between` | — | — |
+| Posição na tela | `center` (eixos x e y) | `center-x`, `x-start`, `x-end` (eixo x); `center-y`, `y-start`, `y-end` (eixo y) | — |
+| Espessura da borda | `border` (4 lados) | `border-x`, `border-y` | `border-<lado>` |
+| Raio | `round` (4 cantos) | `round-top`, `round-bottom`, `round-left`, `round-right` | `round-top-left`, `round-top-right`, `round-bottom-left`, `round-bottom-right` |
+| Espaço entre filhos | `gap` (x e y) | `gap-x`, `gap-y` | — |
+| Qualquer outra | Nível único: `bg`, `text`, `border-<papel>`, `type`, `weight`, `leading`, `align`, `font`, `italic`, `underline`, `upper`/`lower`, `lines`, `shadow`, `opacity`, `row`/`col`, `fill`, `wrap` | — | — |
 
 Notas:
 - Valor livre tem a especificidade da família: `pad=10` é nível 1; `pad-x=10`,
@@ -595,19 +597,19 @@ Notas:
 
 ### 5.10 Propriedades abstratas usadas nos exemplos
 
-`direction`, `place.x`, `place.y`, `distribute`, `wrap`, `fill`, `gap.x`,
+`direction`, `place.x`, `place.y`, `place.main`, `wrap`, `fill`, `gap.x`,
 `gap.y`, `pad.top|bottom|left|right`, `margin.top|bottom|left|right`, `width`,
 `height`, `bg`, `text`, `border.color`, `border.width.top|bottom|left|right`,
 `type`, `weight`, `leading`, `align`, `font`, `italic`, `underline`, `case`,
 `round.top-left|top-right|bottom-left|bottom-right`, `shadow`, `opacity`. Na
-parte de props: `lines`. Os nomes `distribute` e `wrap` e a divisão de `gap` e
-`round` em propriedades são notação desta spec (a confirmar, 11.2).
+parte de props: `lines`. O nome `place.main` (de `between`) e a divisão de `gap`
+e `round` em propriedades são notação desta spec (D139).
 
 ## 6. Diagnósticos
 
 Os códigos, textos, severidades e sugestões abaixo foram aprovados na D127. A
-D84 fixou: código `AW###`, posição e sugestão. Os erros novos das D125, D126 e
-D134 ainda não têm código (seção 11.1, item 1).
+D84 fixou: código `AW###`, posição e sugestão. A D138 acrescentou `AW010` e
+`AW304` e ampliou o `AW008`.
 
 Severidade: **erro** = o trecho foi descartado; **aviso** = o trecho vale, mas
 é suspeito. Posição `[início, fim)` (seção 2). `{x}` é o texto citado.
@@ -621,8 +623,9 @@ Severidade: **erro** = o trecho foi descartado; **aviso** = o trecho vale, mas
 | `AW005` | erro | Nome de variante sem parêntese (`hover` sozinho) | `{nome} é uma variante; use {nome}(...).` | `{nome}(...)` | D28 |
 | `AW006` | erro | Forma com dois-pontos, `hover:bg-x` | `Variantes usam parêntese, não ":".` | `hover(bg-x)` | D28 |
 | `AW007` | erro | Valor livre malformado: `w=` (vazio), `=50` (sem família), `w==5` | `Valor livre malformado.` | `{família}=valor` | D30, D88 |
-| `AW008` | erro | Valor livre inválido: unidade (`rem`, `em`, `vw`, `vh`), texto, negativo fora de `margin`, hex com tamanho errado, opacidade fora da escala, barra com hex de 8 dígitos | `Valor {v} não é aceito em {família}.` | forma válida mais próxima | D104, D105 |
+| `AW008` | erro | Valor livre inválido: unidade (`rem`, `em`, `vw`, `vh`), texto, negativo fora de `margin`, hex com tamanho errado, opacidade fora da escala, barra com hex de 8 dígitos, vírgula decimal (`w=10,5`), ponto sem dígito antes (`w=.5`), tom da paleta na fase 1 (`bg=red-40`) | `Valor {v} não é aceito em {família}.` (com mensagem própria para vírgula, ponto inicial e paleta) | forma válida mais próxima | D104, D105, D118, D125, D138 |
 | `AW009` | erro | `=` em família que não aceita valor livre (`weight=600`) | `{família} não aceita valor livre.` | classe da escala mais próxima | D30 |
+| `AW010` | erro | Item colado depois de `)` (`hover(bg-raised)pad-4`); os dois itens valem | `Falta espaço entre {a} e {b}.` | inserir um espaço antes do item | D126, D138 |
 | `AW101` | erro | Classe desconhecida (`padd-4`, `Pad-4`, `pad_4`) | `Classe {x} não existe.` | classe mais próxima | D35, D88 |
 | `AW102` | erro | Papel de cor inexistente (`bg-banana`, `text-secondary`) | `O papel {papel} não existe em {prefixo}-.` | papel mais próximo | D35, D129 |
 | `AW103` | erro | Valor fora da escala (`pad-17`, `type-4xl`, `opacity-30`, `bg-primary-30`, `border-3`) | `{valor} está fora da escala de {família}.` | valor da escala mais próximo ou o valor livre | D43, D98, D123 |
@@ -633,6 +636,7 @@ Severidade: **erro** = o trecho foi descartado; **aviso** = o trecho vale, mas
 | `AW301` | erro | Ciclo entre atalhos, ao carregar o tema | `Ciclo entre atalhos: {a} -> {b} -> {a}.` | — | D101 |
 | `AW302` | erro | Nome de atalho igual a uma classe ou a uma variante, ao carregar o tema | `O atalho {nome} coincide com uma classe ou variante.` | outro nome | D101, D134 |
 | `AW303` | erro | Papel criado terminando em número, ao carregar o tema | `Papel {nome} não pode terminar em número.` | `{nome}` sem o número | D31 |
+| `AW304` | erro | Nome de atalho fora do formato (maiúscula, começa com dígito ou hífen), ao carregar o tema | `O nome do atalho {nome} é inválido.` | nome em minúsculas | D134, D138 |
 
 Regras dos diagnósticos:
 - Posição de erro de classe: o token inteiro (`pad-17` em `[0,6)`). De
@@ -644,7 +648,8 @@ Regras dos diagnósticos:
 - Erro dentro de um atalho: a posição é o **nome do atalho no `look`**, e o
   diagnóstico traz um campo de origem com o atalho e a posição dentro do texto
   do `define` (R66, D135). Formato do campo: `funcionamento-interno.md`.
-- `AW301` a `AW303` pertencem ao carregamento do tema e referem-se ao texto da
+- Posição de `AW010`: o item colado (`pad-4` em `hover(bg-raised)pad-4`).
+- `AW301` a `AW304` pertencem ao carregamento do tema e referem-se ao texto da
   definição, não a um `look` (`tema.md`).
 - O contraste (D32) não está na fase 1 (seção 10); seu código será proposto
   quando entrar.
@@ -695,7 +700,7 @@ Notação das saídas (D127; só para esta spec, o formato real é o da IR em
 | `x-end` | `place.x=end` |
 | `y-start` | `place.y=start` |
 | `y-end` | `place.y=end` |
-| `between` | `distribute=between` |
+| `between` | `place.main=between` |
 | `wrap` | `wrap=true` |
 | `fill` | `fill=true` |
 | `w-full` | `width=full` |
@@ -802,11 +807,13 @@ Cor livre com tom da paleta (`bg=red-40`) não está na fase 1 (D118): ver 11.1.
 | `hover(bg-primary bg-surface)` | `[hover] bg=role(surface)` e `diag: AW201[6,16)` |
 | `dark(hover(bg-raised)) hover(dark(bg-surface))` | `[dark,hover] bg=role(surface)` e `diag: AW201[11,20)` |
 | `lines-2 lines-3` | `props: lines=3` e `diag: AW201[0,7)` |
+| `between center-y` (coluna) | `place.y=center` e `diag: AW201[0,7)` |
+| `center-y between` (coluna) | `place.y=between` e `diag: AW201[0,8)` |
 
 Nota: em `center center-x`, `center-x` (nível 2) vence `center` (nível 1) em
 `place.x`; como o valor é o mesmo, o resultado não muda e não há aviso, porque
 os níveis são diferentes (seção 5.9, D127). As linhas com `gap`, `border` e
-`round` seguem a mesma lógica por analogia (a confirmar, 11.2).
+`round` seguem a mesma lógica por analogia (D139).
 
 ### 7.5 Atalhos
 
@@ -853,6 +860,11 @@ esta spec; o campo real está em `funcionamento-interno.md`.
 | `bg=#12` | vazia e `diag: AW008[0,6)` |
 | `bg=#e11d4880/50` | vazia e `diag: AW008[0,15)` |
 | `bg=#e11d48/30` | vazia e `diag: AW008[0,13)` |
+| `w=10,5` | vazia e `diag: AW008[0,6)` |
+| `w=.5` | vazia e `diag: AW008[0,4)` |
+| `bg=red-40` | vazia e `diag: AW008[0,9)` |
+| `border-3` | vazia e `diag: AW103[0,8)` com sugestão `border=3` |
+| `hover(bg-raised)pad-4` | `pad.bottom=16 pad.left=16 pad.right=16 pad.top=16 [hover] bg=role(raised)` e `diag: AW010[16,21)` |
 | `weight=600` | vazia e `diag: AW009[0,10)` |
 | `padd-4` | vazia e `diag: AW101[0,6)` com sugestão `pad-4` |
 | `Pad-4` | vazia e `diag: AW101[0,5)` com sugestão `pad-4` |
@@ -869,7 +881,7 @@ esta spec; o campo real está em `funcionamento-interno.md`.
 | `` (vazio) | vazia, sem diagnóstico |
 | `   ` (só espaços) | vazia, sem diagnóstico |
 
-### 7.7 Precedência entre condições diferentes (D117)
+### 7.7 Precedência entre condições diferentes (D117, D136)
 
 Cada linha diz qual valor vale **quando as condições do contexto estão
 ativas ao mesmo tempo** (R41). "Contexto" lista as condições que valem.
@@ -888,14 +900,16 @@ ativas ao mesmo tempo** (R41). "Contexto" lista as condições que valem.
 | `hover(bg-raised) press(bg-primary-hover)` | hover e press | `bg=role(primary-hover)` |
 | `press(bg-primary-hover) hover(bg-raised)` | hover e press | `bg=role(raised)` |
 | `medium(lines-2) lines-4` | medium | `props: lines=2` |
+| `expanded(bg-primary) hover(bg-raised) medium(bg-surface)` | expanded, hover e medium | `bg=role(primary)` |
+| `hover(bg-raised) medium(bg-surface)` | hover e medium | `bg=role(surface)` |
+| `medium(bg-surface) hover(bg-raised)` | hover e medium | `bg=role(surface)` |
 
 Notas:
 - `pad-x-2 medium(pad-4)` em `medium`: a condição vence a especificidade da
   família (critério 1 da R41); `pad-x` não segura o 8 da esquerda e da direita.
+- Nas três últimas linhas, o número de condições empata (uma cada); a faixa
+  maior vence (critério 2), mesmo contra `hover` escrito depois (D136).
 - Nenhuma dessas disputas gera `AW201`.
-- Empate entre uma faixa de tela e outro estado com o mesmo número de
-  condições, em ordens que formam um ciclo (R41, critérios 3 e 4), está em
-  "Ainda não definido" (11.1, item 3).
 
 ## 8. Casos de borda e erros
 
@@ -914,15 +928,16 @@ Notas:
 | `dark(dark(x))` | Aceito; condições repetidas valem como uma | R11, R53 |
 | `ios(native(x))`, `medium(expanded(x))` | Simplificados em silêncio para `ios(x)` e `expanded(x)` | R53 |
 | `dark(light(x))`, `ios(web(x))` | Aceitos, nunca valem, `AW202` | R15 |
-| `hover(bg-raised)pad-4` | Erro de falta de espaço com sugestão; aplica os dois itens | R65 |
+| `hover(bg-raised)pad-4` | `AW010` com sugestão; aplica os dois itens | R65 |
+| `between center-y` (coluna) | Conflito normal: vale o último, com `AW201` | R59 |
 | `w=10.5`, `leading=1.4` | Aceitos (decimal com ponto) | R54 |
-| `w=10,5`, `w=.5` | Erro (código em 11.1) | R54 |
-| `bg=red-40` na fase 1 | Tom da paleta não existe na fase 1 (código em 11.1) | R18, D118 |
+| `w=10,5`, `w=.5` | Erro `AW008` | R54 |
+| `bg=red-40` na fase 1 | Tom da paleta não existe na fase 1: `AW008` | R18, D118 |
 | `text-secondary` | `AW102` | R56 |
 | `shadow-none` | Fora da fase 1 | R63 |
 | `border-3` | `AW103` com sugestão `border=3` | R62 |
 | Atalho com nome de classe ou de variante | Erro ao carregar o tema (`AW302`) | R44 |
-| Atalho com nome fora do formato | Erro ao carregar o tema (código em 11.1) | R64 |
+| Atalho com nome fora do formato | Erro ao carregar o tema (`AW304`) | R64 |
 | Ciclo entre atalhos | Erro ao carregar o tema (`AW301`) | R44 |
 | Erro dentro de atalho | Posição = nome do atalho no `look`; traz a origem no `define` | R66 |
 | `bg-red-600` | `AW102`: `red-600` não é papel | R26, R29 |
@@ -945,8 +960,7 @@ Notas:
   `pad`, `pad-x`/`pad-y` e `pad-<lado>` (R36), e `AW201` só aparece em empate
   total (R38).
 - Há um teste de ouro por linha das tabelas da seção 7, no formato da skill
-  `teste-de-ouro`. Linhas marcadas "(a confirmar)" só viram teste depois de
-  confirmadas.
+  `teste-de-ouro`.
 - A resolução é determinística: mesma entrada gera a mesma saída e a mesma
   ordem de diagnósticos (R6, R49).
 - Todo código `AW###` da seção 6 tem pelo menos um teste que o provoca.
@@ -974,40 +988,18 @@ Notas:
 
 ## 11. Ainda não definido
 
-Status do documento: **rascunho**. Enquanto 11.1 tiver itens, a spec não vai
-para "em revisão". O que está em 11.2 também precisa de confirmação.
+Status do documento: **em revisão**. Não há lacunas: as perguntas das rodadas
+anteriores foram respondidas nas D136 a D139.
 
 ### 11.1 Lacunas (viram pergunta ao Alan)
 
-1. **Códigos `AW###` dos erros novos.** As decisões pedem erro, mas não dão o
-   código nem, em alguns casos, a posição:
-   - item colado depois de `)` (`hover(bg-raised)pad-4`, D126): código e
-     posição do erro de falta de espaço;
-   - nome de atalho fora do formato, por exemplo com maiúscula (D134);
-   - vírgula decimal (`w=10,5`) e ponto sem dígito antes (`w=.5`) (D125):
-     vale `AW008`?
-   - tom da paleta na fase 1 (`bg=red-40`, D118): vale `AW008`?
-2. **`between` e o alinhamento no mesmo eixo.** `between` distribui no eixo
-   principal; `center-y` (em coluna) e `y-start`/`y-end` também mexem no eixo
-   principal. Quando as duas classes aparecem juntas, qual vence, ou os dois
-   valem? A D122 não diz. Reflete na IR (`funcionamento-interno.md`, seção 8).
-3. **Ciclo na precedência entre condições.** Com o mesmo número de condições, a
-   D117 manda vencer a faixa maior entre faixas diferentes e a última escrita
-   nos demais empates. Com `expanded(x) hover(x) medium(x)`, `expanded` vence
-   `medium` (faixa), `medium` vence `hover` (última escrita) e `hover` vence
-   `expanded` (última escrita): não há um vencedor único quando os três
-   valem ao mesmo tempo. Qual vale?
+Nenhuma.
 
-### 11.2 Pontos a confirmar (consequências por analogia, já escritas no texto)
+### 11.2 Propostas a aprovar
 
-Cada uma está marcada no texto com "(a confirmar)":
-- Especificidade por analogia para as classes novas: `x-start`/`x-end`/
-  `y-start`/`y-end` no nível de `center-x`/`center-y`; `border-x`/`border-y`
-  entre `border` e `border-<lado>`; raio (`round`, por lado, por canto);
-  `gap`, `gap-x`, `gap-y` (seção 5.9).
-- `gap-N` como par `gap.x` + `gap.y`; raio em quatro cantos como propriedades
-  abstratas; `distribute` e `wrap` como nomes de propriedade (seção 5.10).
-- `border-3` e `border-1` na forma de classe: `AW103` (R62).
-- `text-secondary` gera `AW102`, não `AW101` (R56).
-- Papel de borda não pode se chamar `x` nem `y` (seção 4.2).
-- `leading` e as formas por lado e eixo da borda aceitam valor livre (R21).
+Nenhuma. O que era consequência por analogia (especificidade das classes novas,
+`gap-N` como `gap.x` + `gap.y`, raio em quatro cantos, `AW102` para
+`text-secondary`, `AW103` para `border-1`/`border-3`, valor livre em `leading` e
+na borda por lado, papel de borda não chamado `x` ou `y`) foi aprovado na D139.
+A única notação nova desta atualização é `place.main`, de `between` (R59), que
+só serve para escrever os exemplos desta spec.

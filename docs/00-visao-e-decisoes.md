@@ -574,7 +574,7 @@ de 4 (`pad-4` = 16); abreviar só `w`, `h`, `x`, `y` (D19); valor livre com `=`
 | Esquema de cor | `dark(...)`, `light(...)` (os papéis de cor já mudam sozinhos; estas servem para exceções) |
 | Plataforma | `ios(...)`, `android(...)`, `web(...)`, `native(...)` |
 | Tamanho de tela (D29, D37, D61) | `medium(...)`, `expanded(...)`; valem "a partir de" (`medium(...)` vale em `medium` e acima). Sem variante = todos os tamanhos. |
-| Acessibilidade | `motion-safe(...)` |
+| Acessibilidade | `motion-safe(...)` (fora da fase 1, D78) |
 
 Exemplo:
 `<Box look="col gap-2 pad-4 medium(row gap-6) bg-surface hover(bg-raised shadow-md)">`
@@ -584,9 +584,9 @@ Exemplo:
 | O que | Classes |
 |---|---|
 | Direção | `row`, `col` |
-| Alinhamento | `center` (dois eixos), `center-x` (horizontal), `center-y` (vertical), `between`, `start`, `end` (D38) |
-| Fluxo | `wrap`, `fill` (ocupa o espaço restante) |
-| Espaço entre filhos | `gap-4` |
+| Alinhamento | `center` (dois eixos), `center-x` (horizontal), `center-y` (vertical) (D38); `x-start`, `x-end`, `y-start`, `y-end`, sempre relativos à tela; `between` (distribui a sobra no eixo principal) (D122) |
+| Fluxo | `wrap` (quebra de linha), `fill` (ocupa o espaço restante) (D122) |
+| Espaço entre filhos | `gap-4`; `gap-x-4` (entre colunas) e `gap-y-4` (entre linhas), relativos à tela (D125) |
 
 **Espaçamento** (D43)
 
@@ -600,14 +600,14 @@ Exemplo:
 
 | O que | Classes |
 |---|---|
-| Largura e altura | `w-full`, `h-10`, `size-10` (largura e altura iguais) |
-| Valor livre | `w=137`, `pad=10`, `w=50%` |
+| Largura e altura | `w-full`, `h-10`, `size-10` (largura e altura iguais), `size-full`, `size-screen` (D125) |
+| Valor livre | `w=137`, `pad=10`, `w=50%`, `w=10.5` (decimal com ponto, D125) |
 
 **Atalhos** (D36)
 
-`define('btn', 'bg-primary pad-4 round-md')` cria o atalho `btn`, usado como uma
-classe qualquer. Os atalhos são declarados no arquivo de tema (D63); o formato
-exato fica para a spec.
+`define: { btn: 'bg-primary pad-4 round-md' }` no `defineConfig` cria o atalho
+`btn`, usado como uma classe qualquer. Os atalhos são declarados no
+`alanwind.config.ts` (D63, D100); o formato está em `docs/specs/tema.md`.
 
 **Cor** (D46 a D52)
 
@@ -619,14 +619,14 @@ e `-hover` (D22, D24). A paleta base não aparece nas classes (D34).
 | Grupo | Papéis |
 |---|---|
 | Fundos | `bg-page` (fundo do app), `bg-surface` (cards), `bg-raised` (elevado, como modais). No escuro: cinza-grafite (D50). No claro: página cinza bem clara e card branco (D51). |
-| Marca | `bg-primary` (azul elétrico, D46), `bg-secondary` (cinza neutro, D52), com `text-on-primary`, `text-on-secondary` |
+| Marca | `bg-primary` (azul elétrico, D46), `bg-secondary` (cinza neutro, D52), com `text-on-primary`, `text-on-secondary`. `text-secondary` não existe (D129); `secondary-hover` e `secondary-soft` existem (D130). |
 | Estados (semáforo, D47) | `bg-success` (verde), `bg-warning` (amarelo, texto escuro por cima), `bg-danger` (vermelho), `bg-info` (azul, D48), com `text-on-success` etc. |
 | `-hover` (estado de elemento interativo) | `bg-primary-hover`: mesma ênfase, um pouco mais claro no tema escuro e mais escuro no claro (ex.: botão primário). No celular vira o estado pressionado. |
-| `-soft` (baixa ênfase, estático) | `bg-danger-soft`, `bg-primary-soft`: avisos, selos, etiquetas, destaques, item selecionado. Não precisa ser botão. Também pode ser o fundo de hover de um botão fantasma ou item de lista: `hover(bg-primary-soft)`. |
+| `-soft` (baixa ênfase, estático) | `bg-danger-soft`, `bg-primary-soft`: avisos, selos, etiquetas, destaques, item selecionado. Não precisa ser botão. Também pode ser o fundo de hover de um botão fantasma ou item de lista: `hover(bg-primary-soft)`. O texto por cima é `text-on-danger-soft` etc. (D131). |
 | Opacidade na cor (D31) | `bg-primary-50`, `text-strong-50` (50 = 50% de opacidade) |
-| Cor livre (D33) | `bg=red-96` (tom 96 do vermelho), `bg=#e11d48` (cor exata). Sem o par `on-`; o aviso de contraste (D32) cobre. |
+| Cor livre (D33, D118) | `bg=#e11d48` (cor exata, só hex na fase 1); `bg=red-40` (tom da paleta) entra na fase de tema. Sem o par `on-`; o aviso de contraste (D32) cobre. |
 | Texto | `text-strong` (títulos), `text-body` (padrão), `text-muted`, `text-subtle`, `text-link` |
-| Bordas | `border-subtle`, `border-strong`, `border-focus` |
+| Bordas | `border-subtle`, `border-strong`, `border-focus` e `border-<papel>` (`border-danger`) (D123) |
 | Opacidade do elemento | `opacity-50` |
 
 **Tipografia** (D23, D49)
@@ -652,9 +652,9 @@ escala de fonte no RN), conforme a seção 5.
 
 | O que | Classes |
 |---|---|
-| Borda | `border` (1), `border-2`, mais cor com `border-subtle` etc. |
-| Raio | `round-none` 0, `round-sm` 4, `round-md` 8, `round-lg` 12, `round-xl` 16, `round-full` (pílula ou círculo) |
-| Sombra | `shadow-sm`, `shadow-md`, `shadow-lg`. No claro: sombra real. No escuro: fundo mais claro (`bg-raised`) mais borda fina, com sombra discreta (D45). Cada emissor traduz: `box-shadow` na web, propriedades de sombra no iOS e elevação no Android. |
+| Borda | `border` (1), `border-0`, `border-2`, `border-4`, `border=3` (valor livre); `border-x`, `border-y`, `border-top`, `border-bottom-2`; cor com `border-subtle`, `border-danger` etc., sem cor por lado (D123) |
+| Raio | `round-none` 0, `round-sm` 4, `round-md` 8, `round-lg` 12, `round-xl` 16, `round-full` (pílula ou círculo); por lado (`round-top-lg`) e por canto (`round-top-left-lg`) (D124) |
+| Sombra | `shadow-sm`, `shadow-md`, `shadow-lg` (sem `shadow-none`, D124). No claro: sombra real. No escuro: fundo um nível mais claro, borda fina e sombra discreta, e o que a pessoa escreveu vence (D45, D97, D132, D137). Nativo e web usam `boxShadow` (D108). |
 
 ## 12. Feedback de terceiros (separado das decisões)
 
@@ -671,8 +671,10 @@ O **modelo** está decidido. Os valores de cor abaixo são **ilustrativos**; os
 valores finais virão do tema padrão.
 
 ```ts
-// alanwind.config.ts (opcional: o tema padrão já traz tudo isto)
-export default defineTheme({
+// alanwind.config.ts (opcional: o tema padrão já traz tudo isto).
+// `palette` e `roles` são da fase de tema; na fase 1 só existe `define`
+// (D81, D99, D100).
+export default defineConfig({
   // Camada 1: paleta base. Tons de 0 (preto) a 100 (branco).
   // A pessoa define só alguns tons-âncora; os demais são calculados.
   palette: {
@@ -708,9 +710,9 @@ Uso nas classes:
   <Text look="text-danger type-sm">Algo deu errado</Text>
 </Box>
 
-<Pressable look="bg-danger text-on-danger hover(bg-danger-hover) tap-target focus-ring">
+<Pressable look="bg-danger text-on-danger hover(bg-danger-hover)">
 
-<Box look="bg=red-96 dark(bg=red-20)">   // tom livre, sem mexer no tema
+<Box look="bg=#e11d48 dark(bg=#FF8A80)">   // cor livre em hex, sem mexer no tema
 ```
 
 ## 14. Estrutura do repositório (D67 a D70)

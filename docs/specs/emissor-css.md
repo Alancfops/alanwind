@@ -1,7 +1,7 @@
 # Spec: emissor CSS
 
 Status: **rascunho, só o já decidido** · Decisões de origem: D4, D42, D45, D55,
-D56, D59, D65, D117, D120, D133, D135
+D56, D59, D65, D117, D120, D133, D135, D136
 
 Tradução da IR em CSS, reescrita do `look` em classe gerada e script da CDN.
 

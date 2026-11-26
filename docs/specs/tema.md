@@ -1,15 +1,13 @@
 # Spec: tema
 
-Status: **rascunho** (falta uma pergunta na seção 10) · Decisões de origem: D6,
-D20, D22, D24, D25, D31 a D35, D43 a D52, D63, D64, D81, D91 a D102, D118,
-D119, D127 a D134
+Status: **em revisão** (estrutura completa; "Ainda não definido" vazio; aguarda
+o Alan aprovar) · Decisões de origem: D6, D20, D22, D24, D25, D31 a D35, D43 a
+D52, D63, D64, D81, D91 a D102, D118, D119, D127 a D134, D137, D138
 
 Tema padrão da fase 1 (cores, escalas, sombras, fontes, breakpoints), contraste
 do tema e formato do `alanwind.config.ts` com atalhos (`define`).
 
-O status é `rascunho` porque a seção 10 ("Ainda não definido") ainda tem uma
-pergunta para o Alan. Os valores abaixo são os decididos; onde a decisão não
-existe, a seção 10 diz qual é a pergunta.
+Todos os valores abaixo são os decididos; a seção 10 está vazia.
 
 ## 1. Escopo
 
@@ -131,9 +129,13 @@ WCAG 2 (skill `checar-contraste`).
 - **R18.** No escuro, `shadow-*` DEVE clarear o fundo do elemento um nível
   (`bg-page` para `bg-surface`, `bg-surface` para `bg-raised`), adicionar a
   borda fina de largura 1 e cor `#34343A` e uma sombra preta com os valores da
-  tabela 5.7. As três classes clareiam o fundo no mesmo um nível: quem já está
-  em `bg-raised` fica em `raised`; sem `bg-*`, o ponto de partida é `page`. Quem
-  escreve só coloca `shadow-md` (D45, D97, D132).
+  tabela 5.7, de uma só camada. As três classes clareiam o fundo no mesmo um
+  nível: quem já está em `bg-raised` fica em `raised`; sem `bg-*`, o ponto de
+  partida é `page`. Quem escreve só coloca `shadow-md` (D45, D97, D132, D137).
+- **R34.** Na elevação do escuro, o escrito vence: a elevação só preenche o que
+  falta. `bg-*` fora de `page`, `surface` e `raised` (`bg-primary`) ou
+  `dark(bg...)` explícito mantêm o fundo escrito; `border` próprio mantém a
+  borda escrita; a sombra discreta continua (D137).
 
 ### 4.5 Contraste
 
@@ -168,8 +170,7 @@ WCAG 2 (skill `checar-contraste`).
   app (D35, D84).
 - **R32.** O nome de um atalho DEVE começar com letra minúscula e aceitar
   minúsculas, dígitos e hífen (`btn`, `card-title`, `btn-2`). Fora disso, é erro
-  ao carregar o tema (D134). O código desse erro está na `sintaxe.md`
-  (seção 11.1, item 1).
+  ao carregar o tema, com o código `AW304` (D134, D138).
 - **R33.** No React Native, `defineConfig` e `configure` DEVEM vir de
   `@alanwind/native` na fase 1. O app DEVE chamar `configure(config)` uma vez,
   no arquivo de entrada. Sem a chamada, os atalhos ficam desligados, com aviso
@@ -299,10 +300,10 @@ Escuro (D97, D132):
 | `shadow-md` | `0 4px 8px rgba(0,0,0,0.35)` |
 | `shadow-lg` | `0 12px 24px rgba(0,0,0,0.40)` |
 
-As três classes clareiam o fundo no mesmo um nível; só a sombra muda. Os valores
-do escuro são os da D132 tomados literalmente (uma camada por classe); se o
-`md` e o `lg` do escuro mantêm também a segunda camada do claro, está em
-"Ainda não definido" (P1).
+As três classes clareiam o fundo no mesmo um nível; só a sombra muda. Cada
+classe tem uma só camada no escuro, a da tabela; a segunda camada do claro não
+vale no escuro (D137). O escrito vence (R34): com `bg-primary shadow-md`, o
+fundo continua `bg-primary`, e a borda e a sombra do escuro valem.
 
 ### 5.8 Breakpoints (D94)
 
@@ -502,7 +503,7 @@ do teste (2,2 a 2,8:1, D128).
 | `define: { row: 'pad-4' }` | erro `AW302`: nome coincide com a classe `row` |
 | `define: { 'pad-4': 'row' }` | erro `AW302`: nome coincide com a classe `pad-4` |
 | `define: { hover: 'pad-4' }` | erro `AW302`: nome coincide com a variante `hover` |
-| `define: { Btn: 'pad-4' }` | erro ao carregar o tema: nome começa com maiúscula (código na `sintaxe.md`, 11.1) |
+| `define: { Btn: 'pad-4' }` | erro `AW304` ao carregar o tema: nome começa com maiúscula |
 | `defineConfig({})` ou sem arquivo | tema padrão, sem atalhos |
 | `defineConfig({ palette: {...} })` | não aceito na fase 1 (R22) |
 | app sem a chamada `configure(config)` | atalhos desligados, com aviso em dev (R33) |
@@ -518,7 +519,7 @@ do teste (2,2 a 2,8:1, D128).
 - **Atalho com nome igual a classe ou a variante**: erro ao carregar o tema
   (D101, D134).
 - **Atalho com nome fora do formato** (maiúscula, começa com dígito ou hífen):
-  erro ao carregar o tema (D134).
+  erro `AW304` ao carregar o tema (D134, D138).
 - **Atalho com classe inexistente dentro**: o atalho é aceito; a classe ruim é
   tratada pela regra de sintaxe quebrada, que ignora só o trecho ruim (D88).
 - **Opacidade sobre papel** (`bg-primary-50`): sem contraste próprio (R21).
@@ -531,6 +532,8 @@ do teste (2,2 a 2,8:1, D128).
   sombra (D128).
 - **`shadow-*` num elemento já em `bg-raised`, no escuro**: o fundo fica em
   `raised`; o sombreamento e a borda se mantêm (D132).
+- **`shadow-*` com `bg-primary`, `dark(bg...)` ou `border` próprio**: o
+  escrito vence; a elevação só preenche o que falta (R34, D137).
 - **`configure` não chamado no RN**: atalhos desligados, com aviso em dev
   (D119).
 
@@ -561,15 +564,5 @@ do teste (2,2 a 2,8:1, D128).
 
 ## 10. Ainda não definido
 
-Perguntas para o Alan. Cada resposta vira decisão (`registrar-decisao`) antes de
-entrar na spec. As perguntas P1 a P9 do rascunho anterior foram respondidas nas
-D119 e D127 a D134.
-
-- **P1. Segunda camada das sombras do escuro.** A D132 lista, para o escuro,
-  uma camada por classe (`shadow-sm` 0 1px 2px a 30%; `shadow-md` 0 4px 8px a
-  35%; `shadow-lg` 0 12px 24px a 40%) e diz "com as camadas do claro e mais
-  opacidade". No claro, `shadow-md` e `shadow-lg` têm duas camadas (a segunda é
-  `0 1px 2px` a 6% no `md` e `0 4px 8px` a 6% no `lg`). No escuro, o `md` e o
-  `lg` mantêm só a camada listada, ou também a segunda do claro? Se mantêm, com
-  que opacidade? A mesma pergunta está na seção 8, item 1, de
-  `funcionamento-interno.md`.
+Nenhuma. As perguntas P1 a P9 do rascunho anterior foram respondidas nas D119 e
+D127 a D134, e a da sombra do escuro, na D137.
