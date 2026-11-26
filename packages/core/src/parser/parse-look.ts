@@ -1,6 +1,11 @@
 import { createDiagnostic } from '../diagnostics/diagnostics.js';
 import type { Diagnostic, Position } from '../ir/types.js';
-import { classifyFreeValue, describeInvalidValue } from './free-value.js';
+import {
+  classifyFreeValue,
+  describeInvalidValue,
+  isNumericFamily,
+  suggestFreeValue,
+} from './free-value.js';
 import type { ParseResult, SyntaxItem, VariantNode } from './syntax-tree.js';
 
 const WHITESPACE = new Set([' ', '\t', '\n', '\r']);
@@ -43,35 +48,65 @@ export function parseLook(look: string): ParseResult {
     return end;
   }
 
-  // Adds the item read at [start, cursor) to its scope; `item` is undefined
-  // when the span was dropped.
-  function addItem(
+  // Adds the token read at `position`; `item` is undefined when it was
+  // dropped, but a token glued to a variant is still reported (R65).
+  function addToken(
     scope: Scope,
     item: SyntaxItem | undefined,
-    start: number,
-    isVariant: boolean,
+    position: Position,
   ): void {
-    const { previousVariant } = scope;
-    if (previousVariant?.end === start) {
-      diagnostics.push(glueDiagnostic(previousVariant, start, cursor));
-    }
-    scope.previousVariant = isVariant ? { start, end: cursor } : undefined;
+    reportGlue(scope, position);
+    scope.previousVariant = undefined;
     if (item !== undefined) scope.items.push(item);
   }
 
-  // The cursor is on the `)` that closes the variant of `scope`.
+  // Adds a closed variant; `undefined` when it was dropped. A dropped variant
+  // is not a `)` to glue to, nor an item glued to one (D188).
+  function addVariant(scope: Scope, variant: VariantNode | undefined): void {
+    if (variant === undefined) {
+      scope.previousVariant = undefined;
+      return;
+    }
+    reportGlue(scope, variant.position);
+    scope.previousVariant = variant.position;
+    scope.items.push(variant);
+  }
+
+  function reportGlue(scope: Scope, position: Position): void {
+    const { previousVariant } = scope;
+    if (previousVariant?.end === position.start) {
+      diagnostics.push(glueDiagnostic(previousVariant, position));
+    }
+  }
+
+  // The `)` that closes the variant of `scope` ends at `end`.
   function closeVariant(
     scope: Scope,
     variant: OpenVariant,
+    end: number,
   ): VariantNode | undefined {
-    const { name, start, nameEnd } = variant;
-    const position = { start, end: ++cursor };
-    if (isBlank(nameEnd + 1, position.end - 1)) {
+    const { name, start, nameEnd, diagnosticsBefore } = variant;
+    const position = { start, end };
+    if (name.includes(':')) {
+      // The whole span goes, so what was found inside goes with it (D188).
+      diagnostics.length = diagnosticsBefore;
+      diagnostics.push(
+        colonDiagnostic(
+          position,
+          colonNames(name),
+          look.slice(nameEnd + 1, end - 1),
+        ),
+      );
+      return undefined;
+    }
+    if (isBlank(nameEnd + 1, end - 1)) {
       diagnostics.push(
         createDiagnostic({ code: 'AW003', position, args: [name] }),
       );
       return undefined;
     }
+    // Emptied by errors inside: only those errors are reported (D188).
+    if (scope.items.length === 0) return undefined;
     return { kind: 'variant', name, items: scope.items, position };
   }
 
@@ -83,24 +118,23 @@ export function parseLook(look: string): ParseResult {
     for (;;) {
       skipWhitespace();
       if (cursor >= look.length) {
-        const outermost =
+        const outermostOpen =
           parents.length > 0 ? (parents[1] ?? scope) : undefined;
-        if (outermost?.variant === undefined) return topLevel.items;
+        if (outermostOpen?.variant === undefined) return topLevel.items;
         // R50: from the open variant to the end, as a single error on the
         // outermost one; whatever was found inside is discarded with it.
-        const { name, start, diagnosticsBefore } = outermost.variant;
+        const { name, start, diagnosticsBefore } = outermostOpen.variant;
         diagnostics.length = diagnosticsBefore;
+        const span = look.slice(start);
         diagnostics.push(
           createDiagnostic({
             code: 'AW001',
             position: { start, end: look.length },
             args: [name],
+            suggestion: span + ')'.repeat(parents.length),
           }),
         );
-        parents.length = 0;
-        scope = topLevel;
-        addItem(topLevel, undefined, start, true);
-        continue;
+        return topLevel.items;
       }
       if (look.charAt(cursor) === ')') {
         const parent = parents.pop();
@@ -109,13 +143,15 @@ export function parseLook(look: string): ParseResult {
             createDiagnostic({
               code: 'AW002',
               position: { start: cursor, end: cursor + 1 },
+              suggestion: '',
             }),
           );
           cursor++;
           continue;
         }
-        const closed = closeVariant(scope, scope.variant);
-        addItem(parent, closed, scope.variant.start, true);
+        const end = cursor + 1;
+        addVariant(parent, closeVariant(scope, scope.variant, end));
+        cursor = end;
         scope = parent;
         continue;
       }
@@ -135,18 +171,19 @@ export function parseLook(look: string): ParseResult {
         cursor = chunkEnd + 1;
         continue;
       }
-      addItem(scope, parseToken(start, chunkEnd), start, false);
+      const position = { start, end: chunkEnd };
+      addToken(scope, parseToken(position), position);
+      cursor = chunkEnd;
     }
   }
 
-  function parseToken(start: number, end: number): SyntaxItem | undefined {
-    cursor = end;
-    const text = look.slice(start, end);
-    const position = { start, end };
+  function parseToken(position: Position): SyntaxItem | undefined {
+    const text = look.slice(position.start, position.end);
     const colon = text.indexOf(':');
     const equals = text.indexOf('=');
     if (colon >= 0 && (equals < 0 || colon < equals)) {
-      diagnostics.push(colonDiagnostic(text, position));
+      const names = text.split(':');
+      diagnostics.push(colonDiagnostic(position, names, names.pop() ?? ''));
       return undefined;
     }
     if (equals < 0) return { kind: 'class', name: text, position };
@@ -158,32 +195,21 @@ export function parseLook(look: string): ParseResult {
       return undefined;
     }
     const value = classifyFreeValue(rawValue);
-    if (value === undefined) {
-      const problem = describeInvalidValue(rawValue);
-      diagnostics.push(
-        createDiagnostic({
-          code: 'AW008',
-          position,
-          args:
-            problem === undefined
-              ? [rawValue, family]
-              : [rawValue, family, problem],
-        }),
-      );
+    if (
+      value === undefined ||
+      (value.kind === 'color' && isNumericFamily(family))
+    ) {
+      diagnostics.push(invalidValueDiagnostic(position, family, rawValue));
       return undefined;
     }
     return { kind: 'free', family, value, position };
   }
 
-  function glueDiagnostic(
-    previous: Position,
-    start: number,
-    end: number,
-  ): Diagnostic {
-    const item = look.slice(start, end);
+  function glueDiagnostic(previous: Position, position: Position): Diagnostic {
+    const item = look.slice(position.start, position.end);
     return createDiagnostic({
       code: 'AW010',
-      position: { start, end },
+      position,
       args: [look.slice(previous.start, previous.end), item],
       suggestion: ` ${item}`,
     });
@@ -205,15 +231,42 @@ function isDelimiter(char: string): boolean {
   return char === '(' || char === ')' || WHITESPACE.has(char);
 }
 
+// `hover:dark(` -> [hover, dark]; the `:` before the `(` of `hover:(` ends it.
+function colonNames(variantName: string): string[] {
+  const names = variantName.split(':');
+  if (names.at(-1) === '') names.pop();
+  return names;
+}
+
 // `hover:bg-raised` -> `hover(bg-raised)`; no suggestion with an empty part.
-function colonDiagnostic(text: string, position: Position): Diagnostic {
-  const parts = text.split(':');
-  const suggestion = parts.some((part) => part === '')
-    ? undefined
-    : parts.reduceRight((inner, name) => `${name}(${inner})`);
+function colonDiagnostic(
+  position: Position,
+  names: readonly string[],
+  content: string,
+): Diagnostic {
+  const suggestion =
+    names.includes('') || content.trim() === ''
+      ? undefined
+      : names.reduceRight((inner, name) => `${name}(${inner})`, content);
   return createDiagnostic({
     code: 'AW006',
     position,
     ...(suggestion === undefined ? {} : { suggestion }),
+  });
+}
+
+function invalidValueDiagnostic(
+  position: Position,
+  family: string,
+  rawValue: string,
+): Diagnostic {
+  const problem = describeInvalidValue(rawValue);
+  const fixed = suggestFreeValue(rawValue);
+  return createDiagnostic({
+    code: 'AW008',
+    position,
+    args:
+      problem === undefined ? [rawValue, family] : [rawValue, family, problem],
+    ...(fixed === undefined ? {} : { suggestion: `${family}=${fixed}` }),
   });
 }
