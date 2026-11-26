@@ -7,7 +7,7 @@ import {
   jest,
 } from '@jest/globals';
 import { act, renderHook } from '@testing-library/react-native';
-import { Dimensions, Platform, useColorScheme } from 'react-native';
+import { Dimensions, Platform } from 'react-native';
 import { setColorScheme as publicSetColorScheme } from '../src';
 import {
   getSchemeChoice,
@@ -20,7 +20,7 @@ import {
 } from '../src/context/resolution-context';
 import { screenBandFor } from '../src/context/screen-band';
 
-// docs/specs/emissor-native.md, secao 3.1 (R1 a R6) e secao 6.
+// docs/specs/emissor-native.md, section 3.1 (R1 to R6) and section 6; D184.
 
 type SystemScheme = 'light' | 'dark';
 type Listener = (preferences: { colorScheme: SystemScheme }) => void;
@@ -28,7 +28,7 @@ type Listener = (preferences: { colorScheme: SystemScheme }) => void;
 // Controlled stand-in for the RN Appearance module. react-native's own
 // useColorScheme imports it directly, so a property spy would not reach it.
 const mockAppearance = {
-  system: 'light' as SystemScheme | null,
+  system: 'light' as SystemScheme | null | undefined,
   listeners: new Set<Listener>(),
   setColorScheme: jest.fn(),
 };
@@ -42,18 +42,17 @@ jest.mock('react-native/Libraries/Utilities/Appearance', () => ({
   },
 }));
 
-const appearanceSetSpy = mockAppearance.setColorScheme;
+// The jest preset replaces useColorScheme with a jest.fn that never
+// subscribes. Restore the real hook so it reads the mocked Appearance above
+// and a system change reaches components only through its subscription.
+jest.mock('react-native/Libraries/Utilities/useColorScheme', () =>
+  jest.requireActual('react-native/Libraries/Utilities/useColorScheme'),
+);
 
-// @react-native/jest-preset replaces useColorScheme with a jest.fn that
-// returns 'light'; an implementation built on it only sees a change after a
-// re-render, so the helper drives both the module mock and that jest.fn.
-const mockedUseColorScheme = useColorScheme as unknown as jest.Mock<
-  () => SystemScheme | null
->;
+const appearanceSetSpy = mockAppearance.setColorScheme;
 
 async function setSystemScheme(next: SystemScheme): Promise<void> {
   mockAppearance.system = next;
-  mockedUseColorScheme.mockReturnValue(next);
   await act(() => {
     for (const listener of [...mockAppearance.listeners]) {
       listener({ colorScheme: next });
@@ -87,7 +86,6 @@ const originalPlatform = Object.getOwnPropertyDescriptor(Platform, 'OS');
 
 beforeEach(async () => {
   mockAppearance.system = 'light';
-  mockedUseColorScheme.mockReturnValue('light');
   mockAppearance.listeners.clear();
   appearanceSetSpy.mockClear();
   setPlatform('ios');
@@ -122,7 +120,8 @@ describe('screenBandFor', () => {
   });
 });
 
-// R2: sem setColorScheme, segue o sistema. R3 / tema.md C8: forcado e 'system'.
+// R2: without setColorScheme, follows the system. R3 / tema.md C8: forced
+// and 'system'. D184: no system scheme and no forced one -> light.
 describe('scheme: system x setColorScheme', () => {
   it.each([
     // system, call,      expected
@@ -143,7 +142,7 @@ describe('scheme: system x setColorScheme', () => {
     },
   );
 
-  it("'system' volta a seguir o sistema depois de forcar (R3)", () => {
+  it("'system' follows the system again after forcing (R3)", () => {
     mockAppearance.system = 'light';
     setColorScheme('dark');
     expect(readResolutionContext().scheme).toBe('dark');
@@ -153,7 +152,7 @@ describe('scheme: system x setColorScheme', () => {
     expect(readResolutionContext().scheme).toBe('dark');
   });
 
-  it('forcado continua forcado quando o sistema muda (R3)', async () => {
+  it('a forced scheme stays forced when the system changes (R3)', async () => {
     setColorScheme('dark');
     const { result } = await renderHook(() => useResolutionContext());
     await setSystemScheme('dark');
@@ -161,7 +160,7 @@ describe('scheme: system x setColorScheme', () => {
     expect(result.current.scheme).toBe('dark');
   });
 
-  it('a API publica e a mesma funcao de estado (R3, sem Provider)', () => {
+  it('the public API is the same state function (R3, no Provider)', () => {
     publicSetColorScheme('dark');
     expect(readResolutionContext().scheme).toBe('dark');
     expect(getSchemeChoice()).toBe('dark');
@@ -169,7 +168,7 @@ describe('scheme: system x setColorScheme', () => {
     expect(getSchemeChoice()).toBe('system');
   });
 
-  it('chamar duas vezes o mesmo valor e idempotente', () => {
+  it('calling the same value twice is idempotent', () => {
     setColorScheme('dark');
     setColorScheme('dark');
     expect(readResolutionContext().scheme).toBe('dark');
@@ -178,12 +177,27 @@ describe('scheme: system x setColorScheme', () => {
     expect(readResolutionContext().scheme).toBe('light');
   });
 
-  it('sistema sem esquema (null) cai em um esquema valido', () => {
+  it.each([
+    // system value reported by Appearance
+    [null],
+    [undefined],
+  ] as const)(
+    'system reports no scheme (%s) -> light (D184)',
+    async (value) => {
+      mockAppearance.system = value;
+      expect(readResolutionContext().scheme).toBe('light');
+      const { result } = await renderHook(() => useResolutionContext());
+      expect(result.current.scheme).toBe('light');
+    },
+  );
+
+  it('a forced scheme wins over a system without scheme (D184, R3)', () => {
     mockAppearance.system = null;
-    expect(['light', 'dark']).toContain(readResolutionContext().scheme);
+    setColorScheme('dark');
+    expect(readResolutionContext().scheme).toBe('dark');
   });
 
-  it('notifica quem assina a escolha', () => {
+  it('notifies whoever subscribes to the choice', () => {
     const seen: string[] = [];
     const unsubscribe = subscribeToSchemeChoice(() => {
       seen.push(getSchemeChoice());
@@ -198,8 +212,8 @@ describe('scheme: system x setColorScheme', () => {
   });
 });
 
-// R3 / D162: nunca chama Appearance.setColorScheme, em qualquer plataforma.
-describe('setColorScheme nao usa Appearance (R3, D162)', () => {
+// R3 / D162: never calls Appearance.setColorScheme, on any platform.
+describe('setColorScheme does not use Appearance (R3, D162)', () => {
   it.each([
     // platform, choice
     ['ios', 'light'],
@@ -223,7 +237,7 @@ describe('setColorScheme nao usa Appearance (R3, D162)', () => {
   });
 });
 
-// R5: plataforma e Platform.OS (web incluida).
+// R5: the platform is Platform.OS (web included).
 describe('platform (R5)', () => {
   it.each([['ios'], ['android'], ['web']] as const)('%s', (os) => {
     setPlatform(os);
@@ -237,9 +251,9 @@ describe('platform (R5)', () => {
   });
 });
 
-// R1 e secao 5.4: janela 390 x 844 no contexto.
-describe('window e band no contexto (R1, R4)', () => {
-  it('janela 390 x 844 -> compact, ios, light', () => {
+// R1 and section 5.4: 390 x 844 window in the context.
+describe('window and band in the context (R1, R4)', () => {
+  it('window 390 x 844 -> compact, ios, light', () => {
     expect(readResolutionContext()).toStrictEqual({
       scheme: 'light',
       band: 'compact',
@@ -254,14 +268,14 @@ describe('window e band no contexto (R1, R4)', () => {
     [600, 800, 'medium'],
     [839, 800, 'medium'],
     [840, 800, 'expanded'],
-  ] as const)('largura %s, altura %s', async (width, height, band) => {
+  ] as const)('width %s, height %s', async (width, height, band) => {
     await setWindow(width, height);
     const context = readResolutionContext();
     expect(context.band).toBe(band);
     expect(context.window).toStrictEqual({ width, height });
   });
 
-  it('contexto completo: dark forcado, android, 700 x 1000', async () => {
+  it('full context: forced dark, android, 700 x 1000', async () => {
     setPlatform('android');
     setColorScheme('dark');
     await setWindow(700, 1000);
@@ -274,9 +288,9 @@ describe('window e band no contexto (R1, R4)', () => {
   });
 });
 
-// R40 / D158: instantaneo nao reage; hook reage (R6).
-describe('instantaneo (R40)', () => {
-  it('nao muda depois de lido', async () => {
+// R40 / D158: the instant read does not react; the hook does (R6).
+describe('instant read (R40)', () => {
+  it('does not change after being read', async () => {
     const before = readResolutionContext();
     setColorScheme('dark');
     await setWindow(900, 500);
@@ -289,7 +303,7 @@ describe('instantaneo (R40)', () => {
 });
 
 describe('hook useResolutionContext (R2, R3, R6)', () => {
-  it('entrega o contexto atual na primeira renderizacao', async () => {
+  it('returns the current context on the first render', async () => {
     const { result } = await renderHook(() => useResolutionContext());
     expect(result.current).toStrictEqual({
       scheme: 'light',
@@ -299,19 +313,18 @@ describe('hook useResolutionContext (R2, R3, R6)', () => {
     });
   });
 
-  it('acompanha o sistema claro -> escuro -> claro (R2)', async () => {
-    // The jest preset mocks useColorScheme (no subscription), so the
-    // re-render stands in for the notification RN would deliver.
-    const { result, rerender } = await renderHook(() => useResolutionContext());
+  it('follows the system light -> dark -> light (R2)', async () => {
+    // No rerender: the real useColorScheme must notify through its own
+    // Appearance subscription, otherwise result.current stays stale.
+    const { result } = await renderHook(() => useResolutionContext());
+    expect(mockAppearance.listeners.size).toBeGreaterThan(0);
     await setSystemScheme('dark');
-    await rerender({});
     expect(result.current.scheme).toBe('dark');
     await setSystemScheme('light');
-    await rerender({});
     expect(result.current.scheme).toBe('light');
   });
 
-  it('setColorScheme atualiza o componente ja montado (R3, C8)', async () => {
+  it('setColorScheme updates an already mounted component (R3, C8)', async () => {
     const { result } = await renderHook(() => useResolutionContext());
     await forceScheme('dark');
     expect(result.current.scheme).toBe('dark');
@@ -323,7 +336,7 @@ describe('hook useResolutionContext (R2, R3, R6)', () => {
     expect(result.current.scheme).toBe('dark');
   });
 
-  it('dois componentes montados atualizam juntos, sem Provider', async () => {
+  it('two mounted components update together, without a Provider', async () => {
     const a = await renderHook(() => useResolutionContext());
     const b = await renderHook(() => useResolutionContext());
     await forceScheme('dark');
@@ -331,7 +344,7 @@ describe('hook useResolutionContext (R2, R3, R6)', () => {
     expect(b.result.current.scheme).toBe('dark');
   });
 
-  it('janela muda de faixa: 700 -> 500 -> 900', async () => {
+  it('window changes band: 700 -> 500 -> 900', async () => {
     await setWindow(700, 900);
     const { result } = await renderHook(() => useResolutionContext());
     expect(result.current.band).toBe('medium');
@@ -341,7 +354,7 @@ describe('hook useResolutionContext (R2, R3, R6)', () => {
     expect(result.current.band).toBe('expanded');
   });
 
-  it('janela exata muda mesmo dentro da faixa: 700 -> 800 (R6, R39)', async () => {
+  it('exact window changes within the band: 700 -> 800 (R6, R39)', async () => {
     await setWindow(700, 900);
     const { result } = await renderHook(() => useResolutionContext());
     await setWindow(800, 950);
@@ -349,7 +362,7 @@ describe('hook useResolutionContext (R2, R3, R6)', () => {
     expect(result.current.window).toStrictEqual({ width: 800, height: 950 });
   });
 
-  it('limites ao vivo: 599 -> 600 -> 839 -> 840', async () => {
+  it('live limits: 599 -> 600 -> 839 -> 840', async () => {
     const { result } = await renderHook(() => useResolutionContext());
     await setWindow(599, 800);
     expect(result.current.band).toBe('compact');
@@ -361,8 +374,9 @@ describe('hook useResolutionContext (R2, R3, R6)', () => {
     expect(result.current.band).toBe('expanded');
   });
 
-  it('depois de desmontar, mudancas nao quebram e nao deixam assinatura', async () => {
+  it('unmounting drops the Appearance subscription', async () => {
     const { unmount } = await renderHook(() => useResolutionContext());
+    expect(mockAppearance.listeners.size).toBeGreaterThan(0);
     await unmount();
     expect(mockAppearance.listeners.size).toBe(0);
     await setSystemScheme('dark');
