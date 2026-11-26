@@ -4,18 +4,28 @@ import { classifyFreeValue, describeInvalidValue } from './free-value.js';
 import type { ParseResult, SyntaxItem, VariantNode } from './syntax-tree.js';
 
 const WHITESPACE = new Set([' ', '\t', '\n', '\r']);
-const TOP_LEVEL = 0;
 
-interface ListResult {
-  readonly items: readonly SyntaxItem[];
-  /** `false` when the text ended before the `)` of a nested list. */
-  readonly closed: boolean;
+/** The list being read: the top level, or the inside of an open variant. */
+interface Scope {
+  readonly items: SyntaxItem[];
+  // The last variant closed, to find an item glued to its `)` (R65).
+  previousVariant?: Position | undefined;
+  /** Absent in the top-level scope. */
+  readonly variant?: OpenVariant;
+}
+
+interface OpenVariant {
+  readonly name: string;
+  readonly start: number;
+  readonly nameEnd: number;
+  readonly diagnosticsBefore: number;
 }
 
 /**
  * Reads the `look` by the EBNF of sintaxe.md, 4.1. It does not know the
  * vocabulary and never throws (R47): only the malformed span is dropped, with
- * its diagnostic (R50). Positions are UTF-16 offsets into `look`.
+ * its diagnostic (R50). Positions are UTF-16 offsets into `look`. Nesting uses
+ * an explicit stack of scopes, so the depth does not grow the call stack.
  */
 export function parseLook(look: string): ParseResult {
   const diagnostics: Diagnostic[] = [];
@@ -33,54 +43,52 @@ export function parseLook(look: string): ParseResult {
     return end;
   }
 
-  function parseList(depth: number): ListResult {
-    const items: SyntaxItem[] = [];
-    // The last variant closed, to find an item glued to its `)` (R65).
-    let previousVariant: Position | undefined;
+  // Adds the item read at [start, cursor) to its scope; `item` is undefined
+  // when the span was dropped.
+  function addItem(
+    scope: Scope,
+    item: SyntaxItem | undefined,
+    start: number,
+    isVariant: boolean,
+  ): void {
+    const { previousVariant } = scope;
+    if (previousVariant?.end === start) {
+      diagnostics.push(glueDiagnostic(previousVariant, start, cursor));
+    }
+    scope.previousVariant = isVariant ? { start, end: cursor } : undefined;
+    if (item !== undefined) scope.items.push(item);
+  }
+
+  // The cursor is on the `)` that closes the variant of `scope`.
+  function closeVariant(
+    scope: Scope,
+    variant: OpenVariant,
+  ): VariantNode | undefined {
+    const { name, start, nameEnd } = variant;
+    const position = { start, end: ++cursor };
+    if (isBlank(nameEnd + 1, position.end - 1)) {
+      diagnostics.push(
+        createDiagnostic({ code: 'AW003', position, args: [name] }),
+      );
+      return undefined;
+    }
+    return { kind: 'variant', name, items: scope.items, position };
+  }
+
+  function parseList(): readonly SyntaxItem[] {
+    const topLevel: Scope = { items: [] };
+    // The scopes around `scope`, from the top level to its parent.
+    const parents: Scope[] = [];
+    let scope = topLevel;
     for (;;) {
       skipWhitespace();
       if (cursor >= look.length) {
-        return { items, closed: depth === TOP_LEVEL };
-      }
-      if (look.charAt(cursor) === ')') {
-        if (depth > TOP_LEVEL) return { items, closed: true };
-        diagnostics.push(
-          createDiagnostic({
-            code: 'AW002',
-            position: { start: cursor, end: cursor + 1 },
-          }),
-        );
-        cursor++;
-        continue;
-      }
-      const start = cursor;
-      const chunkEnd = findChunkEnd(start);
-      const isVariant = look.charAt(chunkEnd) === '(';
-      const item = isVariant
-        ? parseVariant(start, chunkEnd, depth)
-        : parseToken(start, chunkEnd);
-      if (previousVariant?.end === start) {
-        diagnostics.push(glueDiagnostic(previousVariant, start, cursor));
-      }
-      previousVariant = isVariant ? { start, end: cursor } : undefined;
-      if (item !== undefined) items.push(item);
-    }
-  }
-
-  // The cursor is on the `(` after the name, which spans [start, nameEnd).
-  function parseVariant(
-    start: number,
-    nameEnd: number,
-    depth: number,
-  ): VariantNode | undefined {
-    const name = look.slice(start, nameEnd);
-    const diagnosticsBefore = diagnostics.length;
-    cursor = nameEnd + 1;
-    const { items, closed } = parseList(depth + 1);
-    if (!closed) {
-      // R50: from the open variant to the end, as a single error on the
-      // outermost one; whatever was found inside is discarded with it.
-      if (depth === TOP_LEVEL) {
+        const outermost =
+          parents.length > 0 ? (parents[1] ?? scope) : undefined;
+        if (outermost?.variant === undefined) return topLevel.items;
+        // R50: from the open variant to the end, as a single error on the
+        // outermost one; whatever was found inside is discarded with it.
+        const { name, start, diagnosticsBefore } = outermost.variant;
         diagnostics.length = diagnosticsBefore;
         diagnostics.push(
           createDiagnostic({
@@ -89,17 +97,46 @@ export function parseLook(look: string): ParseResult {
             args: [name],
           }),
         );
+        parents.length = 0;
+        scope = topLevel;
+        addItem(topLevel, undefined, start, true);
+        continue;
       }
-      return undefined;
+      if (look.charAt(cursor) === ')') {
+        const parent = parents.pop();
+        if (parent === undefined || scope.variant === undefined) {
+          diagnostics.push(
+            createDiagnostic({
+              code: 'AW002',
+              position: { start: cursor, end: cursor + 1 },
+            }),
+          );
+          cursor++;
+          continue;
+        }
+        const closed = closeVariant(scope, scope.variant);
+        addItem(parent, closed, scope.variant.start, true);
+        scope = parent;
+        continue;
+      }
+      const start = cursor;
+      const chunkEnd = findChunkEnd(start);
+      if (look.charAt(chunkEnd) === '(') {
+        parents.push(scope);
+        scope = {
+          items: [],
+          variant: {
+            name: look.slice(start, chunkEnd),
+            start,
+            nameEnd: chunkEnd,
+            diagnosticsBefore: diagnostics.length,
+          },
+        };
+        cursor = chunkEnd + 1;
+        continue;
+      }
+      addItem(scope, parseToken(start, chunkEnd), start, false);
     }
-    const position = { start, end: ++cursor };
-    if (isBlank(look.slice(nameEnd + 1, position.end - 1))) {
-      diagnostics.push(
-        createDiagnostic({ code: 'AW003', position, args: [name] }),
-      );
-      return undefined;
-    }
-    return { kind: 'variant', name, items, position };
   }
 
   function parseToken(start: number, end: number): SyntaxItem | undefined {
@@ -152,16 +189,20 @@ export function parseLook(look: string): ParseResult {
     });
   }
 
-  const { items } = parseList(TOP_LEVEL);
+  // Stops at the first non-blank character, so deep nesting stays linear.
+  function isBlank(from: number, to: number): boolean {
+    for (let index = from; index < to; index++) {
+      if (!WHITESPACE.has(look.charAt(index))) return false;
+    }
+    return true;
+  }
+
+  const items = parseList();
   return { items, diagnostics };
 }
 
 function isDelimiter(char: string): boolean {
   return char === '(' || char === ')' || WHITESPACE.has(char);
-}
-
-function isBlank(text: string): boolean {
-  return [...text].every((char) => WHITESPACE.has(char));
 }
 
 // `hover:bg-raised` -> `hover(bg-raised)`; no suggestion with an empty part.
