@@ -103,9 +103,9 @@ As restrições de edição são **bloqueadas de verdade** por hooks `PreToolUse
 frontmatter de cada agente, que chamam `.claude/hooks/restringir.py`:
 `Write`/`Edit` fora dos caminhos permitidos são recusados; nenhum agente faz
 `git push`, `gh pr create/merge` ou `git merge`; revisor e documentador têm
-`Bash` só de leitura. Limite conhecido: implementador e QA ainda conseguem
-escrever arquivo pelo `Bash` (ex.: `>`), então ali a regra continua sendo
-instrução. Ao mudar a permissão de um agente, mude o hook dele também.
+`Bash` só de leitura; implementador e QA não escrevem arquivo pelo `Bash`
+(redirecionamento, `tee`, `sed -i`, script inline, `git worktree`). Bloqueio de
+hook não se contorna: o agente para e relata (D173). Ao mudar a permissão de um agente, mude o hook dele também.
 
 Subagentes não falam com o Alan: devolvem "Perguntas para o Alan" no relatório.
 A sessão principal é a **orquestradora**: leva as perguntas ao Alan, registra as

@@ -4,8 +4,11 @@
 Uso (no frontmatter do agente, em hooks.PreToolUse):
   restringir.py escrita <regex> [<regex> ...]   Write/Edit só em caminhos que casem com algum regex
                                                 (caminho relativo à raiz do projeto)
-  restringir.py bash [--somente-leitura]        Bloqueia push, PR e merge; com --somente-leitura,
-                                                bloqueia também comandos que alteram arquivos ou o git
+  restringir.py bash [--somente-leitura|--sem-escrita]
+                                                Bloqueia push, PR e merge; com --somente-leitura,
+                                                bloqueia também comandos que alteram arquivos ou o git;
+                                                com --sem-escrita, bloqueia escrever arquivo pelo shell
+                                                (arquivos se escrevem com Write/Edit, que checam o caminho)
 
 Saída 2 bloqueia a ferramenta e devolve a mensagem (stderr) ao agente.
 """
@@ -28,6 +31,20 @@ ALTERA_ESTADO = [
     (r"(^|[^0-9&<>|])>{1,2}\s*(?!&|/dev/null)\S", "redireciona saída para arquivo"),
     (r"\b(npm|pnpm|yarn|bun)\s+(install|add|remove|i)\b", "altera dependências"),
 ]
+
+
+ESCREVE_ARQUIVO = [
+    (r"(^|[^0-9&<>|])>{1,2}\s*(?!&|/dev/null)\S", "redireciona saída para arquivo"),
+    (r"\btee\b", "escreve arquivo"),
+    (r"\bsed\s+(-[a-zA-Z]*i|--in-place)", "edita arquivos"),
+    (r"\b(python3?|node|perl|ruby)\b[^|;&]*\s(-c|-e|-)\b", "script inline pode escrever arquivos"),
+    (r"\bgit\s+worktree\b", "worktree é criada pela sessão principal"),
+]
+
+SAIDA_DOS_BLOQUEIOS = (
+    " Use Write/Edit dentro dos arquivos permitidos; se o bloqueio impedir a"
+    " tarefa, pare e relate (D173)."
+)
 
 
 def bloquear(mensagem: str) -> None:
@@ -55,12 +72,20 @@ def checar_escrita(entrada: dict, permitidos: list[str]) -> None:
         bloquear(f"este agente não pode editar {relativo} (permitido: {', '.join(permitidos)})")
 
 
-def checar_bash(entrada: dict, somente_leitura: bool) -> None:
+def checar_bash(entrada: dict, somente_leitura: bool, sem_escrita: bool) -> None:
     comando = entrada.get("tool_input", {}).get("command", "")
-    regras = SEMPRE_PROIBIDO + (ALTERA_ESTADO if somente_leitura else [])
+    regras = list(SEMPRE_PROIBIDO)
+    if somente_leitura:
+        regras += ALTERA_ESTADO
     for padrao, motivo in regras:
         if re.search(padrao, comando):
             bloquear(f"{motivo} (`{comando.strip()[:80]}`)")
+    if sem_escrita:
+        # Quoted text (commit messages, patterns) is not a shell redirection.
+        sem_aspas = re.sub(r"'[^']*'|\"[^\"]*\"", "''", comando)
+        for padrao, motivo in ESCREVE_ARQUIVO:
+            if re.search(padrao, sem_aspas):
+                bloquear(f"{motivo}.{SAIDA_DOS_BLOQUEIOS} (`{comando.strip()[:80]}`)")
 
 
 def main() -> None:
@@ -71,7 +96,11 @@ def main() -> None:
     if modo == "escrita":
         checar_escrita(entrada, argumentos)
     elif modo == "bash":
-        checar_bash(entrada, "--somente-leitura" in argumentos)
+        checar_bash(
+            entrada,
+            "--somente-leitura" in argumentos,
+            "--sem-escrita" in argumentos,
+        )
     else:
         bloquear(f"modo desconhecido: {modo}")
 
