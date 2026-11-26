@@ -20,7 +20,8 @@ const files = execFileSync('git', ['ls-files', '*.md'], { encoding: 'utf8' })
   .filter(Boolean);
 
 const problems = [];
-const report = (file, line, message) => problems.push(`${file}:${line}: ${message}`);
+const report = (file, line, message) =>
+  problems.push(`${file}:${line}: ${message}`);
 
 const lastDecision = findLastDecision();
 
@@ -53,12 +54,17 @@ if (problems.length > 0) {
   console.error(`\n${problems.length} problem(s) found in the documentation.`);
   process.exit(1);
 }
-console.log(`Documentation OK (${files.length} files, decisions up to D${lastDecision}).`);
+console.log(
+  `Documentation OK (${files.length} files, decisions up to D${lastDecision}).`,
+);
 
 function findLastDecision() {
   const content = readFileSync(DECISIONS_FILE, 'utf8');
-  const numbers = [...content.matchAll(/^\| D(\d+) \|/gm)].map((match) => Number(match[1]));
-  if (numbers.length === 0) throw new Error(`No decision table found in ${DECISIONS_FILE}`);
+  const numbers = [...content.matchAll(/^\| D(\d+) \|/gm)].map((match) =>
+    Number(match[1]),
+  );
+  if (numbers.length === 0)
+    throw new Error(`No decision table found in ${DECISIONS_FILE}`);
   return Math.max(...numbers);
 }
 
@@ -66,14 +72,23 @@ function checkLength(file, lineNumber, line) {
   const width = [...line].length;
   if (width <= MAX_COLUMNS) return;
   const trimmed = line.trim();
-  if (trimmed.startsWith('|') || trimmed.startsWith('#') || trimmed.startsWith('<')) return;
+  if (
+    trimmed.startsWith('|') ||
+    trimmed.startsWith('#') ||
+    trimmed.startsWith('<')
+  )
+    return;
   if (isSingleUnit(trimmed)) return;
   report(file, lineNumber, `line has ${width} columns (max ${MAX_COLUMNS})`);
 }
 
-// A line that is only a list marker plus one unbreakable unit cannot be wrapped.
+// A line that is only a list marker plus one unbreakable unit cannot be
+// wrapped.
 function isSingleUnit(text) {
-  const withoutMarker = text.replace(/^(>\s*)*([-*+]|\d+\.)(\s+\[[ xX]\])?\s+/, '');
+  const withoutMarker = text.replace(
+    /^(>\s*)*([-*+]|\d+\.)(\s+\[[ xX]\])?\s+/,
+    '',
+  );
   return splitUnits(withoutMarker).length <= 1;
 }
 
@@ -108,13 +123,20 @@ function checkLinks(file, lineNumber, line) {
   for (const match of withoutCode.matchAll(/\[[^\]]*\]\(([^)\s]+)\)/g)) {
     const target = match[1];
     if (/^([a-z]+:|#)/i.test(target)) continue;
-    const path = normalize(join(dirname(file), decodeURI(target.split('#')[0])));
+    const path = normalize(
+      join(dirname(file), decodeURI(target.split('#')[0])),
+    );
     if (!existsSync(path)) report(file, lineNumber, `broken link: ${target}`);
   }
-  for (const match of line.matchAll(/`((?:docs\/)?(?:specs|adr)\/[\w.-]+\.md)`/g)) {
+  for (const match of line.matchAll(
+    /`((?:docs\/)?(?:specs|adr)\/[\w.-]+\.md)`/g,
+  )) {
     if (/NNNN|XXX/.test(match[1])) continue; // template placeholder
-    const reference = match[1].startsWith('docs/') ? match[1] : `docs/${match[1]}`;
-    if (!existsSync(reference)) report(file, lineNumber, `missing document: ${match[1]}`);
+    const reference = match[1].startsWith('docs/')
+      ? match[1]
+      : `docs/${match[1]}`;
+    if (!existsSync(reference))
+      report(file, lineNumber, `missing document: ${match[1]}`);
   }
 }
 
@@ -122,7 +144,11 @@ function checkDecisions(file, lineNumber, line) {
   for (const match of line.matchAll(/\bD(\d{1,4})\b/g)) {
     const number = Number(match[1]);
     if (number > lastDecision) {
-      report(file, lineNumber, `D${number} is not registered (last is D${lastDecision})`);
+      report(
+        file,
+        lineNumber,
+        `D${number} is not registered (last is D${lastDecision})`,
+      );
     }
   }
 }

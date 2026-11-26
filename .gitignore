@@ -24,3 +24,6 @@ ios/Pods/
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Claude Code: worktrees dos agentes
+.claude/worktrees/

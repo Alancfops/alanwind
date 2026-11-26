@@ -38,7 +38,9 @@ def bloquear(mensagem: str) -> None:
 def caminho_relativo(caminho: str) -> str:
     raiz = os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd())
     absoluto = os.path.realpath(os.path.join(raiz, caminho))
-    return os.path.relpath(absoluto, os.path.realpath(raiz))
+    relativo = os.path.relpath(absoluto, os.path.realpath(raiz))
+    # Agents isolated in a git worktree get the same rules as in the root.
+    return re.sub(r"^\.claude/worktrees/[^/]+/", "", relativo)
 
 
 def checar_escrita(entrada: dict, permitidos: list[str]) -> None:

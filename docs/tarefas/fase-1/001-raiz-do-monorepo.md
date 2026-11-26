@@ -10,7 +10,8 @@
 - **Spec**: nenhuma (fundação). Estrutura na seção 14 de
   `docs/00-visao-e-decisoes.md`; workflows em `.github/workflows/ci.yml` e
   `.github/workflows/release.yml`
-- **Decisões**: D3, D14, D20, D67, D69, D74, D114, D141, D142, D143, D148
+- **Decisões**: D3, D14, D20, D67, D69, D74, D114, D141, D142, D143, D148,
+  D150, D151
 
 ## Objetivo
 Criar a raiz do monorepo com pnpm workspaces, Turborepo, TypeScript estrito e
@@ -23,7 +24,7 @@ pacotes da fase 1 tenham onde nascer.
     - campo `packageManager` com o pnpm e a versão exata
       (`pnpm@<versão>`): o `pnpm/action-setup` dos dois workflows lê a versão
       daqui (D141, D142);
-    - `engines.node` `>=22.13` (seção 3.1 da visão);
+    - `engines.node` `>=22.18` (D150; o 22.13+ da seção 3.1 é de quem usa);
     - scripts com **estes nomes exatos**, delegando ao Turborepo:
       `typecheck`, `test`, `build` (chamados por `pnpm run` no CI e no
       Release) e `lint`.
@@ -55,7 +56,7 @@ pacotes da fase 1 tenham onde nascer.
   **pare e relate**: a sessão principal faz essa parte.
 
 ## Critérios de aceite
-- [ ] `pnpm install --frozen-lockfile` termina sem erro em Node 22.13+.
+- [ ] `pnpm install --frozen-lockfile` termina sem erro em Node 22.18+.
 - [ ] `package.json` tem `packageManager` com `pnpm@<versão>` e os scripts
       `typecheck`, `test` e `build` com esses nomes exatos.
 - [ ] `pnpm exec biome ci .` passa no repositório inteiro (é o comando do CI).

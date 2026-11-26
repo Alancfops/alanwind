@@ -209,13 +209,16 @@ próprios diferenciais**.
 | D147 | **Validação no ShadowPlatinum com pacote local.** A cópia do app (D80) instala os `.tgz` gerados por `pnpm pack`, como se viessem do npm, para testar o que será publicado. O Alan escolhe as telas quando chegar a tarefa 061. |
 | D148 | **Hook do implementador libera as configs da raiz.** Além de `packages/` e `apps/`, o implementador pode editar só a lista exata de arquivos de config da raiz (`package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `turbo.json`, `biome.json`, `tsconfig*.json`, `knip.json`). `.github/`, `.claude/` e `docs/` continuam bloqueados. |
 | D149 | **Sombra do claro em variante e aviso de camada.** Em variante, a sombra do claro fica na camada `[<condição>, light]`, como sem variante (R34): `hover(shadow-md)` gera `[hover, light]` com a sombra e `[hover, dark]` com a elevação do escuro. Ajusta a D146. O `AW201` da D145 só aparece no empate de especificidade (R38): `hover(pad-x-2) hover(pad-4)` não avisa e `hover(pad-4) hover(pad-2)` avisa. |
+| D150 | **Node de desenvolvimento do monorepo: 22.18 ou superior.** O `engines.node` da raiz pede `>=22.18`, porque o `tsup` 9 exige essa versão para rodar. O Node 22.13+ da seção 3.1 continua sendo o de quem usa o alanwind (Expo SDK 58); a mudança vale só para desenvolver o repositório. |
+| D151 | **Scripts de `.github/scripts/` seguem o mesmo padrão do Biome.** Sem exceção no `biome.json`: 80 colunas e imports organizados, como o resto do código. Os scripts existentes são reformatados. |
 
 ### 3.1 Alvo técnico de referência (Expo SDK 58)
 
 Conforme a documentação do Expo: SDK 58 usa **React Native 0.88**,
-**react-native-web 0.21** e exige **Node.js 22.13 ou superior**. A *Strict
-TypeScript API* do React Native passou a ser o padrão, então os tipos do
-alanwind devem funcionar bem com ela. O React Native tem cerca de seis releases
+**react-native-web 0.21** e exige **Node.js 22.13 ou superior** (para
+desenvolver o monorepo, 22.18+, D150). A *Strict TypeScript API* do React
+Native passou a ser o padrão, então os tipos do alanwind devem funcionar bem
+com ela. O React Native tem cerca de seis releases
 por ano, e o Expo acompanha esse ritmo, então a lib precisa de uma **política de
 suporte** (por exemplo, SDK atual e o anterior).
 
@@ -581,6 +584,9 @@ Pode esperar:
   (D149). O Alan reaprovou sintaxe, funcionamento interno e tema.
 - 2026-11-26 (Claude Code): o Alan aceitou o ADR 0003 (Jest nos componentes
   React Native).
+- 2026-11-26 (Claude Code): revisão da tarefa 001: Node 22.18+ para
+  desenvolver o monorepo (D150) e scripts de `.github/` sem exceção no Biome
+  (D151).
 
 ## 11. Vocabulário base (rascunho em construção)
 

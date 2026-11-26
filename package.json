@@ -1,0 +1,21 @@
+{
+  "name": "alanwind-monorepo",
+  "private": true,
+  "packageManager": "pnpm@12.23.0",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.9",
+    "tsup": "^9.0.0",
+    "turbo": "^2.11.13",
+    "typescript": "6.0.3",
+    "vitest": "^5.1.2"
+  }
+}

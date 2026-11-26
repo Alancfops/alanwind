@@ -3,7 +3,7 @@
 // version for alanwind and @alanwind/*). Usage: set-version.mjs 0.3.0
 // Only touches the checkout used by the release job; nothing is committed.
 
-import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const version = process.argv[2];
