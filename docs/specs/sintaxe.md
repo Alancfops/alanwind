@@ -1,16 +1,19 @@
 # Spec: sintaxe do look
 
 Status: **rascunho** (estrutura completa, mas "Ainda não definido" tem itens e
-há propostas a aprovar; ver seção 11) · Decisões de origem: D7, D13, D15 a
-D20, D23, D26 a D31, D33 a D38, D41 a D44, D49, D58, D59, D61 a D63, D66, D77,
-D78, D82 a D89, D93 a D98, D100 a D106, D110
+há pontos a confirmar; ver seção 11) · Decisões de origem: D7, D13, D15 a D20,
+D23, D26 a D31, D33 a D38, D41 a D45, D49, D58, D59, D61 a D63, D66, D77, D78,
+D82 a D89, D91 a D98, D100 a D106, D110, D117, D118, D122 a D127, D129, D131,
+D133 a D135
 
 Gramática do `look`: tokens, variantes aninháveis, valor livre com `=`,
 opacidade, atalhos, vocabulário da fase 1, regra de conflito e diagnósticos.
 
-Convenção deste documento: **(proposta, a aprovar)** marca tudo o que não é
-derivação direta de uma decisão registrada. Nada marcado assim vale até o Alan
-aprovar. As propostas estão reunidas na seção 11.2.
+Convenção deste documento: **(a confirmar)** marca o pouco que não é derivação
+direta de uma decisão registrada, só consequência por analogia delas. As
+propostas anteriores (códigos `AW###`, leitura do texto, valor livre e
+estrutura) foram aprovadas na D127 e já não têm marcador. O que ainda precisa
+de confirmação está reunido na seção 11.2.
 
 ## 1. Escopo
 
@@ -19,8 +22,9 @@ Cobre:
   `look(...)` e no atributo `look` do HTML): como é quebrada em itens, quais
   itens existem e o que cada um significa em termos abstratos.
 - O vocabulário de classes e variantes da **fase 1** (D77).
-- A regra de conflito entre classes (D58) e a especificidade de cada família.
-- Os diagnósticos da sintaxe (código `AW###`, posição, sugestão; D84).
+- A regra de conflito entre classes (D58), a precedência entre condições
+  diferentes (D117) e a especificidade de cada família.
+- Os diagnósticos da sintaxe (código `AW###`, posição, sugestão; D84, D127).
 
 Fica de fora (outras specs):
 - Tradução para React Native ou CSS (`emissor-native.md`, `emissor-css.md`).
@@ -50,7 +54,7 @@ Fica de fora (outras specs):
 | **valor livre** | Valor fora da escala, escrito com `=` (D30). |
 | **propriedade abstrata** | Chave neutra de plataforma usada nesta spec (`pad.left`, `bg`), não uma propriedade RN ou CSS. Definidas na seção 5. |
 | **especificidade** | Nível de uma classe para a regra de conflito (seção 5.9). |
-| **posição** | Intervalo `[início, fim)` no texto do `look`: deslocamentos de 0, em unidades UTF-16, `fim` exclusivo (proposta, a aprovar). |
+| **posição** | Intervalo `[início, fim)` no texto do `look`: deslocamentos de 0, em unidades UTF-16, `fim` exclusivo (D127). |
 | **diagnóstico** | Registro `{ código, posição, sugestão }` devolvido pela resolução (D84). |
 
 ## 3. Regras normativas
@@ -63,14 +67,13 @@ Fica de fora (outras specs):
   existir como forma alternativa (D27, D42).
 - **R2.** Os nomes de classes e variantes DEVEM ser em inglês (D7) e em
   minúsculas. Uma classe com maiúscula (`Pad-4`) NÃO DEVE casar com nenhuma
-  classe: gera `AW101` (proposta, a aprovar).
+  classe: gera `AW101` (D127).
 - **R3.** Os itens de um `look` DEVEM ser separados por um ou mais espaços.
-  Tabulação e quebra de linha PODEM separar itens como se fossem espaço
-  (proposta, a aprovar). Espaços antes do primeiro item, depois do último e
-  dentro dos parênteses de uma variante PODEM existir e são ignorados (proposta,
-  a aprovar).
+  Tabulação e quebra de linha PODEM separar itens como se fossem espaço (D127).
+  Espaços antes do primeiro item, depois do último e dentro dos parênteses de
+  uma variante PODEM existir e são ignorados (D127).
 - **R4.** Um `look` vazio, ou só com espaços, DEVE resultar em estilo vazio e
-  nenhum diagnóstico (proposta, a aprovar).
+  nenhum diagnóstico (D127).
 - **R5.** A forma base de uma classe é `propriedade-valor` com hífen (D17).
   Só `w`, `h`, `x` e `y` PODEM ser abreviações; o resto DEVE ser por extenso:
   `pad`, `margin`, `round`, `gap` (D19). Para cada coisa existe uma só forma
@@ -83,7 +86,7 @@ Fica de fora (outras specs):
 
 - **R7.** Variante DEVE ser escrita só com parêntese, `nome(lista)` (D28). A
   forma com dois-pontos (`hover:bg-x`) NÃO DEVE existir e gera `AW006`
-  (D28; código: proposta, a aprovar).
+  (D28, D127).
 - **R8.** Os nomes de variante da fase 1 são exatamente: `hover`, `press`,
   `focus`, `disabled`, `dark`, `light`, `ios`, `android`, `web`, `native`,
   `medium`, `expanded` (D18, D29, D33, D59, D61, D103). Qualquer outro nome
@@ -91,7 +94,7 @@ Fica de fora (outras specs):
 - **R9.** `compact(...)` NÃO DEVE existir como variante: o que não tem variante
   vale para todos os tamanhos de tela (D61). Gera `AW004`.
 - **R10.** `motion-safe(...)` está fora da fase 1 (D78) e, nesta fase, gera
-  `AW004` com mensagem própria (proposta, a aprovar).
+  `AW004` com mensagem própria (D127).
 - **R11.** Uma variante PODE conter qualquer item, inclusive outras variantes,
   em qualquer ordem. As condições se somam (E lógico): `dark(hover(x))` e
   `hover(dark(x))` DEVEM produzir resultado idêntico (D86).
@@ -106,45 +109,54 @@ Fica de fora (outras specs):
   variante de tela valem em todas as faixas, inclusive `compact` (D61).
 - **R15.** Uma variante cujas condições são impossíveis juntas (`dark` com
   `light`; duas plataformas entre `ios`, `android` e `web`; `native` com `web`)
-  DEVE ser aceita, nunca vale, e gera o aviso `AW202` (proposta, a aprovar).
+  DEVE ser aceita, nunca vale, e gera o aviso `AW202` (D127, D135).
 - **R16.** O nome da variante DEVE vir seguido de `(` colado. Um nome de
   variante sozinho, sem parêntese, gera `AW005`.
+- **R53.** Condições redundantes (uma implica a outra) DEVEM ser simplificadas
+  em silêncio, sem diagnóstico, para a forma mínima: `ios(native(x))` equivale a
+  `ios(x)`; `medium(expanded(x))` equivale a `expanded(x)`. Condições repetidas
+  valem como uma (`dark(dark(x))`) (D135).
 
 ### 3.3 Valor livre e opacidade
 
 - **R17.** Valor fora da escala DEVE usar `=` (`w=137`, `pad=10`, `w=50%`).
   Colchetes e parênteses NÃO DEVEM ser usados para isso (D30).
-- **R18.** O valor livre DEVE ser: número inteiro sem unidade (px na web, dp no
-  nativo); número inteiro com `%`; cor em hex de 3, 6 ou 8 dígitos; ou tom da
-  paleta `nome-tom`. NÃO DEVE aceitar `rem`, `em`, `vw` nem `vh` nesta fase
-  (D105). Números decimais: ver "Ainda não definido".
+- **R18.** O valor livre DEVE ser: número sem unidade (px na web, dp no
+  nativo), inteiro ou decimal (R54); número com `%`; ou cor em hex de 3, 6 ou 8
+  dígitos. NÃO DEVE aceitar `rem`, `em`, `vw` nem `vh` nesta fase (D105). Tom
+  da paleta (`red-40`) NÃO DEVE ser aceito na fase 1: entra com a paleta, na
+  fase de tema (D118, D99).
 - **R19.** O valor livre PODE ser negativo só onde fizer sentido (D105). Nesta
   fase só a família `margin` aceita (D89). Negativo em outra família gera
-  `AW008` (proposta, a aprovar).
+  `AW008` (D127).
 - **R20.** Margem negativa NÃO DEVE existir na escala: `margin-top--8` gera
   `AW104` com sugestão `margin-top=-8` (D89).
 - **R21.** Famílias que aceitam `=`: `pad`, `margin`, `gap` (e suas formas com
-  lado), `w`, `h`, `size`, `round`, `type`, a espessura de `border` e a cor de
-  `bg`, `text` e `border` (proposta, a aprovar). Família que não aceita gera
-  `AW009`.
-- **R22.** Cor livre PODE ser hex (`bg=#e11d48`) ou tom da paleta (`bg=red-40`),
-  maiúsculas e minúsculas nos dígitos hex (D33, D105; maiúsculas: proposta, a
-  aprovar). O tom é inteiro de 0 a 100 (D33).
+  lado ou eixo), `w`, `h`, `size`, `round` (e suas formas por lado e por
+  canto), `type`, `leading`, a espessura de `border` (e suas formas por lado e
+  eixo) e a cor de `bg`, `text` e `border` (D127, D123, D125). Família que não
+  aceita gera `AW009`.
+- **R22.** Cor livre DEVE ser hex (`bg=#e11d48`), com maiúsculas ou minúsculas
+  nos dígitos (D105, D127). Na fase 1 não há tom da paleta (D118).
 - **R23.** A opacidade em cor livre DEVE usar barra no fim do valor:
-  `bg=red-40/50`, `bg=#e11d48/50` (D104). Os números válidos são os da escala
-  de opacidade: 0, 25, 50, 75, 100 (D98; aplicação à barra: proposta, a
-  aprovar). Barra em hex de 8 dígitos (`bg=#e11d4880/50`) gera `AW008`
-  (proposta, a aprovar).
+  `bg=#e11d48/50` (D104). Os números válidos são os da escala de opacidade: 0,
+  25, 50, 75, 100 (D98, D127). Barra em hex de 8 dígitos (`bg=#e11d4880/50`)
+  gera `AW008` (D127).
 - **R24.** A barra NÃO DEVE existir em classe com papel: `bg-primary/50` gera
   `AW107` com sugestão `bg-primary-50` (D104).
+- **R54.** O valor livre numérico PODE ter parte decimal, escrita com ponto e
+  com ao menos um dígito antes dele (`w=10.5`, `leading=1.4`, `w=0.5`). Vírgula
+  decimal (`w=10,5`) e ponto sem dígito antes (`w=.5`) são erro (D125). O código
+  do erro está em "Ainda não definido" (11.1, item 1).
 
 ### 3.4 Cor por papel
 
 - **R25.** `bg-` é cor de fundo, `text-` é só cor do texto e `border-` é cor da
-  borda quando o próximo segmento é um papel (D23, D95). O tamanho do texto usa
-  `type-` (D23).
+  borda quando o próximo segmento é um papel (D23, D95, D123). O tamanho do
+  texto usa `type-` (D23).
 - **R26.** As classes DEVEM usar papéis, nunca a paleta: `bg-danger` existe,
-  `bg-red-600` NÃO DEVE existir (D34). A paleta só entra pelo valor livre.
+  `bg-red-600` NÃO DEVE existir (D34). A paleta só entra pelo valor livre, e só
+  na fase de tema (D118).
 - **R27.** A opacidade de uma cor por papel DEVE ser um sufixo numérico,
   sempre o último segmento: `bg-primary-50`, `text-strong-50` (D31). Os
   valores válidos são 0, 25, 50, 75 e 100 (D98). Outro número gera `AW103`.
@@ -155,23 +167,62 @@ Fica de fora (outras specs):
   (D35, R46).
 - **R30.** Os papéis válidos por prefixo vêm do tema (`tema.md`). Nesta spec
   só se lista o que o tema padrão traz (seção 5.5).
+- **R55.** O texto sobre um fundo `-soft` DEVE ser escrito
+  `text-on-<papel>-soft`, seguindo o padrão `on-<fundo>`: `bg-danger-soft` pede
+  `text-on-danger-soft` (D131).
+- **R56.** `text-secondary` NÃO DEVE existir: o `secondary` é neutro e a cor do
+  papel não passa como texto. Para texto neutro existem `text-body` e
+  `text-muted`. `text-secondary` gera `AW102`, como papel que não existe em
+  `text-` (D129; o código é derivação, a confirmar na seção 11.2). Exceção à
+  D92 só para esse papel.
+- **R57.** `border-<papel>` DEVE aceitar todos os papéis do tema
+  (`border-primary`, `border-danger`), além de `subtle`, `strong` e `focus`
+  (D95, D123). Não existe cor por lado: a cor é uma só para a borda (D123).
 
-### 3.5 Lados, eixos e `center`
+### 3.5 Lados, eixos, layout e `center`
 
 - **R31.** Espaçamento e borda DEVEM aceitar lados por extenso: `top`,
-  `bottom`, `left`, `right` (`pad-top-2`, `margin-left-4`) (D87). `pad` e
-  `margin` DEVEM aceitar também os eixos `x` (esquerda e direita) e `y` (topo
-  e base) (D19, D58, D107).
-- **R32.** `start` e `end` como lados NÃO DEVEM existir nesta fase (D87).
-- **R33.** `margin` DEVE aceitar `auto` na escala (`margin-x-auto`). A
-  extensão a todas as formas (`margin-auto`, `margin-top-auto`) é proposta,
-  a aprovar (D89 fala em "e afins").
+  `bottom`, `left`, `right` (`pad-top-2`, `margin-left-4`, `border-top`) (D87,
+  D123). `pad`, `margin` e `border` DEVEM aceitar também os eixos `x` (esquerda
+  e direita) e `y` (topo e base) (D19, D58, D107, D123). `gap` aceita os eixos
+  `gap-x` e `gap-y` (R60).
+- **R32.** `start` e `end` como lados NÃO DEVEM existir nesta fase (D87). Não
+  confundir com `x-start`, `x-end`, `y-start` e `y-end` (R58), que são de
+  alinhamento e não colidem com os lados (D122).
+- **R33.** `margin` DEVE aceitar `auto` em todas as formas (`margin-auto`,
+  `margin-x-auto`, `margin-top-auto`) (D89, D127).
 - **R34.** `center` DEVE centralizar nos dois eixos; `center-x` só na
   horizontal; `center-y` só na vertical. `center-x` e `center-y` se referem à
   tela, não à direção do layout (D38). A tradução para propriedades de layout
   com a direção final é do `core`, na IR (D85, `funcionamento-interno.md`).
+- **R58.** O início e o fim de um eixo DEVEM ser escritos `x-start`, `x-end`,
+  `y-start` e `y-end`, sempre relativos à tela, como `center-x` e `center-y`
+  (D122, D38): `x-start` é o lado esquerdo da tela, `x-end` o direito, `y-start`
+  o topo e `y-end` a base, qualquer que seja a direção do layout.
+- **R59.** `between` DEVE distribuir a sobra do espaço entre os filhos **no eixo
+  principal** do layout (o eixo da direção, não o da tela). `wrap` DEVE deixar
+  os filhos quebrarem de linha; sem ele, não quebram. `fill` DEVE ocupar o
+  espaço restante no eixo do pai (flex 1) (D122).
+- **R60.** `gap-N` DEVE aplicar o espaço aos dois eixos; `gap-x-N` DEVE aplicar
+  o espaço entre colunas e `gap-y-N` entre linhas, sempre relativos à tela,
+  qualquer que seja a direção. `gap-x` e `gap-y` aceitam valor livre
+  (`gap-x=V`) (D125). Que `gap-N` seja o par `gap.x` + `gap.y` é consequência,
+  a confirmar (11.2).
+- **R61.** `size-full` e `size-screen` DEVEM existir e valer para largura e
+  altura juntas, como `size-N` (D125, D98).
+- **R62.** Espessura de borda: `border` DEVE valer 1; `border-0`, `border-2` e
+  `border-4` DEVEM existir; outros valores só por valor livre (`border=3`)
+  (D123). `border-x` e `border-y` e as formas por lado (`border-top`,
+  `border-bottom-2`) DEVEM existir, com a mesma escala (D123). Valor numérico
+  fora de 0, 2 e 4 na forma de classe (`border-3`) gera `AW103`, com sugestão
+  do valor livre (a confirmar, 11.2).
+- **R63.** Raio por lado: `round-top-<tam>`, `round-bottom-<tam>`,
+  `round-left-<tam>` e `round-right-<tam>` DEVEM arredondar os dois cantos
+  daquele lado. Raio por canto: `round-top-left-<tam>`, `round-top-right-<tam>`,
+  `round-bottom-left-<tam>` e `round-bottom-right-<tam>`. `<tam>` é um valor da
+  escala de raio (D124, D44). `shadow-none` NÃO DEVE existir na fase 1 (D124).
 
-### 3.6 Conflito entre classes (D58, D82)
+### 3.6 Conflito entre classes (D58, D82, D117)
 
 - **R35.** Cada classe DEVE ser tratada como o conjunto de propriedades
   abstratas que ela define (`pad-x-2` = `pad.left` e `pad.right`).
@@ -188,10 +239,20 @@ Fica de fora (outras specs):
 - **R39.** A resolução de conflito DEVE ser feita no `core`, uma só vez; a IR
   entregue aos emissores não tem disputas (D82).
 - **R40.** A especificidade de cada família é a da tabela da seção 5.9.
-- **R41.** Como classes com condições diferentes se combinam (`pad-x-2
-  medium(pad-4)`, `bg-primary hover(bg-raised)`) não está decidido: ver
-  "Ainda não definido". Até lá, a saída desta spec mantém cada item com o seu
-  conjunto de condições e NÃO afirma qual vale quando ambos estão ativos.
+- **R41.** Quando classes com **conjuntos de condições diferentes** definem a
+  mesma propriedade e as condições valem **ao mesmo tempo**, vence, nesta ordem
+  de critério (D117):
+  1. a que tem condição vence a que não tem, mesmo escrita antes e mesmo que a
+     outra tenha especificidade maior (`bg-primary hover(bg-raised)` mostra
+     `bg-raised` no hover);
+  2. a que tem **mais** condições vence a que tem menos (`dark(hover(x))` vence
+     `hover(x)`);
+  3. com o mesmo número de condições, se as duas incluem faixa de tela e as
+     faixas são diferentes, vence a **maior** faixa (`expanded` vence `medium`);
+  4. no empate, vence a última escrita.
+
+  Essa disputa NÃO DEVE gerar `AW201`: cada item vale na sua condição. A
+  contagem de condições é feita depois da simplificação da R53.
 
 ### 3.7 Atalhos
 
@@ -199,14 +260,20 @@ Fica de fora (outras specs):
   `alanwind.config.ts`, dentro de `defineConfig` (D36, D63, D100). `define()`
   solto no código NÃO DEVE existir (D63).
 - **R43.** O atalho `btn` DEVE valer como uma classe (D36): `btn` é um token.
-  PODE ser usado dentro de variantes (`hover(btn)`) (proposta, a aprovar).
+  PODE ser usado dentro de variantes (`hover(btn)`) e DEVE ser expandido no
+  lugar (D127).
 - **R44.** O conteúdo de um atalho DEVE seguir esta mesma gramática, inclusive
   variantes e outros atalhos (D101). Ciclo entre atalhos DEVE ser erro ao
   carregar o tema (`AW301`). O nome de um atalho NÃO DEVE coincidir com uma
-  classe existente (`AW302`) (D101).
+  classe nativa nem com o nome de uma variante: erro de colisão (`AW302`)
+  (D101, D134).
 - **R45.** Um atalho DEVE expandir no lugar onde foi escrito, e o conflito
-  (R36, R37) DEVE valer entre as classes expandidas e as vizinhas como se
-  tivessem sido escritas ali (proposta, a aprovar).
+  (R36, R37, R41) DEVE valer entre as classes expandidas e as vizinhas como se
+  tivessem sido escritas ali (D127).
+- **R64.** O nome de um atalho DEVE começar com letra minúscula e aceitar
+  minúsculas, dígitos e hífen (`btn`, `card-title`, `btn-2`). Fora disso, é erro
+  ao carregar o tema (D134). O código desse erro está em "Ainda não definido"
+  (11.1, item 1).
 
 ### 3.8 Diagnósticos e sintaxe quebrada
 
@@ -218,8 +285,8 @@ Fica de fora (outras specs):
 - **R48.** Todo diagnóstico DEVE ter código `AW###`, posição e, quando houver
   candidato, sugestão (D84). A lista é a da seção 6.
 - **R49.** A lista de diagnósticos DEVE sair ordenada por início da posição
-  e, em empate, por código (proposta, a aprovar).
-- **R50.** **Trecho descartado** por erro de sintaxe (proposta, a aprovar):
+  e, em empate, por código (D127).
+- **R50.** **Trecho descartado** por erro de sintaxe (D127):
   - parêntese não fechado: da variante (`nome(`) até o fim do `look`;
   - `)` sobrando: só o `)`;
   - variante vazia ou de nome desconhecido: a variante inteira, `nome(...)`,
@@ -228,10 +295,18 @@ Fica de fora (outras specs):
   - em variante com um token inválido, os outros itens dela continuam valendo.
 - **R51.** Sugestão, quando houver, DEVE ser o candidato válido mais próximo
   por distância de edição de no máximo 2; em empate, o primeiro em ordem
-  alfabética (proposta, a aprovar). Sem candidato, não há sugestão.
-- **R52.** A tipagem estrita DEVE tornar classes e tokens inválidos erro de
-  tipo, com autocomplete (D20, D66). Como a tipagem trata valor livre e
-  variantes aninhadas: ver "Ainda não definido".
+  alfabética (D127). Sem candidato, não há sugestão.
+- **R52.** O tipo do `look` DEVE oferecer autocomplete das classes conhecidas e
+  aceitar qualquer `string`, sem template literal estrito. A validação de
+  verdade é o diagnóstico em runtime ou build (D126, D20, D66). Valor livre
+  (`w=137`) e variantes aninhadas passam pelo tipo como `string`.
+- **R65.** Item colado depois de `)` (`hover(bg-raised)pad-4`) DEVE gerar erro
+  de falta de espaço, com sugestão (`hover(bg-raised) pad-4`), e a resolução
+  DEVE aplicar os dois itens mesmo assim (D126). Código e posição do erro estão
+  em "Ainda não definido" (11.1, item 1).
+- **R66.** Erro no conteúdo de um atalho DEVE ter como posição o **nome do
+  atalho no `look`** (`btn` em `pad-4 btn`) e trazer um campo de origem com o
+  atalho e a posição do trecho dentro do texto do `define` (D135).
 
 ## 4. Gramática (EBNF)
 
@@ -242,7 +317,8 @@ concatena, `|` alterna, `[ ]` opcional, `{ }` repete zero ou mais vezes,
 ### 4.1 Estrutura do `look`
 
 ```ebnf
-look         = { ws } , [ item , { ws1 , item } ] , { ws } ;
+look         = { ws } , [ item , { sep , item } ] , { ws } ;
+sep          = ws1 | "" ;        (* "" só depois de ")": erro, R65 (D126) *)
 ws1          = ws , { ws } ;
 ws           = " " | "\t" | "\n" | "\r" ;
 
@@ -257,15 +333,14 @@ free-token   = family , "=" , free-value ;            (* D30 *)
 family       = word ;      (* pad, pad-x, margin-top, w, bg, text... *)
 
 free-value   = number-value | color-value ;           (* D105 *)
-number-value = [ "-" ] , integer , [ "%" ] ;
-color-value  = ( hex | tone ) , [ "/" , opacity ] ;   (* D104 *)
+number-value = [ "-" ] , integer , [ "." , integer ] , [ "%" ] ;  (* D125 *)
+color-value  = hex , [ "/" , opacity ] ;              (* D104, D118 *)
 hex          = "#" , ( hexdigit , hexdigit , hexdigit
                      | hexdigit , hexdigit , hexdigit ,
                        hexdigit , hexdigit , hexdigit
                      | hexdigit , hexdigit , hexdigit ,
                        hexdigit , hexdigit , hexdigit ,
                        hexdigit , hexdigit ) ;
-tone         = letter , { letter } , "-" , integer ;  (* red-40; 0 a 100 *)
 
 class        = word ;      (* inclui atalhos e opacidade por sufixo *)
 word         = segment , { "-" , segment } ;
@@ -280,14 +355,17 @@ hexdigit     = digit | "a" | (* ... *) | "f" | "A" | (* ... *) | "F" ;
 
 Observações sobre a gramática:
 - `item` seguido de `item` exige espaço entre eles. Item colado depois de
-  `)` (`hover(a)pad-4`) não é definido (ver "Ainda não definido").
+  `)` (`hover(a)pad-4`) é lido como dois itens, mas gera erro (R65, D126).
+- O tom da paleta (`nome-tom`, ex.: `red-40`) não faz parte do `color-value` na
+  fase 1 (D118); volta junto com a paleta, na fase de tema.
 - A gramática é só **léxica e estrutural**. Se `word` é uma classe existente,
   se o valor está na escala e se o papel existe é decisão do vocabulário
   (seção 5) e do tema; falhar nisso gera diagnóstico `AW1xx`, não erro de
   gramática.
 - Um `word` imediatamente seguido de `(` é sempre nome de variante, nunca
   classe (R8).
-- `tone` e `hex` são distinguidos pelo primeiro caractere (`#`).
+- O número do `number-value` exige ao menos um dígito antes do ponto
+  (`.5` não é válido) e usa ponto, não vírgula (R54).
 
 ### 4.2 Forma das classes por família
 
@@ -298,58 +376,59 @@ tema (R30).
 class-form    = layout | spacing | size | color | border | typography
               | round | shadow | opacity-class | shortcut ;
 
-layout        = "row" | "col" | "fill"
-              | "center" | "center-x" | "center-y" ;        (* D18, D38 *)
+layout        = "row" | "col" | "fill" | "wrap" | "between"
+              | "center" | "center-x" | "center-y"
+              | "x-start" | "x-end" | "y-start" | "y-end" ;
+                                                        (* D18, D38, D122 *)
 
 region        = "x" | "y" | "top" | "bottom" | "left" | "right" ;   (* D87 *)
+axis          = "x" | "y" ;
 scale         = integer ;           (* semântica: 0 a 16 (D43) *)
 
 spacing       = "pad"    , [ "-" , region ] , "-" , scale
               | "margin" , [ "-" , region ] , "-" , ( scale | "auto" )
-              | "gap"    , "-" , scale ;                     (* D43, D89 *)
+              | "gap"    , [ "-" , axis ] , "-" , scale ;   (* D43, D89, D125 *)
 
-size          = ( "w" | "h" ) , "-" , ( scale | "full" | "screen" )
-              | "size" , "-" , scale ;                       (* D98 *)
+size          = ( "w" | "h" | "size" ) , "-" ,
+                ( scale | "full" | "screen" ) ;                (* D98, D125 *)
 
 color         = ( "bg" | "text" | "border" ) , "-" , role ,
-                [ "-" , opacity ] ;                (* D31, D34, D95 *)
+                [ "-" , opacity ] ;                (* D31, D34, D95, D123 *)
 role          = word ;      (* nomes do tema; não termina em número (D31) *)
 
-border        = "border" , [ "-" , side ] , [ "-" , border-width ] ;
-side          = "top" | "bottom" | "left" | "right" ;
-border-width  = integer ;
-              (* proposta, a aprovar: forma e escala, seção 5.6 *)
+border        = "border" , [ "-" , region ] , [ "-" , border-width ] ;
+border-width  = "0" | "2" | "4" ;      (* D123; sem número, vale 1 *)
 
 typography    = "type"    , "-" , type-size                  (* D49 *)
               | "weight"  , "-" , ( "regular" | "medium" | "bold" )
               | "leading" , "-" , ( "tight" | "normal" | "loose" )
-              | "align"   , "-" , align-value
-              | "font"    , "-" , font-value
+              | "align"   , "-" , ( "left" | "center" | "right" )
+              | "font"    , "-" , ( "sans" | "serif" | "mono" )
               | "italic" | "underline" | "upper" | "lower"
-              | "lines"   , "-" , integer ;                  (* D77, D98 *)
+              | "lines"   , "-" , integer ;            (* D77, D98, D125 *)
 type-size     = "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl" ;
-align-value   = "left" | "center" | "right" ;   (* rascunho, seção 11.1 *)
-font-value    = "sans" | "serif" | "mono" ;     (* rascunho, seção 11.1 *)
 
-round         = "round" , "-" , ( "none" | "sm" | "md" | "lg"
-                                | "xl" | "full" ) ;            (* D44 *)
-shadow        = "shadow" , "-" , ( "sm" | "md" | "lg" ) ;      (* D45 *)
+round         = "round" , [ "-" , round-part ] , "-" , radius ;   (* D44, D124 *)
+round-part    = "top" | "bottom" | "left" | "right"
+              | "top-left" | "top-right" | "bottom-left" | "bottom-right" ;
+radius        = "none" | "sm" | "md" | "lg" | "xl" | "full" ;
+shadow        = "shadow" , "-" , ( "sm" | "md" | "lg" ) ;      (* D45, D124 *)
 opacity-class = "opacity" , "-" , opacity ;                    (* D98 *)
-shortcut      = word ;      (* declarado em define (D100); não coincide com
-                               nenhuma classe (D101) *)
+shortcut      = shortcut-name ;   (* declarado em define (D100); não coincide
+                                     com classe nem variante (D101, D134) *)
+shortcut-name = lower , { lower | digit | "-" } ;              (* D134 *)
+lower         = "a" | "b" | (* ... *) | "z" ;
 ```
 
-Desambiguação de `border-`: se o segmento após `border` é um lado, uma espessura
-(número) ou nada, é espessura; caso contrário, é papel de cor. Por isso um
-papel de borda NÃO DEVE se chamar `top`, `bottom`, `left` ou `right`
-(proposta, a aprovar).
+Desambiguação de `border-`: se o segmento após `border` é um lado, um eixo
+(`x`, `y`), uma espessura (número) ou nada, é espessura; caso contrário, é papel
+de cor. Por isso um papel de borda NÃO DEVE se chamar `top`, `bottom`, `left`,
+`right` (D127), nem `x` ou `y` (a confirmar, 11.2).
 
 ## 5. Vocabulário da fase 1
 
 A coluna "Significa" descreve o efeito abstrato, não a tradução RN ou CSS
 (`emissor-native.md`, `emissor-css.md`). `N` é um inteiro da escala (0 a 16).
-Onde a tabela diz "rascunho", o nome vem do rascunho da seção 11 da visão, sem
-decisão própria; consta também em "Ainda não definido".
 
 ### 5.1 Variantes (D28)
 
@@ -380,8 +459,16 @@ forma `nome:classe` (D28).
 | `center` | Centraliza nos dois eixos da tela | D38 |
 | `center-x` | Centraliza na horizontal da tela | D38 |
 | `center-y` | Centraliza na vertical da tela | D38 |
-| `fill` | Ocupa o espaço restante no pai (significado do rascunho; confirmar) | D18 |
-| `gap-N` | Espaço entre filhos, `N` × 4 | D43 |
+| `x-start` | Encosta no lado esquerdo da tela | D122 |
+| `x-end` | Encosta no lado direito da tela | D122 |
+| `y-start` | Encosta no topo da tela | D122 |
+| `y-end` | Encosta na base da tela | D122 |
+| `between` | Distribui a sobra do espaço entre os filhos, no eixo principal | D122 |
+| `wrap` | Filhos quebram de linha (sem ele, não quebram) | D122 |
+| `fill` | Ocupa o espaço restante no eixo do pai (flex 1) | D18, D122 |
+| `gap-N` | Espaço entre filhos nos dois eixos, `N` × 4 | D43 |
+| `gap-x-N`, `gap-y-N` | Espaço entre colunas / entre linhas, relativos à tela | D125 |
+| `gap=V`, `gap-x=V`, `gap-y=V` | Valor livre (R21) | D30, D125 |
 
 ### 5.3 Espaçamento (escala de 0 a 16, passos de 4, D43)
 
@@ -392,11 +479,9 @@ forma `nome:classe` (D28).
 | `pad-y-N` | Espaço interno acima e abaixo | D43, D58, D107 |
 | `pad-top-N`, `pad-bottom-N`, `pad-left-N`, `pad-right-N` | Espaço interno de um lado | D87 |
 | `margin-N`, `margin-x-N`, `margin-y-N`, `margin-<lado>-N` | Espaço externo, mesmas formas de `pad` | D43, D87 |
-| `margin-x-auto` | Margem automática à esquerda e à direita | D89 |
-| `margin-auto`, `margin-y-auto`, `margin-<lado>-auto` | Mesma ideia nas outras formas (proposta, a aprovar) | D89 |
+| `margin-auto`, `margin-x-auto`, `margin-y-auto`, `margin-<lado>-auto` | Margem automática, em todas as formas | D89, D127 |
 | `pad=V`, `pad-x=V`, `pad-top=V`, `margin=V`... | Valor livre (R17, R18) | D30, D105 |
 | `margin-top=-8` | Margem negativa: só por valor livre | D89 |
-| `gap=V` | Valor livre para `gap` (proposta, a aprovar, R21) | D30 |
 
 Exemplos de escala: `pad-0` = 0, `pad-1` = 4, `pad-4` = 16, `pad-16` = 64.
 
@@ -409,38 +494,43 @@ Exemplos de escala: `pad-0` = 0, `pad-1` = 4, `pad-4` = 16, `pad-16` = 64.
 | `size-N` | Largura e altura iguais, `N` × 4 | D98 |
 | `w-full`, `h-full` | 100% da largura ou da altura do pai | D98 |
 | `w-screen`, `h-screen` | Largura ou altura da tela | D98 |
-| `w=V`, `h=V`, `size=V` | Valor livre: `w=137`, `w=50%` | D30, D98, D105 |
+| `size-full`, `size-screen` | Largura e altura juntas, 100% do pai / da tela | D125 |
+| `w=V`, `h=V`, `size=V` | Valor livre: `w=137`, `w=50%`, `w=10.5` | D30, D98, D105, D125 |
 
 ### 5.5 Cor por papel (D34, D95)
 
 | Prefixo | Pinta | Papéis do tema padrão | D |
 |---|---|---|---|
 | `bg-` | Fundo | `page`, `surface`, `raised`; `primary`, `secondary`, `success`, `warning`, `danger`, `info`; variações `-soft` e `-hover` conforme o tema | D22, D24, D46 a D52, D91, D95 |
-| `text-` | Texto | `strong`, `body`, `muted`, `subtle`, `link`; `on-<papel>`; `<papel>` colorido (`text-danger`) | D18, D47, D92, D95 |
-| `border-` | Cor da borda | `subtle`, `strong`, `focus` | D95 |
+| `text-` | Texto | `strong`, `body`, `muted`, `subtle`, `link`; `on-<papel>`; `on-<papel>-soft`; `<papel>` colorido (`text-danger`), exceto `secondary` | D18, D47, D92, D95, D129, D131 |
+| `border-` | Cor da borda | `subtle`, `strong`, `focus` e todos os papéis do tema (`border-primary`, `border-danger`) | D95, D123 |
 
 Notas:
 - `text-subtle` é só para desabilitado (D93); `text-muted` para apoio.
 - Opacidade por sufixo: `bg-primary-50`, `text-strong-50` (R27). Combinada
   com variação: `bg-primary-hover-50` (o sufixo é o último segmento).
-- Cor livre: `bg=red-40`, `bg=#e11d48`, `bg=red-40/50` (R22, R23); vale também
-  em `text=` e `border=` (R21, proposta, a aprovar).
-- `border-<papel colorido>` (`border-danger`): não decidido (ver "Ainda não
-  definido").
+- Cor livre: `bg=#e11d48`, `bg=#e11d48/50` (R22, R23); vale também em `text=` e
+  `border=` (R21). Tons da paleta (`bg=red-40`) só na fase de tema (D118).
+- Texto sobre `-soft`: `text-on-<papel>-soft` (`text-on-danger-soft`) (D131).
+- `text-secondary` não existe (D129); use `text-body` ou `text-muted`.
+- `border-<papel>` não tem cor por lado (D123).
 - Que papéis aceitam `-soft`, `-hover` e `on-` é do tema (`tema.md`).
 
 ### 5.6 Borda
 
 | Classe | Significa | D |
 |---|---|---|
-| `border-subtle`, `border-strong`, `border-focus` | Cor da borda | D95 |
-| `border` | Espessura 1 nos quatro lados (rascunho; proposta, a aprovar) | D77 |
-| `border-2` | Espessura 2 nos quatro lados (rascunho; proposta, a aprovar) | D77 |
-| `border-top`, `border-bottom`, `border-left`, `border-right` | Espessura 1 de um lado (proposta, a aprovar) | D87 |
-| `border-<lado>-2` | Espessura 2 de um lado (proposta, a aprovar) | D87 |
+| `border-subtle`, `border-strong`, `border-focus`, `border-<papel>` | Cor da borda | D95, D123 |
+| `border` | Espessura 1 nos quatro lados | D123 |
+| `border-0`, `border-2`, `border-4` | Espessura 0, 2 ou 4 nos quatro lados | D123 |
+| `border=V` | Espessura livre nos quatro lados (`border=3`) | D123, D30 |
+| `border-x`, `border-y` | Espessura 1 à esquerda e à direita / em cima e embaixo | D123 |
+| `border-x-N`, `border-y-N` | Espessura `N` (0, 2 ou 4) no eixo | D123 |
+| `border-top`, `border-bottom`, `border-left`, `border-right` | Espessura 1 de um lado | D87, D123 |
+| `border-<lado>-N` | Espessura `N` (0, 2 ou 4) de um lado (`border-bottom-2`) | D87, D123 |
 
 A cor da borda e a espessura são propriedades distintas (`border.color` e
-`border.width.*`).
+`border.width.*`). Não há cor por lado (D123).
 
 ### 5.7 Tipografia
 
@@ -449,39 +539,48 @@ A cor da borda e a espessura são propriedades distintas (`border.color` e
 | `type-xs`, `type-sm`, `type-base`, `type-lg`, `type-xl`, `type-2xl`, `type-3xl` | Tamanho do texto (12, 14, 16, 18, 20, 24, 30) | D23, D49 |
 | `weight-regular`, `weight-medium`, `weight-bold` | Peso (400, 500, 700) | D77, D98 |
 | `leading-tight`, `leading-normal`, `leading-loose` | Altura de linha, multiplica o `type-*` (1.25, 1.5, 1.75) | D77, D98 |
-| `align-left`, `align-center`, `align-right` | Alinhamento do texto (valores: rascunho) | D77 |
-| `font-sans`, `font-serif`, `font-mono` | Família de fonte (valores: rascunho) | D77 |
+| `align-left`, `align-center`, `align-right` | Alinhamento do texto | D77, D125 |
+| `font-sans`, `font-serif`, `font-mono` | Família de fonte do sistema (valores por plataforma: `tema.md`) | D77, D125, D133 |
 | `italic` | Itálico | D77 |
 | `underline` | Sublinhado | D77 |
 | `upper` | Texto em maiúsculas | D77 |
 | `lower` | Texto em minúsculas | D77 |
-| `lines-N` | Limita o texto a `N` linhas; **vai para a parte de props da IR**, não de estilo; `N` inteiro maior ou igual a 1 (proposta, a aprovar) | D77, D83 |
-| `type=V` | Valor livre de tamanho (proposta, a aprovar, R21) | D30 |
+| `lines-N` | Limita o texto a `N` linhas; **vai para a parte de props da IR**, que também tem condição (`medium(lines-2) lines-4`); `N` inteiro maior ou igual a 1 | D77, D83, D127, D135 |
+| `type=V` | Valor livre de tamanho (R21) | D30, D127 |
+| `leading=V` | Valor livre de altura de linha, aceita decimal (`leading=1.4`) | D125 |
 
 ### 5.8 Raio, sombra e opacidade
 
 | Classe | Significa | D |
 |---|---|---|
-| `round-none`, `round-sm`, `round-md`, `round-lg`, `round-xl` | Raio 0, 4, 8, 12, 16 | D44 |
+| `round-none`, `round-sm`, `round-md`, `round-lg`, `round-xl` | Raio 0, 4, 8, 12, 16 nos quatro cantos | D44 |
 | `round-full` | Totalmente redondo (9999) | D44, D98 |
-| `shadow-sm`, `shadow-md`, `shadow-lg` | Elevação. No escuro eleva o fundo sozinho (D97) | D45, D96, D97 |
+| `round-top-<tam>`, `round-bottom-<tam>`, `round-left-<tam>`, `round-right-<tam>` | Raio nos dois cantos daquele lado | D124 |
+| `round-top-left-<tam>`, `round-top-right-<tam>`, `round-bottom-left-<tam>`, `round-bottom-right-<tam>` | Raio de um canto | D124 |
+| `shadow-sm`, `shadow-md`, `shadow-lg` | Elevação. No escuro eleva o fundo sozinho (D97, D132) | D45, D96, D97 |
 | `opacity-0`, `opacity-25`, `opacity-50`, `opacity-75`, `opacity-100` | Opacidade do elemento | D98 |
-| `round=V` | Valor livre de raio (proposta, a aprovar, R21) | D30 |
+| `round=V` | Valor livre de raio, nos quatro cantos (R21) | D30, D127 |
+
+`shadow-none` não existe na fase 1 (D124).
 
 ### 5.9 Especificidade para a regra de conflito (D58)
 
 A especificidade só compara classes que definem a **mesma propriedade** com o
-**mesmo conjunto de condições**. Nível maior vence (R36). A tabela é derivada
-da D58; as linhas marcadas são por analogia (proposta, a aprovar).
+**mesmo conjunto de condições**. Nível maior vence (R36). Para conjuntos de
+condições diferentes, vale a R41. A tabela é derivada da D58; as linhas de
+`size`, `center` e espessura da borda são por analogia (D127). As linhas com
+(a confirmar) são consequência dessa mesma analogia para classes novas.
 
 | Família | Nível 1 | Nível 2 | Nível 3 |
 |---|---|---|---|
 | Espaço interno | `pad` (4 lados) | `pad-x`, `pad-y` (2 lados) | `pad-top`, `pad-bottom`, `pad-left`, `pad-right` (1 lado) |
 | Espaço externo | `margin` | `margin-x`, `margin-y` | `margin-top`, `margin-bottom`, `margin-left`, `margin-right` |
-| Tamanho (proposta) | `size` (largura e altura) | `w`, `h` | — |
-| Centralização (proposta) | `center` (eixos x e y) | `center-x`, `center-y` | — |
-| Espessura da borda (proposta) | `border` (4 lados) | `border-<lado>` | — |
-| Qualquer outra | Nível único: `gap`, `bg`, `text`, `border-<papel>`, `type`, `weight`, `leading`, `align`, `font`, `italic`, `underline`, `upper`/`lower`, `lines`, `round`, `shadow`, `opacity`, `row`/`col`, `fill` | — | — |
+| Tamanho | `size` (largura e altura) | `w`, `h` | — |
+| Posição na tela | `center` (eixos x e y) | `center-x`, `x-start`, `x-end` (eixo x); `center-y`, `y-start`, `y-end` (eixo y) (a confirmar para `x-*` e `y-*`) | — |
+| Espessura da borda | `border` (4 lados) | `border-x`, `border-y` (a confirmar) | `border-<lado>` |
+| Raio (a confirmar) | `round` (4 cantos) | `round-top`, `round-bottom`, `round-left`, `round-right` | `round-top-left`, `round-top-right`, `round-bottom-left`, `round-bottom-right` |
+| Espaço entre filhos (a confirmar) | `gap` (x e y) | `gap-x`, `gap-y` | — |
+| Qualquer outra | Nível único: `bg`, `text`, `border-<papel>`, `type`, `weight`, `leading`, `align`, `font`, `italic`, `underline`, `upper`/`lower`, `lines`, `shadow`, `opacity`, `row`/`col`, `fill`, `wrap`, `between` | — | — |
 
 Notas:
 - Valor livre tem a especificidade da família: `pad=10` é nível 1; `pad-x=10`,
@@ -496,17 +595,19 @@ Notas:
 
 ### 5.10 Propriedades abstratas usadas nos exemplos
 
-`direction`, `place.x`, `place.y`, `fill`, `gap`, `pad.top|bottom|left|right`,
-`margin.top|bottom|left|right`, `width`, `height`, `bg`, `text`,
-`border.color`, `border.width.top|bottom|left|right`, `type`, `weight`,
-`leading`, `align`, `font`, `italic`, `underline`, `case`, `round`, `shadow`,
-`opacity`. Na parte de props: `lines`.
+`direction`, `place.x`, `place.y`, `distribute`, `wrap`, `fill`, `gap.x`,
+`gap.y`, `pad.top|bottom|left|right`, `margin.top|bottom|left|right`, `width`,
+`height`, `bg`, `text`, `border.color`, `border.width.top|bottom|left|right`,
+`type`, `weight`, `leading`, `align`, `font`, `italic`, `underline`, `case`,
+`round.top-left|top-right|bottom-left|bottom-right`, `shadow`, `opacity`. Na
+parte de props: `lines`. Os nomes `distribute` e `wrap` e a divisão de `gap` e
+`round` em propriedades são notação desta spec (a confirmar, 11.2).
 
 ## 6. Diagnósticos
 
-Todos os códigos, textos e severidades abaixo são **(proposta, a aprovar)**,
-inclusive a numeração. A decisão D84 fixa só: código `AW###`, posição e
-sugestão.
+Os códigos, textos, severidades e sugestões abaixo foram aprovados na D127. A
+D84 fixou: código `AW###`, posição e sugestão. Os erros novos das D125, D126 e
+D134 ainda não têm código (seção 11.1, item 1).
 
 Severidade: **erro** = o trecho foi descartado; **aviso** = o trecho vale, mas
 é suspeito. Posição `[início, fim)` (seção 2). `{x}` é o texto citado.
@@ -523,14 +624,14 @@ Severidade: **erro** = o trecho foi descartado; **aviso** = o trecho vale, mas
 | `AW008` | erro | Valor livre inválido: unidade (`rem`, `em`, `vw`, `vh`), texto, negativo fora de `margin`, hex com tamanho errado, opacidade fora da escala, barra com hex de 8 dígitos | `Valor {v} não é aceito em {família}.` | forma válida mais próxima | D104, D105 |
 | `AW009` | erro | `=` em família que não aceita valor livre (`weight=600`) | `{família} não aceita valor livre.` | classe da escala mais próxima | D30 |
 | `AW101` | erro | Classe desconhecida (`padd-4`, `Pad-4`, `pad_4`) | `Classe {x} não existe.` | classe mais próxima | D35, D88 |
-| `AW102` | erro | Papel de cor inexistente (`bg-banana`) | `O papel {papel} não existe em {prefixo}-.` | papel mais próximo | D35 |
-| `AW103` | erro | Valor fora da escala (`pad-17`, `type-4xl`, `opacity-30`, `bg-primary-30`) | `{valor} está fora da escala de {família}.` | valor da escala mais próximo ou o valor livre | D43, D98 |
+| `AW102` | erro | Papel de cor inexistente (`bg-banana`, `text-secondary`) | `O papel {papel} não existe em {prefixo}-.` | papel mais próximo | D35, D129 |
+| `AW103` | erro | Valor fora da escala (`pad-17`, `type-4xl`, `opacity-30`, `bg-primary-30`, `border-3`) | `{valor} está fora da escala de {família}.` | valor da escala mais próximo ou o valor livre | D43, D98, D123 |
 | `AW104` | erro | Margem negativa na escala (`margin-top--8`) | `Margem negativa só por valor livre.` | `margin-top=-8` | D89 |
 | `AW107` | erro | Barra em classe com papel (`bg-primary/50`) | `Opacidade em papel usa sufixo, não "/".` | `bg-primary-50` | D31, D104 |
 | `AW201` | aviso | Classe descartada por empate de especificidade (R37) | `{descartada} é sobrescrita por {vencedora}.` | remover a descartada | D58 |
 | `AW202` | aviso | Condições impossíveis juntas (R15) | `As condições {a} e {b} nunca valem juntas.` | remover uma | D86 |
 | `AW301` | erro | Ciclo entre atalhos, ao carregar o tema | `Ciclo entre atalhos: {a} -> {b} -> {a}.` | — | D101 |
-| `AW302` | erro | Nome de atalho igual a uma classe, ao carregar o tema | `O atalho {nome} coincide com uma classe.` | outro nome | D101 |
+| `AW302` | erro | Nome de atalho igual a uma classe ou a uma variante, ao carregar o tema | `O atalho {nome} coincide com uma classe ou variante.` | outro nome | D101, D134 |
 | `AW303` | erro | Papel criado terminando em número, ao carregar o tema | `Papel {nome} não pode terminar em número.` | `{nome}` sem o número | D31 |
 
 Regras dos diagnósticos:
@@ -540,6 +641,9 @@ Regras dos diagnósticos:
   interna.
 - Posições são sempre relativas ao texto original do `look`, também dentro de
   variantes aninhadas.
+- Erro dentro de um atalho: a posição é o **nome do atalho no `look`**, e o
+  diagnóstico traz um campo de origem com o atalho e a posição dentro do texto
+  do `define` (R66, D135). Formato do campo: `funcionamento-interno.md`.
 - `AW301` a `AW303` pertencem ao carregamento do tema e referem-se ao texto da
   definição, não a um `look` (`tema.md`).
 - O contraste (D32) não está na fase 1 (seção 10); seu código será proposto
@@ -547,19 +651,22 @@ Regras dos diagnósticos:
 
 ## 7. Exemplos
 
-Notação das saídas (proposta, a aprovar; só para esta spec, o formato real é o
-da IR em `funcionamento-interno.md`):
+Notação das saídas (D127; só para esta spec, o formato real é o da IR em
+`funcionamento-interno.md`):
 - Uma saída é uma lista `[condições] propriedade=valor` separada por espaço.
   Sem prefixo, o item vale sempre. As condições são um conjunto, escritas em
   ordem alfabética (`[dark,hover]`).
 - Ordem: primeiro os itens sem condição, depois por condições em ordem
   alfabética; dentro de cada grupo, por nome da propriedade.
 - Escalas numéricas saem resolvidas (`pad-4` = 16); escalas nomeadas saem pelo
-  nome (`type=lg`, `round=md`); cores saem como `role(nome)`, `hex(#...)` ou
-  `tone(nome-tom)`, com `@N` para a opacidade.
-- `props:` marca a parte de props; `diag:` lista diagnósticos como
-  `AW###[início,fim)`, com a sugestão entre crases quando for parte do teste.
-  Sem `diag:`, a lista é vazia.
+  nome (`type=lg`, `round.top-left=md`); cores saem como `role(nome)` ou
+  `hex(#...)`, com `@N` para a opacidade. Booleanos saem como `true`.
+- `props:` marca a parte de props; o que vem depois segue a mesma notação, com
+  ou sem `[condições]`. `diag:` lista diagnósticos como `AW###[início,fim)`,
+  com a sugestão entre crases quando for parte do teste. Sem `diag:`, a lista é
+  vazia.
+- Nas tabelas 7.1 a 7.6 a saída **não resolve** qual item vale quando várias
+  condições estão ativas; isso é da seção 7.7 (R41).
 
 ### 7.1 Classes e escalas
 
@@ -573,24 +680,51 @@ da IR em `funcionamento-interno.md`):
 | `pad-top-2` | `pad.top=8` |
 | `margin-left-4` | `margin.left=16` |
 | `margin-x-auto` | `margin.left=auto margin.right=auto` |
+| `margin-auto` | `margin.bottom=auto margin.left=auto margin.right=auto margin.top=auto` |
+| `margin-top-auto` | `margin.top=auto` |
 | `margin-top=-8` | `margin.top=-8` |
-| `gap-4` | `gap=16` |
+| `gap-4` | `gap.x=16 gap.y=16` |
+| `gap-x-4` | `gap.x=16` |
+| `gap-y-2` | `gap.y=8` |
 | `row` | `direction=row` |
 | `col` | `direction=col` |
 | `center` | `place.x=center place.y=center` |
 | `center-x` | `place.x=center` |
 | `center-y` | `place.y=center` |
+| `x-start` | `place.x=start` |
+| `x-end` | `place.x=end` |
+| `y-start` | `place.y=start` |
+| `y-end` | `place.y=end` |
+| `between` | `distribute=between` |
+| `wrap` | `wrap=true` |
+| `fill` | `fill=true` |
 | `w-full` | `width=full` |
 | `h-screen` | `height=screen` |
 | `h-10` | `height=40` |
 | `size-10` | `height=40 width=40` |
+| `size-full` | `height=full width=full` |
+| `size-screen` | `height=screen width=screen` |
+| `border` | `border.width.bottom=1 border.width.left=1 border.width.right=1 border.width.top=1` |
+| `border-0` | `border.width.bottom=0 border.width.left=0 border.width.right=0 border.width.top=0` |
+| `border-2` | `border.width.bottom=2 border.width.left=2 border.width.right=2 border.width.top=2` |
+| `border-4` | `border.width.bottom=4 border.width.left=4 border.width.right=4 border.width.top=4` |
+| `border-x` | `border.width.left=1 border.width.right=1` |
+| `border-y-2` | `border.width.bottom=2 border.width.top=2` |
+| `border-top` | `border.width.top=1` |
+| `border-bottom-2` | `border.width.bottom=2` |
 | `type-lg` | `type=lg` |
 | `weight-bold` | `weight=bold` |
 | `leading-tight` | `leading=tight` |
+| `align-center` | `align=center` |
+| `font-mono` | `font=mono` |
 | `upper` | `case=upper` |
 | `lines-2` | `props: lines=2` |
-| `round-md` | `round=md` |
-| `round-full` | `round=full` |
+| `round-md` | `round.bottom-left=md round.bottom-right=md round.top-left=md round.top-right=md` |
+| `round-full` | `round.bottom-left=full round.bottom-right=full round.top-left=full round.top-right=full` |
+| `round-top-lg` | `round.top-left=lg round.top-right=lg` |
+| `round-bottom-md` | `round.bottom-left=md round.bottom-right=md` |
+| `round-left-lg` | `round.bottom-left=lg round.top-left=lg` |
+| `round-top-left-lg` | `round.top-left=lg` |
 | `shadow-md` | `shadow=md` |
 | `opacity-50` | `opacity=50` |
 
@@ -600,23 +734,29 @@ da IR em `funcionamento-interno.md`):
 |---|---|
 | `w=137` | `width=137` |
 | `w=50%` | `width=50%` |
+| `w=10.5` | `width=10.5` |
+| `leading=1.4` | `leading=1.4` |
 | `pad=10` | `pad.bottom=10 pad.left=10 pad.right=10 pad.top=10` |
 | `pad-x=10` | `pad.left=10 pad.right=10` |
+| `gap-x=6` | `gap.x=6` |
+| `border=3` | `border.width.bottom=3 border.width.left=3 border.width.right=3 border.width.top=3` |
 | `bg-primary` | `bg=role(primary)` |
 | `bg-primary-hover` | `bg=role(primary-hover)` |
 | `bg-primary-soft` | `bg=role(primary-soft)` |
 | `bg-primary-50` | `bg=role(primary)@50` |
 | `text-strong-50` | `text=role(strong)@50` |
 | `text-on-primary` | `text=role(on-primary)` |
+| `text-on-danger-soft` | `text=role(on-danger-soft)` |
 | `text-danger` | `text=role(danger)` |
 | `border-subtle` | `border.color=role(subtle)` |
-| `bg=red-40` | `bg=tone(red-40)` |
-| `bg=red-40/50` | `bg=tone(red-40)@50` |
+| `border-danger` | `border.color=role(danger)` |
 | `bg=#e11d48` | `bg=hex(#e11d48)` |
 | `bg=#e11d48/50` | `bg=hex(#e11d48)@50` |
 | `bg=#fff` | `bg=hex(#fff)` |
 | `bg=#e11d4880` | `bg=hex(#e11d4880)` |
-| `dark(bg=red-20)` | `[dark] bg=tone(red-20)` |
+| `dark(bg=#e11d48)` | `[dark] bg=hex(#e11d48)` |
+
+Cor livre com tom da paleta (`bg=red-40`) não está na fase 1 (D118): ver 11.1.
 
 ### 7.3 Variantes
 
@@ -638,10 +778,9 @@ da IR em `funcionamento-interno.md`):
 | `medium(pad-4) expanded(pad-8)` | `[expanded] pad.bottom=32 pad.left=32 pad.right=32 pad.top=32 [medium] pad.bottom=16 pad.left=16 pad.right=16 pad.top=16` |
 | `dark(light(bg-raised))` | `[dark,light] bg=role(raised)` e `diag: AW202[5,21)` |
 | `ios(web(row))` | `[ios,web] direction=row` e `diag: AW202[4,12)` |
-
-Nota: `col medium(row)` e `medium(pad-4) expanded(pad-8)` só mostram que os
-itens ficam separados por condição. Qual vale quando várias condições estão
-ativas ao mesmo tempo é "Ainda não definido" (11.1, item 1).
+| `ios(native(row))` | `[ios] direction=row` (R53, sem diagnóstico) |
+| `medium(expanded(pad-4))` | `[expanded] pad.bottom=16 pad.left=16 pad.right=16 pad.top=16` (R53, sem diagnóstico) |
+| `medium(lines-2) lines-4` | `props: lines=4 [medium] lines=2` |
 
 ### 7.4 Conflito entre classes (D58)
 
@@ -657,13 +796,17 @@ ativas ao mesmo tempo é "Ainda não definido" (11.1, item 1).
 | `pad-x-2 pad-x-4` | `pad.left=16 pad.right=16` e `diag: AW201[0,7)` |
 | `row col` | `direction=col` e `diag: AW201[0,3)` |
 | `center center-x` | `place.x=center place.y=center` |
+| `gap-4 gap-x-2` | `gap.x=8 gap.y=16` |
+| `border border-top-2` | `border.width.bottom=1 border.width.left=1 border.width.right=1 border.width.top=2` |
+| `round-top-lg round-md` | `round.bottom-left=md round.bottom-right=md round.top-left=lg round.top-right=lg` |
 | `hover(bg-primary bg-surface)` | `[hover] bg=role(surface)` e `diag: AW201[6,16)` |
 | `dark(hover(bg-raised)) hover(dark(bg-surface))` | `[dark,hover] bg=role(surface)` e `diag: AW201[11,20)` |
 | `lines-2 lines-3` | `props: lines=3` e `diag: AW201[0,7)` |
 
 Nota: em `center center-x`, `center-x` (nível 2) vence `center` (nível 1) em
 `place.x`; como o valor é o mesmo, o resultado não muda e não há aviso, porque
-os níveis são diferentes (proposta, a aprovar, seção 5.9).
+os níveis são diferentes (seção 5.9, D127). As linhas com `gap`, `border` e
+`round` seguem a mesma lógica por analogia (a confirmar, 11.2).
 
 ### 7.5 Atalhos
 
@@ -673,7 +816,18 @@ Com `defineConfig({ define: { btn: 'bg-primary pad-4' } })`:
 |---|---|
 | `btn` | `bg=role(primary) pad.bottom=16 pad.left=16 pad.right=16 pad.top=16` |
 | `btn hover(bg-primary-hover)` | `bg=role(primary) pad.bottom=16 pad.left=16 pad.right=16 pad.top=16 [hover] bg=role(primary-hover)` |
-| `btn pad-8` | `bg=role(primary) pad.bottom=32 pad.left=32 pad.right=32 pad.top=32` e `diag: AW201[0,3)` (R45, proposta) |
+| `hover(btn)` | `[hover] bg=role(primary) pad.bottom=16 pad.left=16 pad.right=16 pad.top=16` |
+| `btn pad-8` | `bg=role(primary) pad.bottom=32 pad.left=32 pad.right=32 pad.top=32` e `diag: AW201[0,3)` (R45) |
+
+Com `defineConfig({ define: { btn: 'bg-primary pad-17' } })` (erro dentro do
+atalho, R66):
+
+| Entrada | Saída |
+|---|---|
+| `pad-4 btn` | `bg=role(primary) pad.bottom=16 pad.left=16 pad.right=16 pad.top=16` e `diag: AW103[6,9)`, origem `btn` em `[11,17)` do `define` |
+
+A notação da origem (`origem {atalho} em [início,fim) do define`) vale só para
+esta spec; o campo real está em `funcionamento-interno.md`.
 
 ### 7.6 Erros e sintaxe quebrada (D88)
 
@@ -698,12 +852,13 @@ Com `defineConfig({ define: { btn: 'bg-primary pad-4' } })`:
 | `w=-5` | vazia e `diag: AW008[0,4)` |
 | `bg=#12` | vazia e `diag: AW008[0,6)` |
 | `bg=#e11d4880/50` | vazia e `diag: AW008[0,15)` |
-| `bg=red-40/30` | vazia e `diag: AW008[0,12)` |
+| `bg=#e11d48/30` | vazia e `diag: AW008[0,13)` |
 | `weight=600` | vazia e `diag: AW009[0,10)` |
 | `padd-4` | vazia e `diag: AW101[0,6)` com sugestão `pad-4` |
 | `Pad-4` | vazia e `diag: AW101[0,5)` com sugestão `pad-4` |
 | `bg-primry` | vazia e `diag: AW102[0,9)` com sugestão `bg-primary` |
 | `bg-banana` | vazia e `diag: AW102[0,9)` sem sugestão |
+| `text-secondary` | vazia e `diag: AW102[0,14)` (D129) |
 | `pad-17` | vazia e `diag: AW103[0,6)` |
 | `bg-primary-30` | vazia e `diag: AW103[0,13)` |
 | `opacity-30` | vazia e `diag: AW103[0,10)` |
@@ -713,6 +868,34 @@ Com `defineConfig({ define: { btn: 'bg-primary pad-4' } })`:
 | `pad-4 hover(bg-banana pad-2) bg-primary` | `bg=role(primary) pad.bottom=16 pad.left=16 pad.right=16 pad.top=16 [hover] pad.bottom=8 pad.left=8 pad.right=8 pad.top=8` e `diag: AW102[12,21)` |
 | `` (vazio) | vazia, sem diagnóstico |
 | `   ` (só espaços) | vazia, sem diagnóstico |
+
+### 7.7 Precedência entre condições diferentes (D117)
+
+Cada linha diz qual valor vale **quando as condições do contexto estão
+ativas ao mesmo tempo** (R41). "Contexto" lista as condições que valem.
+
+| Entrada | Contexto | Valor que vale |
+|---|---|---|
+| `bg-primary hover(bg-raised)` | nenhuma | `bg=role(primary)` |
+| `bg-primary hover(bg-raised)` | hover | `bg=role(raised)` |
+| `hover(bg-raised) bg-primary` | hover | `bg=role(raised)` |
+| `pad-x-2 medium(pad-4)` | compact | `pad.left=8 pad.right=8` |
+| `pad-x-2 medium(pad-4)` | medium | `pad.bottom=16 pad.left=16 pad.right=16 pad.top=16` |
+| `dark(hover(bg-raised)) hover(bg-surface)` | dark e hover | `bg=role(raised)` |
+| `dark(hover(bg-raised)) hover(bg-surface)` | só hover | `bg=role(surface)` |
+| `expanded(pad-8) medium(pad-4)` | largura 900 (medium e expanded) | `pad.bottom=32 pad.left=32 pad.right=32 pad.top=32` |
+| `medium(pad-4) expanded(pad-8)` | largura 900 | `pad.bottom=32 pad.left=32 pad.right=32 pad.top=32` |
+| `hover(bg-raised) press(bg-primary-hover)` | hover e press | `bg=role(primary-hover)` |
+| `press(bg-primary-hover) hover(bg-raised)` | hover e press | `bg=role(raised)` |
+| `medium(lines-2) lines-4` | medium | `props: lines=2` |
+
+Notas:
+- `pad-x-2 medium(pad-4)` em `medium`: a condição vence a especificidade da
+  família (critério 1 da R41); `pad-x` não segura o 8 da esquerda e da direita.
+- Nenhuma dessas disputas gera `AW201`.
+- Empate entre uma faixa de tela e outro estado com o mesmo número de
+  condições, em ordens que formam um ciclo (R41, critérios 3 e 4), está em
+  "Ainda não definido" (11.1, item 3).
 
 ## 8. Casos de borda e erros
 
@@ -727,10 +910,21 @@ Com `defineConfig({ define: { btn: 'bg-primary pad-4' } })`:
 | `pad_4`, `pad-4,`, `$`: caractere fora da gramática | Token descartado com `AW101` | R2 |
 | Mesma classe repetida (`pad-4 pad-4`) | Empate: vale uma, `AW201` na primeira | R37, R38 |
 | Classe de nível maior depois de menor, ou antes | Vence a de nível maior, sem aviso | R36 |
-| Mesmo item sob condições diferentes (`bg-primary hover(bg-raised)`) | Ficam os dois, cada um com as suas condições; sem `AW201` | R41 |
-| `dark(dark(x))` | Aceito; condições repetidas valem como uma | R11 (proposta, a aprovar) |
-| Atalho com nome de classe | Erro ao carregar o tema (`AW302`) | R44 |
+| Mesmo item sob condições diferentes (`bg-primary hover(bg-raised)`) | Ficam os dois, cada um com as suas condições; sem `AW201`; com hover ativo vale o da variante | R41 |
+| `dark(dark(x))` | Aceito; condições repetidas valem como uma | R11, R53 |
+| `ios(native(x))`, `medium(expanded(x))` | Simplificados em silêncio para `ios(x)` e `expanded(x)` | R53 |
+| `dark(light(x))`, `ios(web(x))` | Aceitos, nunca valem, `AW202` | R15 |
+| `hover(bg-raised)pad-4` | Erro de falta de espaço com sugestão; aplica os dois itens | R65 |
+| `w=10.5`, `leading=1.4` | Aceitos (decimal com ponto) | R54 |
+| `w=10,5`, `w=.5` | Erro (código em 11.1) | R54 |
+| `bg=red-40` na fase 1 | Tom da paleta não existe na fase 1 (código em 11.1) | R18, D118 |
+| `text-secondary` | `AW102` | R56 |
+| `shadow-none` | Fora da fase 1 | R63 |
+| `border-3` | `AW103` com sugestão `border=3` | R62 |
+| Atalho com nome de classe ou de variante | Erro ao carregar o tema (`AW302`) | R44 |
+| Atalho com nome fora do formato | Erro ao carregar o tema (código em 11.1) | R64 |
 | Ciclo entre atalhos | Erro ao carregar o tema (`AW301`) | R44 |
+| Erro dentro de atalho | Posição = nome do atalho no `look`; traz a origem no `define` | R66 |
 | `bg-red-600` | `AW102`: `red-600` não é papel | R26, R29 |
 | Papel inexistente em produção | Ignorado, sem quebrar | R29, R46 |
 | Cor livre sem `on-` | Aceita; o aviso de contraste é futuro | seção 10 |
@@ -741,6 +935,7 @@ Com `defineConfig({ define: { btn: 'bg-primary pad-4' } })`:
   exata da tabela, incluindo a ordem.
 - Toda entrada da seção 7.6 devolve o resultado e os diagnósticos exatos da
   tabela (código e posição; sugestão onde indicada).
+- Toda linha da seção 7.7 devolve o valor indicado para o contexto dado (R41).
 - Nenhuma entrada, por mais quebrada que seja, lança exceção nem zera o estilo
   dos trechos válidos (R47). Isto vale também para entradas geradas
   aleatoriamente (teste de propriedade).
@@ -750,15 +945,15 @@ Com `defineConfig({ define: { btn: 'bg-primary pad-4' } })`:
   `pad`, `pad-x`/`pad-y` e `pad-<lado>` (R36), e `AW201` só aparece em empate
   total (R38).
 - Há um teste de ouro por linha das tabelas da seção 7, no formato da skill
-  `teste-de-ouro`. Linhas marcadas como proposta só viram teste depois de
-  aprovadas.
+  `teste-de-ouro`. Linhas marcadas "(a confirmar)" só viram teste depois de
+  confirmadas.
 - A resolução é determinística: mesma entrada gera a mesma saída e a mesma
   ordem de diagnósticos (R6, R49).
 - Todo código `AW###` da seção 6 tem pelo menos um teste que o provoca.
 - A gramática da seção 4 é aceita por um teste que gera entradas a partir dela
   e confere que o parser as lê sem diagnóstico de sintaxe (`AW00x`).
-- A tipagem rejeita classes fora do vocabulário em tempo de compilação (R52),
-  nos casos que a tipagem consegue cobrir (a definir, ver "Ainda não definido").
+- O tipo do `look` aceita qualquer `string` e oferece autocomplete das classes
+  conhecidas (R52, D126).
 
 ## 10. Fora da fase 1
 
@@ -769,6 +964,8 @@ Com `defineConfig({ define: { btn: 'bg-primary pad-4' } })`:
 | Faixa exata de tamanho de tela | D106; hoje se resolve com `medium(x) expanded(y)` (D37) | Depois |
 | Lados `start` e `end` (idiomas da direita para a esquerda) | D87 | Depois |
 | `rem`, `em`, `vw`, `vh` no valor livre | D105 | Depois |
+| Tons da paleta no valor livre (`bg=red-40`) | D118, D99 | Fase de tema |
+| `shadow-none` | D124 | Depois |
 | Aviso de contraste (cores livres incluídas) | D32; não marcado para a fase 1 (D66) | A atribuir na divisão em fases |
 | Paleta customizável, interpolação e recálculo de `-soft`/`-hover`/`on-` | D99 | Fase de tema |
 | Seções de tema além de `define` no `alanwind.config.ts` | D81 | Fase de tema |
@@ -778,60 +975,39 @@ Com `defineConfig({ define: { btn: 'bg-primary pad-4' } })`:
 ## 11. Ainda não definido
 
 Status do documento: **rascunho**. Enquanto 11.1 tiver itens, a spec não vai
-para "em revisão". Aprovar as propostas de 11.2 também é necessário.
+para "em revisão". O que está em 11.2 também precisa de confirmação.
 
 ### 11.1 Lacunas (viram pergunta ao Alan)
 
-1. **Classes com condições diferentes na mesma propriedade.** D58 só trata
-   classes sob as mesmas condições. Falta decidir:
-   - `bg-primary hover(bg-raised)`: com hover ativo, vale a variante
-     (esperado, D59 dá `bg-primary hover(bg-primary-hover)` como exemplo)?
-     Isso vale independentemente da ordem de escrita?
-   - `pad-x-2 medium(pad-4)`: em `medium`, a especificidade da família
-     (`pad-x`) vence a variante, ou a variante vence por ter mais condições?
-   - `expanded(pad-8) medium(pad-4)` (ordem invertida) em `expanded`: vale o
-     último escrito ou a faixa maior (D106 sugere "a maior")?
-2. **Palavras de layout do rascunho sem decisão**: `between`, `start`, `end`,
-   `wrap` (e o significado exato de `fill`). `start`/`end` também colidem
-   com os lados da D87.
-3. **Borda**: forma e escala da espessura (`border`, `border-2`, outros
-   valores), `border-x`/`border-y`, cor por lado, e `border-<papel colorido>`
-   (`border-danger`).
-4. **Raio por canto ou por lado** (`round-top`) e `shadow-none`: existem?
-5. **`size-full` e `size-screen`**, e `gap-x`/`gap-y`: existem?
-6. **Valores de `align-*` e `font-*`**: D77 decide as famílias; os valores
-   (`left|center|right`, `sans|serif|mono`) são só do rascunho da visão.
-7. **Paleta na fase 1**: D99 manda a paleta para a fase de tema, mas D77 e D105
-   incluem `bg=red-40` na fase 1. Quais nomes e tons de paleta existem no
-   tema padrão da fase 1? (A gramática já aceita `nome-tom`.)
-8. **Valor livre decimal** (`w=10.5`, `leading` fracionário).
-9. **Item colado depois de `)`** (`hover(a)pad-4`): erro, ou lê os dois?
-10. **Tipagem**: como o tipo trata valor livre (`w=137`) e variantes
-    aninhadas: aceita qualquer `string` nesses casos, valida por template
-    literal, ou só o diagnóstico em runtime?
+1. **Códigos `AW###` dos erros novos.** As decisões pedem erro, mas não dão o
+   código nem, em alguns casos, a posição:
+   - item colado depois de `)` (`hover(bg-raised)pad-4`, D126): código e
+     posição do erro de falta de espaço;
+   - nome de atalho fora do formato, por exemplo com maiúscula (D134);
+   - vírgula decimal (`w=10,5`) e ponto sem dígito antes (`w=.5`) (D125):
+     vale `AW008`?
+   - tom da paleta na fase 1 (`bg=red-40`, D118): vale `AW008`?
+2. **`between` e o alinhamento no mesmo eixo.** `between` distribui no eixo
+   principal; `center-y` (em coluna) e `y-start`/`y-end` também mexem no eixo
+   principal. Quando as duas classes aparecem juntas, qual vence, ou os dois
+   valem? A D122 não diz. Reflete na IR (`funcionamento-interno.md`, seção 8).
+3. **Ciclo na precedência entre condições.** Com o mesmo número de condições, a
+   D117 manda vencer a faixa maior entre faixas diferentes e a última escrita
+   nos demais empates. Com `expanded(x) hover(x) medium(x)`, `expanded` vence
+   `medium` (faixa), `medium` vence `hover` (última escrita) e `hover` vence
+   `expanded` (última escrita): não há um vencedor único quando os três
+   valem ao mesmo tempo. Qual vale?
 
-### 11.2 Propostas a aprovar (já escritas no texto)
+### 11.2 Pontos a confirmar (consequências por analogia, já escritas no texto)
 
-Cada uma está marcada no texto com "(proposta, a aprovar)":
-- Posição `[início, fim)` em unidades UTF-16 (seção 2, seção 6).
-- Todos os códigos `AW###`, mensagens, severidades e sugestões da seção 6.
-- Tabulação e quebra de linha como separador; espaços dentro dos parênteses
-  ignorados (R3); `look` vazio sem diagnóstico (R4).
-- Maiúscula em classe é classe desconhecida (R2).
-- `motion-safe` gera `AW004` na fase 1 (R10).
-- Variantes com condições impossíveis: aceitas, nunca valem, `AW202` (R15).
-- Lista de famílias que aceitam `=` (R21) e `AW009` para as demais.
-- Negativo fora de `margin` é erro (R19).
-- Hex em maiúsculas (R22); barra só com os números da escala de opacidade e
-  recusada com hex de 8 dígitos (R23).
-- `auto` em todas as formas de `margin` (R33, seção 5.3).
-- Atalho dentro de variante e expansão no lugar (R43, R45).
-- Ordem dos diagnósticos (R49), trecho descartado por tipo de erro (R50) e
-  critério de sugestão por distância de edição até 2 (R51).
-- Especificidade por analogia para `size`/`w`/`h`, `center`/`center-x` e
-  espessura da borda (seção 5.9).
-- Forma e escala da espessura de borda e `lines-N` com `N` maior ou igual a 1
-  (seções 5.6 e 5.7).
-- Papel de borda não pode se chamar `top`, `bottom`, `left` ou `right`
-  (seção 4.2).
-- Notação das saídas e ordem de listagem dos exemplos (seção 7).
+Cada uma está marcada no texto com "(a confirmar)":
+- Especificidade por analogia para as classes novas: `x-start`/`x-end`/
+  `y-start`/`y-end` no nível de `center-x`/`center-y`; `border-x`/`border-y`
+  entre `border` e `border-<lado>`; raio (`round`, por lado, por canto);
+  `gap`, `gap-x`, `gap-y` (seção 5.9).
+- `gap-N` como par `gap.x` + `gap.y`; raio em quatro cantos como propriedades
+  abstratas; `distribute` e `wrap` como nomes de propriedade (seção 5.10).
+- `border-3` e `border-1` na forma de classe: `AW103` (R62).
+- `text-secondary` gera `AW102`, não `AW101` (R56).
+- Papel de borda não pode se chamar `x` nem `y` (seção 4.2).
+- `leading` e as formas por lado e eixo da borda aceitam valor livre (R21).
