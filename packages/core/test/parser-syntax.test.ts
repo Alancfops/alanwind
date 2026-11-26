@@ -252,6 +252,7 @@ describe('syntax errors: code, position and surviving items', () => {
       [cls('pad-4', 0, 5)],
     ],
     ['hover(dark(pad-2', ['AW001[0,16)'], []],
+    ['pad-4 hover(dark(medium(x', ['AW001[6,25)'], [cls('pad-4', 0, 5)]],
     ['hover( ', ['AW001[0,7)'], []], // up to the end, trailing space included
     ['row hover(a b', ['AW001[4,13)'], [cls('row', 0, 3)]],
     // AW002: only the `)` (R50)
@@ -377,6 +378,7 @@ describe('syntax errors: code, position and surviving items', () => {
     ],
     // (3) colon form with a free value; `:` inside a free value
     ['hover:w=5', ['AW006[0,9)'], []],
+    ['hover:w=a:b', ['AW006[0,11)'], []], // D188: one single AW006
     ['w=a:b', ['AW008[0,5)'], []],
     // (4) a variant without a name is a parser item (AW004 is task 028)
     ['(x)', [], [variant('', [cls('x', 1, 2)], 0, 3)]],
@@ -416,6 +418,9 @@ describe('syntax errors: code, position and surviving items', () => {
   it.each<[string, string, string | undefined]>([
     ['hover:bg-raised', 'AW006', 'hover(bg-raised)'],
     ['hover:w=5', 'AW006', 'hover(w=5)'],
+    ['hover:w=a:b', 'AW006', 'hover(w=a:b)'],
+    ['hover(dark(pad-2', 'AW001', 'hover(dark(pad-2))'],
+    ['pad-4 hover(dark(medium(x', 'AW001', 'hover(dark(medium(x)))'],
     ['hover:(x)', 'AW006', 'hover(x)'],
     ['hover:dark(bg-x)', 'AW006', 'hover(dark(bg-x))'],
     ['hover(bg-raised)pad-4', 'AW010', ' pad-4'],
