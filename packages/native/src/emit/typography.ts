@@ -35,22 +35,23 @@ export function emitFontWeight(weight: FontWeight): `${FontWeight}` {
  * inheritance and the `Text` default).
  */
 export function emitLineHeight(ratio: Ratio, fontSize: number): number {
-  return (
-    Math.round(fontSize * ratio.value * LINE_HEIGHT_PRECISION) /
-    LINE_HEIGHT_PRECISION
-  );
+  // D157: `toPrecision` drops floating-point noise before rounding half up,
+  // so 15 * 1.035 gives 15.53 and not 15.52.
+  const product = Number((fontSize * ratio.value).toPrecision(12));
+  return Math.round(product * LINE_HEIGHT_PRECISION) / LINE_HEIGHT_PRECISION;
 }
 
 /**
  * Color and text style of the merged declarations (R14, R15, R19 to R22).
- * `fontSize` is the final text size, used only for `lineHeight` (R20); the
- * emitted `fontSize` is still the one the IR declared. R22: never emits
- * `allowFontScaling` or `maxFontSizeMultiplier`.
+ * `fallbackFontSize` is the final text size (after inheritance and the `Text`
+ * default), used for `lineHeight` only when the IR declares no `fontSize`; a
+ * declared `fontSize` wins (R20). R22: never emits `allowFontScaling` or
+ * `maxFontSizeMultiplier`.
  */
 export function emitTextStyle(
   declarations: StyleMap,
   context: ResolutionContext,
-  fontSize: number,
+  fallbackFontSize: number,
 ): TextStyle {
   const {
     fontSize: declaredFontSize,
@@ -69,7 +70,12 @@ export function emitTextStyle(
     ...(fontFamily && {
       fontFamily: emitFontFamily(fontFamily, context.platform),
     }),
-    ...(lineHeight && { lineHeight: emitLineHeight(lineHeight, fontSize) }),
+    ...(lineHeight && {
+      lineHeight: emitLineHeight(
+        lineHeight,
+        declaredFontSize ?? fallbackFontSize,
+      ),
+    }),
     ...(textAlign && { textAlign }),
     ...(fontStyle && { fontStyle }),
     ...(textDecorationLine && { textDecorationLine }),
