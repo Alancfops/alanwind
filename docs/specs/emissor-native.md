@@ -1,9 +1,9 @@
 # Spec: emissor React Native
 
-Status: **rascunho** (estrutura completa; falta o Alan responder a seção 8) ·
+Status: **em revisão** (estrutura completa, sem pendências; aguarda o Alan) ·
 Decisões de origem: D14, D15, D25, D26, D27, D35, D37, D45, D49, D57, D59, D60,
 D62, D64, D83, D84, D88, D94, D98, D103, D107, D108, D109, D110, D116, D117,
-D119, D120, D133, D135, D136, D144
+D119, D120, D133, D135, D136, D144, D152 a D162
 
 Tradução da IR em objetos de estilo e props do React Native, avaliação das
 condições no contexto atual, cache por contexto e configuração por
@@ -37,6 +37,7 @@ Fica de fora:
   `emissor-css.md`.
 - Plataformas além de `ios`, `android` e `web` (a IR só tem esses átomos).
 - Guardar a escolha de `setColorScheme` entre execuções do app (não decidido).
+- Anel de foco e acessibilidade dos componentes: `componentes.md`.
 
 ## 2. Definições
 
@@ -58,22 +59,27 @@ Fica de fora:
 ### 3.1 Contexto de resolução
 
 - **R1.** O contexto DEVE conter o esquema, a faixa de tela, a plataforma e o
-  tamanho da janela (este só para as unidades de tela, P1). Estados de interação
+  tamanho da janela (este para as unidades de tela, R39). Estados de interação
   NÃO fazem parte do contexto (D109, D110).
 - **R2.** Sem `setColorScheme`, o esquema DEVE seguir o do sistema e acompanhar
   as mudanças dele (D25, `tema.md` R3).
 - **R3.** `setColorScheme('light' | 'dark' | 'system')` DEVE forçar o esquema em
   toda a árvore, sem Provider, e os componentes já montados DEVEM atualizar.
-  `'system'` DEVE voltar a seguir o sistema (D64, `tema.md` R4 e C8).
+  `'system'` DEVE voltar a seguir o sistema (D64, `tema.md` R4 e C8). O esquema
+  forçado DEVE ser um estado próprio do alanwind, igual no iOS, no Android e na
+  web; NÃO DEVE usar `Appearance.setColorScheme`, para não mexer em barra de
+  status, teclado e alertas (D162).
 - **R4.** A faixa de tela DEVE ser calculada pela largura da janela: `compact`
   abaixo de 600, `medium` de 600 a 839 e `expanded` a partir de 840 (D94). Os
   valores 599, 600, 839 e 840 DEVEM cair em `compact`, `medium`, `medium` e
-  `expanded`.
+  `expanded`. Os limites 600 e 840 DEVEM vir do tema que o `core` guarda, lidos
+  pela camada de contexto da borda; só o emissor é proibido de consultar o tema
+  (D153).
 - **R5.** A plataforma DEVE ser `Platform.OS`. Com `react-native-web`, é `web`.
 - **R6.** Quando o esquema, a faixa ou a plataforma mudam, as resoluções
   seguintes DEVEM usar o contexto novo. Mudar a largura **dentro da mesma
-  faixa** NÃO DEVE mudar nenhum resultado (D109), salvo as unidades de tela
-  (P1).
+  faixa** NÃO DEVE mudar nenhum resultado (D109), salvo nos `look` com unidade
+  de tela (R39).
 
 ### 3.2 Avaliação das condições
 
@@ -116,41 +122,48 @@ Fica de fora:
   |---|---|
   | `number` (px/dp) | o mesmo número, em dp |
   | `Percent` (`{ unit: 'percent', value }`) | a string `'<value>%'`, ex.: `'50%'`, `'100%'`, `'12.5%'` |
-  | `ScreenSize` (`{ unit: 'screen' }`) | largura da janela em `width`, altura em `height` (P1) |
+  | `ScreenSize` (`{ unit: 'screen' }`) | largura da janela em `width`, altura em `height` (R39) |
   | `'auto'` (só em margem) | `'auto'` |
   | `ThemedColor` | R17 |
   | `Ratio` (`lineHeight`) | R20 |
-  | `fontWeight` 400, 500, 700 | P3 |
+  | `fontWeight` 400, 500, 700 | as strings `'400'`, `'500'`, `'700'` (D154) |
   | `ShadowLayer[]` (`boxShadow`) | R18 |
   | `fontFamily` genérica | R21 |
 
 - **R17.** **Cor** (`backgroundColor`, `color`, `borderColor`): o emissor DEVE
   escolher `light` ou `dark` do `ThemedColor` pelo esquema do contexto e, com
   `alpha` igual a 1, DEVE entregar `rgb` como está (`'#2563EB'`). Com `alpha`
-  menor que 1, o formato é o da P3 (D31, D104; `funcionamento-interno.md` R30,
+  menor que 1, DEVE entregar `rgba(r, g, b, a)`, com `r`, `g` e `b` em decimal
+  e `a` igual ao `alpha`, separados por vírgula e espaço:
+  `'rgba(37, 99, 235, 0.5)'` (D154, D31, D104; `funcionamento-interno.md` R30,
   R31).
 - **R18.** **Sombra**: cada `ShadowLayer` DEVE virar uma camada de `boxShadow`,
   na mesma ordem, igual no iOS, no Android e na web (D108). O emissor NÃO DEVE
   gerar `shadowColor`, `shadowOffset`, `shadowOpacity`, `shadowRadius` nem
   `elevation`, e NÃO conhece o conceito de elevação: a do escuro já chega em
-  camadas comuns (`funcionamento-interno.md` R35). A forma é a da P4.
+  camadas comuns (`funcionamento-interno.md` R35). O `boxShadow` DEVE ser uma
+  lista de objetos `{ offsetX, offsetY, blurRadius, spreadDistance, color }`
+  (`blur` da IR vira `blurRadius`, `spread` vira `spreadDistance`), com `color`
+  no formato da R17 (D155).
 - **R19.** `fontSize`, `textAlign`, `fontStyle`, `textDecorationLine` e
   `textTransform` DEVEM sair com o mesmo valor da IR (D49, D77).
 - **R20.** **Altura de linha**: `lineHeight` da IR é um `Ratio`; o estilo nativo
   DEVE trazer `lineHeight` igual a `tamanho da fonte × value`, em dp. O tamanho
   da fonte é o final do texto, depois da herança e do padrão do `Text` (D98,
-  D112, D113; `funcionamento-interno.md` R33). Sem tamanho final conhecido,
-  quem chama informa o dele; o arredondamento está na P6.
+  D112, D113; `funcionamento-interno.md` R33). O produto DEVE ser arredondado
+  a duas casas decimais: `type-2xl leading=1.4` dá `33.6` (D157). O tamanho
+  final vem de quem chama (os componentes, ver `componentes.md`).
 - **R21.** **Família de fonte** (`fontFamily` genérica da IR, D133): o emissor
   DEVE mapear para a fonte do sistema da plataforma, sem baixar nenhuma fonte:
 
   | Genérica | iOS | Android | Web |
   |---|---|---|---|
-  | `sans` | San Francisco | Roboto | pilha `system-ui` |
-  | `serif` | Georgia | `serif` | pilha Georgia/serif |
-  | `mono` | Menlo | `monospace` | pilha `ui-monospace` |
+  | `sans` | `'System'` | `'Roboto'` | `'system-ui, sans-serif'` |
+  | `serif` | `'Georgia'` | `'serif'` | `'Georgia, serif'` |
+  | `mono` | `'Menlo'` | `'monospace'` | `'ui-monospace, monospace'` |
 
-  Os textos exatos da propriedade `fontFamily` em cada célula estão na P5.
+  Os valores são os textos exatos da propriedade `fontFamily` (D156). A pilha
+  da web vale também para o emissor CSS.
 - **R22.** O texto DEVE respeitar a escala de fonte do sistema (seção 5 da
   visão, D115). O emissor NÃO DEVE desligar `allowFontScaling` nem definir
   `maxFontSizeMultiplier`: o comportamento é o padrão do React Native.
@@ -174,20 +187,36 @@ Fica de fora:
   qualquer parte DEVE mudar a chave; mudar a largura dentro da faixa NÃO DEVE.
 - **R27.** O cache DEVE guardar as últimas combinações usadas e descartar a
   usada há mais tempo (LRU) quando passar do limite (D109). O limite DEVE ser
-  uma constante nomeada, com o valor da P8, e os testes DEVEM ler a constante.
+  uma constante nomeada, de valor 500, e os testes DEVEM ler a constante
+  (D109, D159).
 - **R28.** Mesma entrada e mesmo contexto DEVEM devolver o **mesmo objeto**
   (identidade), vindo do cache. O objeto devolvido NÃO DEVE ser alterado pela
   borda depois de guardado.
-- **R29.** Os estados de interação, que mudam por elemento, entram na resolução
-  como a P8 definir; a chave da D109 não muda.
+- **R29.** Os estados de interação, que mudam por elemento, NÃO entram na chave
+  da D109. Cada entrada do cache DEVE guardar o resultado de cada combinação de
+  estados já pedida (no máximo 16: `hover`, `press`, `focus`, `disabled`).
+  Mesma entrada, mesmo contexto e mesmos estados DEVEM devolver o mesmo objeto
+  (D159).
 - **R30.** Trocar a configuração (`configure`) DEVE passar a usar o tema novo na
   chave, sem aproveitar resultados da configuração anterior (D109, R35).
+- **R39.** **Unidades de tela** (`w-screen`, `h-screen`, `size-screen`): DEVEM
+  usar a **janela** (`useWindowDimensions`), a mesma da faixa. Quando a IR do
+  `look` tem unidade de tela, a chave do cache DEVE levar a largura e a altura
+  exatas da janela; os demais `look` continuam só com a faixa (D152).
+- **R40.** **API pública** (D158, D26, D27): o `native` DEVE exportar
+  `look(input, { context?, states? })`, que devolve `NativeLook` (estilo e
+  props). Sem `context`, ela DEVE ler o esquema e a janela naquele instante e
+  NÃO reage a mudanças. O `native` DEVE exportar também `useLook(input,
+  states?)`, que DEVE reagir às mudanças de contexto (esquema, faixa) e é o que
+  os componentes usam; é público já na fase 1.
 
 ### 3.6 Diagnósticos na borda
 
 - **R31.** A resolução DEVE pedir ao `core` os diagnósticos e a borda DEVE
-  decidir: em desenvolvimento, mostrar pelo mecanismo de aviso do alanwind
-  (P9); em produção, ignorar (D35, D84; `funcionamento-interno.md` R41).
+  decidir: em desenvolvimento, mostrar; em produção, ignorar (D35, D84;
+  `funcionamento-interno.md` R41). Dev DEVE ser `__DEV__`; o canal DEVE ser
+  `console.warn`; DEVE haver um aviso por combinação de `look`, código e
+  posição, mostrado quando o `look` entra no cache (D160).
 - **R32.** A resolução NÃO DEVE lançar exceção por causa do conteúdo do `look`,
   em desenvolvimento ou em produção. Entrada inválida descarta só o trecho ruim
   e o resto vale (D88; `funcionamento-interno.md` R2, R42).
@@ -204,11 +233,16 @@ Fica de fora:
   (`AW301`, `AW302`, `AW304`) e passar os atalhos válidos à resolução, que os
   expande antes de resolver (D101, D134, D144; `funcionamento-interno.md` R6).
   Um atalho com erro de carga é descartado e usá-lo num `look` dá `AW101`.
-- **R36.** Sem `configure`, os atalhos DEVEM ficar desligados, com aviso em dev
-  (D119; quando o aviso sai: P10). `defineConfig({})` ou nenhuma configuração
-  DEVE dar o tema padrão sem atalhos (`tema.md` R28).
+- **R36.** Sem `configure`, os atalhos DEVEM ficar desligados (D119). O aviso
+  de ausência DEVE aparecer em dev só quando um `look` traz classe desconhecida
+  (`AW101`) sem `configure` chamado, com a dica de chamá-lo (D161).
+  `defineConfig({})` ou nenhuma configuração DEVE dar o tema padrão sem atalhos
+  (`tema.md` R28).
 - **R37.** `configure` NÃO DEVE ler arquivo: o app importa o
   `alanwind.config.ts` e chama a função (D119).
+- **R41.** Uma segunda chamada de `configure` DEVE substituir os atalhos da
+  anterior, sem somar. Uma chave além de `define` (possível em JavaScript puro)
+  DEVE ser ignorada, com aviso em dev (D161).
 
 ### 3.8 Classes sem tradução
 
@@ -219,7 +253,7 @@ Fica de fora:
 
 ## 4. Formato
 
-Tipos TypeScript do contrato. Os **nomes** são provisórios (P7); o
+Tipos TypeScript do contrato, com os nomes da D158 para a API pública; o
 comportamento é o das regras acima.
 
 ```ts
@@ -230,7 +264,7 @@ export interface ResolutionContext {
   /** Derivada da largura da janela (R4). Entra na chave do cache (R26). */
   readonly band: ScreenBand;
   readonly platform: 'ios' | 'android' | 'web';
-  /** Janela, em dp. R9 e as unidades de tela (P1). */
+  /** Janela, em dp. R9 e as unidades de tela (R39). */
   readonly window: { readonly width: number; readonly height: number };
 }
 
@@ -248,6 +282,16 @@ export interface NativeLook {
   /** `{}` se nenhuma camada de props vale (R23). */
   readonly props: { readonly numberOfLines?: number };
 }
+
+/** API pública (R40, D158). `Look` é o tipo da `030`. */
+export function look(
+  input: Look,
+  options?: {
+    readonly context?: ResolutionContext;
+    readonly states?: InteractionStates;
+  },
+): NativeLook;
+export function useLook(input: Look, states?: InteractionStates): NativeLook;
 ```
 
 `NativeStyle` é o subconjunto de `ViewStyle` e `TextStyle` do React Native
@@ -322,36 +366,33 @@ D91, D95.
 
 ### 5.3 Fontes (R21)
 
-Os textos exatos dependem da P5; aqui só a fonte escolhida (D133, `tema.md`
-7.2).
+Valores da D156 (fontes: D133, `tema.md` 5.10 e 7.2).
 
-| `look` | Plataforma | Fonte |
+| `look` | Plataforma | Estilo nativo |
 |---|---|---|
-| `font-sans` | `ios` | San Francisco |
-| `font-sans` | `android` | Roboto |
-| `font-sans` | `web` | pilha `system-ui` |
-| `font-serif` | `ios` | Georgia |
-| `font-serif` | `android` | `serif` |
-| `font-serif` | `web` | pilha Georgia/serif |
-| `font-mono` | `ios` | Menlo |
-| `font-mono` | `android` | `monospace` |
-| `font-mono` | `web` | pilha `ui-monospace` |
+| `font-sans` | `ios` | `{ fontFamily: 'System' }` |
+| `font-sans` | `android` | `{ fontFamily: 'Roboto' }` |
+| `font-sans` | `web` | `{ fontFamily: 'system-ui, sans-serif' }` |
+| `font-serif` | `ios` | `{ fontFamily: 'Georgia' }` |
+| `font-serif` | `android` | `{ fontFamily: 'serif' }` |
+| `font-serif` | `web` | `{ fontFamily: 'Georgia, serif' }` |
+| `font-mono` | `ios` | `{ fontFamily: 'Menlo' }` |
+| `font-mono` | `android` | `{ fontFamily: 'monospace' }` |
+| `font-mono` | `web` | `{ fontFamily: 'ui-monospace, monospace' }` |
 
-### 5.4 Valores que dependem de perguntas abertas
+### 5.4 Cor com alfa, `fontWeight`, sombra e unidades de tela
 
-Os valores abaixo seguem a **recomendação** de cada pergunta e só valem se o
-Alan a aceitar. Os testes de ouro correspondentes só nascem depois da resposta.
-
-| `look` | Contexto | Saída (se a recomendação for aceita) | Pergunta |
+| `look` | Contexto | Estilo nativo | Origem |
 |---|---|---|---|
-| `bg-primary-50` | claro | `{ backgroundColor: 'rgba(37, 99, 235, 0.5)' }` | P3 |
-| `bg=#e11d48/50` | qualquer | `{ backgroundColor: 'rgba(225, 29, 72, 0.5)' }` | P3 |
-| `weight-bold` | — | `{ fontWeight: '700' }` | P3 |
-| `bg-surface shadow-md` | claro | `{ backgroundColor: '#FFFFFF', boxShadow: [{ offsetX: 0, offsetY: 4, blurRadius: 8, spreadDistance: 0, color: 'rgba(0, 0, 0, 0.08)' }, { offsetX: 0, offsetY: 1, blurRadius: 2, spreadDistance: 0, color: 'rgba(0, 0, 0, 0.06)' }] }` | P4 |
-| `bg-surface shadow-md` | escuro | `{ backgroundColor: '#28282D', borderColor: '#34343A', borderTopWidth: 1, borderRightWidth: 1, borderBottomWidth: 1, borderLeftWidth: 1, boxShadow: [{ offsetX: 0, offsetY: 4, blurRadius: 8, spreadDistance: 0, color: 'rgba(0, 0, 0, 0.35)' }] }` | P4 |
-| `h-screen` | janela 390 × 844 | `{ height: 844 }` | P1 |
-| `size-screen` | janela 390 × 844 | `{ width: 390, height: 844 }` | P1 |
-| `font-sans` | `ios` | `{ fontFamily: 'System' }` | P5 |
+| `bg-primary-50` | claro | `{ backgroundColor: 'rgba(37, 99, 235, 0.5)' }` | D154 |
+| `bg=#e11d48/50` | qualquer | `{ backgroundColor: 'rgba(225, 29, 72, 0.5)' }` | D154 |
+| `weight-bold` | — | `{ fontWeight: '700' }` | D154 |
+| `type-2xl leading=1.4` | — | `{ fontSize: 24, lineHeight: 33.6 }` | D157 |
+| `bg-surface shadow-md` | claro | `{ backgroundColor: '#FFFFFF', boxShadow: [{ offsetX: 0, offsetY: 4, blurRadius: 8, spreadDistance: 0, color: 'rgba(0, 0, 0, 0.08)' }, { offsetX: 0, offsetY: 1, blurRadius: 2, spreadDistance: 0, color: 'rgba(0, 0, 0, 0.06)' }] }` | D155 |
+| `bg-surface shadow-md` | escuro | `{ backgroundColor: '#28282D', borderColor: '#34343A', borderTopWidth: 1, borderRightWidth: 1, borderBottomWidth: 1, borderLeftWidth: 1, boxShadow: [{ offsetX: 0, offsetY: 4, blurRadius: 8, spreadDistance: 0, color: 'rgba(0, 0, 0, 0.35)' }] }` | D155 |
+| `h-screen` | janela 390 × 844 | `{ height: 844 }` | D152 |
+| `size-screen` | janela 390 × 844 | `{ width: 390, height: 844 }` | D152 |
+| `h-screen` | janela 390 × 800 | `{ height: 800 }` | D152 |
 
 ### 5.5 Cache (R26 a R28)
 
@@ -363,6 +404,10 @@ Alan a aceitar. Os testes de ouro correspondentes só nascem depois da resposta.
 | `bg-primary` claro e depois escuro | objetos diferentes |
 | `bg-primary` em `ios` e depois em `android` | objetos diferentes |
 | `limite + 1` combinações diferentes, depois a primeira de novo | a primeira foi descartada: o objeto devolvido é novo, mas igual por valor |
+| `bg-primary press(bg-primary-hover)` com `press` ativo, duas vezes | o mesmo objeto (mesmos estados) |
+| o mesmo `look`, com `press` ativo e depois sem | objetos diferentes; cada combinação de estados fica guardada (R29) |
+| `h-screen` com janela 390 × 844 e depois 390 × 800 | objetos diferentes (a chave leva a janela, R39) |
+| `h-screen` com janela 390 × 844 duas vezes | o mesmo objeto |
 
 ### 5.6 Erros e diagnósticos (R31, R32)
 
@@ -380,7 +425,10 @@ Alan a aceitar. Os testes de ouro correspondentes só nascem depois da resposta.
 |---|---|
 | `configure(defineConfig({ define: { btn: 'bg-primary pad-4' } }))`, depois `look="btn"` | resolve como `bg-primary pad-4` |
 | `defineConfig({ palette: {} })` | erro de tipo (`@ts-expect-error`) |
-| `look="btn"` sem `configure` | `btn` é `AW101` em dev; produção ignora; o aviso de ausência está na P10 |
+| `look="btn"` sem `configure` | `btn` é `AW101` em dev, com a dica de chamar `configure` (R36); produção ignora |
+| `look="pad-4"` sem `configure` | nenhum aviso de ausência (R36) |
+| `configure` duas vezes, com `btn` só na primeira | na segunda chamada `btn` não existe mais (R41) |
+| `configure({ define: {}, palette: {} })` em JavaScript | `palette` ignorada, com aviso em dev (R41) |
 | `define: { a: 'b', b: 'a' }` em `configure` | `AW301` em dev; `a` e `b` descartados; usar `a` dá `AW101` |
 | `define: { row: 'pad-4' }` | `AW302` em dev; atalho descartado |
 | `define: { Btn: 'pad-4' }` | `AW304` em dev; atalho descartado |
@@ -401,18 +449,21 @@ Alan a aceitar. Os testes de ouro correspondentes só nascem depois da resposta.
 | `shadow-md` | `boxShadow` apenas; nunca `shadow*` nem `elevation` (R18) |
 | `Percent` | String com `%` (R16) |
 | Cor com alfa 1 | `'#RRGGBB'` como veio da IR (R17) |
-| `lineHeight` com `Ratio` | `tamanho da fonte × value` (R20) |
+| `lineHeight` com `Ratio` | `tamanho da fonte × value`, a duas casas (R20) |
+| `w-screen`, `h-screen`, `size-screen` | Janela exata na chave do cache (R39) |
+| `setColorScheme` | Estado próprio; não chama `Appearance` (R3) |
+| `look()` sem `context` | Lê esquema e janela naquele instante; não reage (R40) |
+| Aviso repetido para o mesmo `look`, código e posição | Mostrado uma vez (R31) |
 | Classe desconhecida, sintaxe quebrada | O resto do `look` vale; aviso só em dev; sem exceção (R31, R32) |
-| `configure` não chamado | Atalhos desligados; aviso em dev (R36) |
+| `configure` não chamado | Atalhos desligados; aviso em dev só com `AW101` (R36) |
 | `defineConfig` com chave além de `define` | Erro de tipo (R34) |
 | Escala de fonte do sistema maior | O texto cresce; o alanwind não limita (R22) |
 
 ## 7. Critérios de aceite
 
-- [ ] Cada linha das tabelas 5.1, 5.2, 5.3 e 5.5 a 5.7 produz a saída indicada
-      (testes de ouro; entrada: IR escrita à mão para o emissor, `look` para a
-      resolução). As da 5.4 só depois de a pergunta correspondente ser
-      respondida.
+- [ ] Cada linha das tabelas 5.1 a 5.7 produz a saída indicada (testes de
+      ouro; entrada: IR escrita à mão para o emissor, `look` para a
+      resolução).
 - [ ] As larguras 599, 600, 839 e 840 caem em `compact`, `medium`, `medium` e
       `expanded` (R4).
 - [ ] `setColorScheme('dark')` muda os valores resolvidos, sem Provider, com
@@ -432,78 +483,19 @@ Alan a aceitar. Os testes de ouro correspondentes só nascem depois da resposta.
       `configure(defineConfig(...))`, os atalhos resolvem (R34, R35).
 - [ ] Cada propriedade da IR vira a de mesmo nome, e nenhuma propriedade fora da
       R14 é gerada (R14, R15).
+- [ ] `look()` e `useLook()` existem com as assinaturas da seção 4; `useLook`
+      reage a `setColorScheme` e à mudança de faixa (R40).
+- [ ] Um aviso por combinação de `look`, código e posição; nenhum em
+      produção (R31).
 - [ ] Os tipos exportados funcionam com a Strict TypeScript API do React Native
       0.88 (D14, D116).
 
 ## 8. Ainda não definido
 
-Cada item traz as opções e a recomendação do documentador. As respostas viram
-decisões (skill `registrar-decisao`) e só então entram nas regras. Sem as
-respostas, o status continua **rascunho**.
+Vazio.
 
-- **P1. Unidades de tela (`w-screen`, `h-screen`, `size-screen`) e o cache.**
-  `{ unit: 'screen' }` vira a largura ou a altura da janela, mas o cache usa a
-  faixa, não a largura exata (D109): um resultado guardado na faixa `medium`
-  serviria para 700 e 800 com o mesmo número. Opções: (a) a chave leva a janela
-  exata só quando a IR do `look` tem unidade de tela; (b) esses `look` não
-  entram no cache. "Tela" também precisa de definição: janela
-  (`useWindowDimensions`) ou tela inteira (`Dimensions.get('screen')`, que no
-  Android inclui a barra de status). Recomendação: (a), com a **janela**, igual
-  à R9 da faixa.
-- **P2. De onde vêm 600 e 840 para a faixa do contexto.** O emissor não lê o
-  tema (R9), mas a chave do cache precisa da faixa antes de resolver. Opções:
-  (a) a camada de contexto da borda lê as faixas do tema que o `core` já guarda
-  (`tema.md` 5.8), e só o emissor fica proibido de consultar o tema; (b) o
-  `native` repete os dois números. Recomendação: (a), para haver uma só fonte.
-- **P3. Formato dos valores de saída.** (i) Cor com alfa menor que 1:
-  `rgba(37, 99, 235, 0.5)` ou `#2563EB80`. (ii) `fontWeight`: os valores 400,
-  500 e 700 saem como `'400'`, `'500'` e `'700'` ou como número.
-  Recomendação: `rgba(r, g, b, a)` (a `tema.md` 5.7 já escreve as sombras assim)
-  e `fontWeight` em string, que todas as versões aceitam.
-- **P4. Forma do `boxShadow`.** O RN aceita string CSS
-  (`'0 4px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06)'`) ou lista
-  de objetos (`{ offsetX, offsetY, blurRadius, spreadDistance, color }`).
-  Recomendação: lista de objetos (sem texto para montar e comparar nos testes
-  de ouro; a `color` segue a P3).
-- **P5. Texto exato de `fontFamily` no RN e na web.** A D133 dá o nome da fonte,
-  não o valor da propriedade. Proposta: `sans` = `'System'` (iOS), `'Roboto'`
-  (Android), `'system-ui, sans-serif'` (web); `serif` = `'Georgia'`, `'serif'`,
-  `'Georgia, serif'`; `mono` = `'Menlo'`, `'monospace'`,
-  `'ui-monospace, monospace'`. A mesma pilha da web serviria à
-  `emissor-css.md`. Recomendação: aceitar a proposta; o Alan confirma ou troca.
-- **P6. Arredondamento de `lineHeight`.** `tamanho × value` com a escala do tema
-  é exato (`type-lg` × 1.5 = 27); com valor livre aparece ruído de ponto
-  flutuante (`type-2xl leading=1.4` daria `33.599999999999994`). Opções:
-  (a) não arredondar; (b) arredondar a duas casas; (c) arredondar ao inteiro.
-  Recomendação: (b).
-- **P7. API pública da resolução.** A D26 pede uma função de resolução "para
-  quem precisar" e a D27 diz que ela "pode seguir o mesmo nome" (`look(...)`).
-  Falta: nome, assinatura e se há hook. Proposta: função `look(input, {
-  context?, states? })` que devolve `NativeLook` e, sem `context`, lê o esquema
-  e a janela naquele instante (sem reagir a mudanças), e hook
-  `useLook(input, states?)`, que reage a mudanças de contexto e é o que os
-  componentes usam. Recomendação: aceitar a proposta; o Alan confirma os nomes
-  e se o hook é público já na fase 1.
-- **P8. Estados de interação e o limite do cache.** Os estados mudam por
-  elemento e não estão na chave da D109. Opções: (a) o cache guarda, por chave,
-  o resultado de cada combinação de estados já pedida (no máximo 16); (b) os
-  estados entram na chave. A D109 diz "~500": a constante vale exatamente 500?
-  Recomendação: (a) e 500 entradas por chave da D109.
-- **P9. Aviso em dev.** Falta: como a borda sabe que está em dev (`__DEV__`), o
-  canal (`console.warn`) e a repetição (uma vez por `look` e código, ou a cada
-  resolução). Recomendação: `__DEV__`, `console.warn`, um aviso por combinação
-  de `look`, código e posição, mostrado quando o `look` entra no cache.
-- **P10. `configure`: aviso de ausência, segunda chamada e chave estranha.**
-  (i) A D119 diz "aviso em dev" sem `configure`. Como a borda não sabe quais
-  nomes seriam atalhos: (a) um aviso, uma vez, na primeira resolução sem
-  `configure` (incomoda quem não usa atalhos); (b) só quando um `look` traz
-  classe desconhecida (`AW101`) e não houve `configure`, com a dica de chamar
-  `configure`. (ii) Uma segunda chamada substitui os atalhos anteriores ou
-  soma? (iii) Em JavaScript puro, uma chave além de `define` é ignorada com
-  aviso em dev ou recusada? Recomendação: (i) b, (ii) substitui, (iii) ignora
-  com aviso em dev.
-- **P11. Como `setColorScheme` força o esquema.** Opções: (a) estado próprio do
-  alanwind (vale só para os componentes dele; igual no iOS, no Android e na web
-  com `react-native-web`); (b) `Appearance.setColorScheme` do RN (muda também o
-  esquema do sistema para o app: barra de status, teclado, alertas; na web
-  depende do suporte do `react-native-web`). Recomendação: (a).
+O que as D152 a D162 resolveram saiu daqui: unidades de tela e cache (D152),
+origem das faixas (D153), formato de cor com alfa e `fontWeight` (D154),
+`boxShadow` (D155), `fontFamily` (D156), arredondamento do `lineHeight` (D157),
+API pública (D158), estados no cache e limite (D159), aviso em dev (D160),
+`configure` (D161) e `setColorScheme` (D162).

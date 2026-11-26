@@ -1,8 +1,9 @@
 # Spec: componentes
 
-Status: **rascunho** (estrutura completa; falta o Alan responder a seção 8) ·
-Decisões de origem: D26, D27, D40, D41, D53, D54, D57, D59, D60, D62, D78, D98,
-D103, D107, D110 a D115, D126
+Status: **em revisão** (estrutura completa; só restam as fases posteriores da
+seção 8; aguarda o Alan) · Decisões de origem: D26, D27, D40, D41, D53, D54,
+D57, D59, D60, D62, D78, D98, D103, D107, D110 a D115, D126, D157, D158,
+D163 a D172
 
 `Box`, `Text`, `Pressable` e demais componentes, herança de texto, `contentLook`
 e `styled()`.
@@ -36,7 +37,7 @@ e a regra de conflito e precedência (`funcionamento-interno.md`).
 | **`style`** | A prop de estilo original do React Native, escrita à mão. |
 | **Estilo do look** | O estilo nativo que a resolução devolve (`emissor-native.md`). |
 | **Base do componente** | Estilo que o componente põe sob o `look` (ex.: o padrão do `Text`). |
-| **Propriedade de texto** | Propriedade do `StyleMap` herdável (K1): cor do texto, tamanho, peso, altura de linha, alinhamento, família, estilo, decoração e transformação. |
+| **Propriedade de texto** | Propriedade do `StyleMap` herdável (R31): cor do texto, tamanho, peso, altura de linha, alinhamento, família, estilo, decoração e transformação. |
 | **Texto herdado** | As propriedades de texto que um ancestral (`Box`, `Pressable`) repassa por contexto (D57). |
 | **Próprio** | O que o `look` do próprio componente declara. |
 | **Estados de interação** | `hover`, `press`, `focus`, `disabled` do `Pressable` (D59, D103). |
@@ -51,13 +52,17 @@ e a regra de conflito e precedência (`funcionamento-interno.md`).
   repassar o `ref` para ele (D26, D53; D114 item de tipos).
 - **R2.** O estilo final DEVE somar a base do componente, o estilo do `look` e o
   `style` da pessoa, nessa ordem. Achatado (`StyleSheet.flatten`), o `style`
-  vence o `look`, propriedade a propriedade (D53). O limite com os atalhos do RN
-  está na K5.
+  vence o `look`, propriedade a propriedade (D53). **Exceção conhecida** (D167):
+  atalhos do RN no `style` (`padding`, `paddingHorizontal`, `margin`,
+  `borderWidth`, `borderRadius`) NÃO vencem um lado específico vindo do `look`
+  (`paddingTop`), porque o RN dá precedência ao lado específico. O alanwind NÃO
+  DEVE normalizar o `style`; a documentação DEVE avisar.
 - **R3.** Um componente sem `look`, ou com `look` vazio, NÃO DEVE acrescentar
   estilo além da base do componente.
-- **R4.** O `look` DEVE ser resolvido pela resolução do `native` com o contexto
-  atual (esquema, faixa de tela, plataforma) e DEVE ser resolvido de novo
-  quando esse contexto mudar (D15, D64; `emissor-native.md` R3, R6).
+- **R4.** O `look` DEVE ser resolvido pelo `useLook` do `native`, com o
+  contexto atual (esquema, faixa de tela, plataforma) e os estados do
+  componente, e DEVE ser resolvido de novo quando esse contexto mudar (D15, D64,
+  D158; `emissor-native.md` R3, R6, R40).
 - **R5.** As props do `look` (`numberOfLines`, de `lines-N`) DEVEM ser aplicadas
   ao componente; a que a pessoa passar explicitamente vence a do `look` (mesma
   ideia de R2, D53).
@@ -70,14 +75,15 @@ e a regra de conflito e precedência (`funcionamento-interno.md`).
 
 - **R8.** `Box` DEVE renderizar um `View` (D40).
 - **R9.** `Box` DEVE ser sempre flex em coluna: a base do componente DEVE trazer
-  `flexDirection: 'column'`, que `row` no `look` e o `style` sobrepõem (D62;
-  confirmação K6).
+  `flexDirection: 'column'` explícito, abaixo do `look` e do `style`, que
+  `row` no `look` e o `style` sobrepõem (D62, D168).
 - **R10.** `Box` NÃO DEVE forçar papel de acessibilidade (D115).
 - **R11.** `Box` DEVE repassar às crianças o texto herdado somado ao que o seu
-  `look` declara (R25 a R27).
+  `look` declara (R28 a R31).
 - **R12.** Variantes de estado (`hover`, `press`, `focus`, `disabled`) no `look`
-  de um `Box` não têm estado informado e a camada NÃO vale
-  (`emissor-native.md` R13); o aviso em dev está na K4.
+  de um `Box` são ignoradas: o `Box` não informa estado e a camada NÃO vale
+  (`emissor-native.md` R13). Em dev, a borda DEVE avisar, sem código `AW`,
+  como no `styled()` (D166, D53).
 
 ### 3.3 `Text`
 
@@ -93,12 +99,15 @@ e a regra de conflito e precedência (`funcionamento-interno.md`).
 - **R17.** O `Text` DEVE respeitar a escala de fonte do sistema: NÃO DEVE
   desligar `allowFontScaling` (D115; `emissor-native.md` R22).
 - **R18.** `Text` NÃO DEVE forçar papel de acessibilidade (D115).
-- **R19.** `Text` DEVE aplicar a R15 também ao texto herdado de outro `Text`
-  que o contém (K2), para o padrão da R14 não redefinir o tamanho do texto de
-  fora.
+- **R19.** O `Text` também DEVE repassar por contexto o texto herdado somado ao
+  que declara. Assim um `Text` dentro de `Text` herda do de fora, e o padrão da
+  R14 só vale quando nada é herdado (D164).
 - **R20.** O `lineHeight` DEVE ser o tamanho de fonte **final** da R14 vezes o
-  `Ratio` da IR: sem `type-*` em lugar nenhum, o tamanho é 16 (D112), então
-  `leading-normal` dá 24 (D98, D113; `emissor-native.md` R20).
+  `Ratio` da IR, arredondado a duas casas: sem `type-*` em lugar nenhum, o
+  tamanho é 16 (D112), então `leading-normal` dá 24 (D98, D113, D157;
+  `emissor-native.md` R20).
+- **R44.** Variantes de estado no `look` de um `Text` são ignoradas, com aviso
+  da borda em dev e sem código `AW`, como no `Box` (R12, D166).
 
 ### 3.4 `Pressable`
 
@@ -109,7 +118,9 @@ e a regra de conflito e precedência (`funcionamento-interno.md`).
   - `press` DEVE valer enquanto o `Pressable` está pressionado;
   - `hover` DEVE valer enquanto chegam os eventos `onHoverIn`/`onHoverOut`, que
     só ocorrem com ponteiro; sem ponteiro, nunca vale, nem pressionado;
-  - `focus` DEVE valer com o foco do `Pressable` (`onFocus`/`onBlur`; K9);
+  - `focus` DEVE valer com o foco do `Pressable`, vindo só de
+    `onFocus`/`onBlur` (teclado e web); o foco de leitor de tela (TalkBack,
+    VoiceOver) NÃO ativa `focus(...)` na fase 1 (D171);
   - `disabled` DEVE valer com a prop `disabled` ligada.
 - **R23.** O `Pressable` NÃO DEVE perder os callbacks da pessoa
   (`onPressIn`, `onPressOut`, `onHoverIn`, `onHoverOut`, `onFocus`, `onBlur`,
@@ -118,16 +129,21 @@ e a regra de conflito e precedência (`funcionamento-interno.md`).
   menos 44 × 44 no iOS e na web e 48 × 48 no Android, aumentada com `hitSlop`,
   **sem mudar o visual**. Em cada eixo, se o tamanho é menor que o mínimo, cada
   lado DEVE receber `ceil((mínimo - tamanho) / 2)`; se já tem o mínimo, nenhum
-  `hitSlop` é somado. Antes do layout e com `hitSlop` da pessoa: K8.
+  `hitSlop` é somado. Antes do primeiro `onLayout`, o `Pressable` NÃO DEVE
+  somar `hitSlop`. Se a pessoa passar `hitSlop`, o dela vence, como o `style`
+  sobre o `look` (D170).
 - **R25.** **Acessibilidade padrão** (D115):
   - `accessibilityRole` DEVE ser `'button'` por padrão; se a pessoa passar
     `accessibilityRole` ou `role`, o padrão NÃO se aplica;
   - `accessibilityState.disabled` DEVE seguir a prop `disabled`, preservando as
     outras chaves de `accessibilityState` da pessoa;
   - na web, o `Pressable` com foco de teclado DEVE ter indicação visível de foco
-    (como se obtém: K7).
+    (D115): os componentes NÃO DEVEM remover o outline do navegador e NÃO têm
+    anel padrão próprio; `focus(...)` personaliza (D169).
 - **R26.** O `Pressable` DEVE repassar às crianças o texto herdado somado ao que
-  o seu `look` declara, avaliado com o estado atual do `Pressable` (R11, K3).
+  o seu `look` declara, avaliado com o estado atual do `Pressable`:
+  `press(text-on-primary)` vale para o `Text` filho enquanto o pai está
+  pressionado (D165, D57).
 - **R27.** `tap-target` e `focus-ring` NÃO existem nesta fase (D78).
 
 ### 3.5 Herança de texto (D57, D113)
@@ -139,10 +155,9 @@ e a regra de conflito e precedência (`funcionamento-interno.md`).
   que declara. A classe de texto mais próxima vence **por propriedade**: a cor
   do filho vence a do pai e o tamanho do pai continua valendo.
 - **R30.** Só o `look` é herdado. O `style` escrito à mão NÃO DEVE ser herdado.
-- **R31.** A lista de propriedades herdáveis é a da K1 (proposta: `color`,
-  `fontSize`, `fontWeight`, `lineHeight`, `textAlign`, `fontFamily`,
-  `fontStyle`, `textDecorationLine`, `textTransform`); `numberOfLines` NÃO é
-  herdado.
+- **R31.** As propriedades herdáveis são `color`, `fontSize`, `fontWeight`,
+  `lineHeight`, `textAlign`, `fontFamily`, `fontStyle`, `textDecorationLine` e
+  `textTransform`; `numberOfLines` NÃO é herdado (D163).
 
 ### 3.6 Tipos (D126)
 
@@ -214,7 +229,8 @@ D50, D51, D91.
 | `<Box look="row">` | `{ flexDirection: 'row' }` |
 | `<Box look="pad-4" style={{ paddingTop: 2 }}>` | `{ flexDirection: 'column', paddingTop: 2, paddingRight: 16, paddingBottom: 16, paddingLeft: 16 }` |
 | `<Box look="dark(bg-surface)">` com `setColorScheme('dark')` | `{ flexDirection: 'column', backgroundColor: '#1E1E22' }` |
-| `<Box look="hover(bg-raised)">` | `{ flexDirection: 'column' }` (K4: aviso em dev) |
+| `<Box look="hover(bg-raised)">` | `{ flexDirection: 'column' }` (aviso em dev, D166) |
+| `<Box look="pad-4" style={{ padding: 2 }}>` | `{ flexDirection: 'column', padding: 2, paddingTop: 16, paddingRight: 16, paddingBottom: 16, paddingLeft: 16 }`: os lados do `look` valem (D167) |
 
 ### 5.2 `Text`: padrão e `look` (R14 a R16, R20)
 
@@ -240,6 +256,10 @@ D50, D51, D91.
 | `<Box look="pad-4 bg-surface"><Text/></Box>` | o padrão (`padding` e fundo não são herdados) |
 | `<Box style={{ color: 'red' }}><Text/></Box>` | o padrão (o `style` não é herdado, D113) |
 | `<Box look="leading-normal"><Text look="type-lg"/></Box>` | `lineHeight: 27` (R20) |
+| `<Text look="type-lg">Olá <Text look="weight-bold">mundo</Text></Text>`, claro | o `Text` interno: `{ color: '#3B3B42', fontSize: 18, fontWeight: '700' }` (R19, D164) |
+| `<Pressable look="bg-primary text-on-primary press(text-strong)"><Text/></Pressable>`, claro, pressionado | `{ color: '#141416', fontSize: 16 }` (D165) |
+| o mesmo, solto | `{ color: '#FFFFFF', fontSize: 16 }` |
+| `<Box look="hover(text-strong)"><Text/></Box>` | o padrão: `hover` não vale no `Box` (R12) |
 
 ### 5.4 `Pressable` (R21 a R26)
 
@@ -264,6 +284,8 @@ Look: `bg-primary hover(bg-raised) press(bg-primary-hover)`, claro.
 | `<Pressable look="w=20 h=20">` no iOS e na web, depois do layout | `hitSlop` com 12 em cada lado (20 + 24 = 44) |
 | o mesmo no Android | `hitSlop` com 14 em cada lado (20 + 28 = 48) |
 | `<Pressable look="w=60 h=60">` | nenhum `hitSlop` somado |
+| `<Pressable look="w=20 h=20">`, antes do primeiro `onLayout` | nenhum `hitSlop` somado (D170) |
+| `<Pressable look="w=20 h=20" hitSlop={4}>`, depois do layout | `hitSlop` igual a `4` (o da pessoa vence, D170) |
 
 ### 5.5 Tipos (R32, R33)
 
@@ -284,18 +306,20 @@ Look: `bg-primary hover(bg-raised) press(bg-primary-hover)`, claro.
 | `Box` interno sem `look` de texto | Repassa o que herdou (R29) |
 | `look` do `Text` define só a cor, pai define o tamanho | Cor do filho e tamanho do pai (R29) |
 | `hover(...)` com `Pressable` num celular sem ponteiro | Nunca vale (R22) |
-| `hitSlop` da pessoa no `Pressable` | K8 |
+| `hitSlop` da pessoa no `Pressable` | O dela vence (R24, D170) |
+| `Pressable` antes do primeiro `onLayout` | Sem `hitSlop` somado (R24) |
+| `Text` dentro de `Text` | Herda o texto do de fora; o padrão só vale sem herança (R19) |
+| Foco de leitor de tela | Não ativa `focus(...)` (R22, D171) |
 | Classe inválida no `look` | O resto vale; aviso só em dev (R6) |
 | Pessoa passa `accessibilityRole` ou `role` | O padrão `'button'` não se aplica (R25) |
 | Pessoa passa `accessibilityState` com outras chaves | Preservadas; `disabled` segue a prop (R25) |
 | `Text` com escala de fonte do sistema maior | Cresce; o alanwind não limita (R17) |
-| Estado `press` num `Box` ou `Text` | A camada não vale (R12; K4) |
+| Estado `press` num `Box` ou `Text` | A camada não vale; aviso em dev (R12, R44) |
 
 ## 7. Critérios de aceite
 
 - [ ] Os exemplos das seções 5.1 a 5.5 produzem o resultado indicado (Jest,
-      `jest-expo`, D114); os que dependem de pergunta aberta só depois de ela
-      ser respondida (K3, K4, K5, K6, K8).
+      `jest-expo`, D114).
 - [ ] `<Box />` sem `look` é flex em coluna (R9) e nenhum papel de
       acessibilidade é forçado (R10).
 - [ ] O `style` vence o `look`, propriedade a propriedade (R2).
@@ -316,55 +340,14 @@ Look: `bg-primary hover(bg-raised) press(bg-primary-hover)`, claro.
 
 ## 8. Ainda não definido
 
-Cada item traz as opções e a recomendação do documentador. As respostas viram
-decisões (skill `registrar-decisao`) e só então entram nas regras.
+Nada que bloqueie a fase 1: a D163 a D171 resolveram tudo o que era dela. A
+D172 permite aprovar esta spec para a fase 1 com o bloco abaixo marcado como
+**fases posteriores**; ele volta quando a fase de cada componente começar.
 
-### 8.1 Bloqueiam a fase 1
+### Fases posteriores (não bloqueiam a fase 1, D172)
 
-- **K1. Propriedades de texto herdáveis.** A D57 diz "`text-*`, `type-*`,
-  `weight-*` e afins". Proposta: as nove propriedades de texto da IR (`color`,
-  `fontSize`, `fontWeight`, `lineHeight`, `textAlign`, `fontFamily`,
-  `fontStyle`, `textDecorationLine`, `textTransform`); `numberOfLines` não é
-  herdado. Recomendação: aceitar a proposta.
-- **K2. `Text` dentro de `Text`.** Sem tratamento, o `Text` aninhado aplica o
-  padrão da D112 (`type-base`) e redefine o tamanho do pai, ao contrário do CSS.
-  Recomendação: o `Text` também repassa o texto herdado por contexto, e o padrão
-  só vale quando nada é herdado (é o que a R19 supõe).
-- **K3. Texto dentro de variante de estado do pai.** Um `press(text-on-primary)`
-  no `Pressable` chega ao `Text` filho enquanto ele está pressionado?
-  Recomendação: sim, avaliando as camadas do pai com o estado atual dele
-  (igual à web, D57).
-- **K4. Variantes de estado em `Box` e `Text`.** Ficam ignoradas com aviso em
-  dev, como no `styled()` (D53, item 3)? Qual código de aviso, já que o
-  catálogo `AW###` da `sintaxe.md` não cobre isso? Recomendação: ignorar com
-  aviso da borda, sem código `AW`.
-- **K5. `style` com atalho do RN contra `look` com lados explícitos.** O `look`
-  gera `paddingTop` etc. (D107). Um `style={{ padding: 4 }}` não vence um
-  `paddingTop` já presente, porque o RN dá precedência ao lado específico; isso
-  contraria "o `style` vence" (D53) nesse caso. Opções: (a) documentar a regra
-  do RN; (b) normalizar os atalhos do `style`, o que é frágil com `Animated` e
-  arrays. Recomendação: (a).
-- **K6. `Box` com `flexDirection: 'column'` explícito.** A base fica explícita,
-  abaixo do `look` e do `style` (R9), ou depende do padrão do RN? Recomendação:
-  explícita, para a D62 ser testável.
-- **K7. Foco visível na web (D115, com `focus-ring` fora da fase 1).** Opções:
-  (a) só não remover o outline do navegador; (b) desenhar um anel padrão com
-  `border-focus`. Recomendação: (a), com `focus(...)` para personalizar.
-- **K8. `hitSlop`.** (i) Antes do primeiro `onLayout` não há tamanho:
-  recomendação, sem `hitSlop` até o layout. (ii) Com `hitSlop` da pessoa: o dela
-  vence, ou vale o maior por lado? Recomendação: o da pessoa vence, como o
-  `style` sobre o `look`. A conta da R24 fica como está.
-- **K9. Estado `focus` e leitor de tela.** O RN só informa `onFocus`/`onBlur`
-  (teclado e web). O foco de leitor de tela (TalkBack, VoiceOver) não vira o
-  estado `focus` na fase 1? Recomendação: aceitar essa limitação.
-
-### 8.2 Fases posteriores (não bloqueiam a fase 1)
-
-- **K10. A spec pode ser aprovada para a fase 1 com este bloco aberto?**
-  Recomendação: sim, marcado como fases posteriores; as perguntas abaixo
-  voltam quando a fase delas começar.
-  - Formato exato do mapa de props do `styled()` (R37).
-  - Acessibilidade de `Image`, `ScrollView`, `TextInput`, `FlatList`, `Modal`,
-    `Switch` e `SafeArea`.
-  - Comportamento de `Modal` (foco, botão voltar).
-  - Como `Switch` expõe os estados (ligado, foco, desabilitado) às variantes.
+- Formato exato do mapa de props do `styled()` (R37).
+- Acessibilidade de `Image`, `ScrollView`, `TextInput`, `FlatList`, `Modal`,
+  `Switch` e `SafeArea`.
+- Comportamento de `Modal` (foco, botão voltar).
+- Como `Switch` expõe os estados (ligado, foco, desabilitado) às variantes.
