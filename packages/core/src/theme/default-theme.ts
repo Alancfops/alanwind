@@ -1,4 +1,5 @@
 import { defaultColors } from './colors/index.js';
+import { defaultShadows } from './shadows/index.js';
 
 // docs/specs/tema.md 5.1 to 5.8: fixed values, nothing is computed (R5).
 
@@ -38,6 +39,7 @@ export const defaultTheme = {
   lineHeight: { tight: 1.25, normal: 1.5, loose: 1.75 },
   // Fractions of 1; keys are the percentages used in class names.
   opacity: { 0: 0, 25: 0.25, 50: 0.5, 75: 0.75, 100: 1 },
+  shadows: defaultShadows,
   // D94: the `compact` range is everything below `medium`.
   breakpoints: { medium: 600, expanded: 840 },
 } as const;
