@@ -38,7 +38,8 @@ export function emitLineHeight(ratio: Ratio, fontSize: number): number {
   // D157: `toPrecision` drops floating-point noise before rounding half up,
   // so 15 * 1.035 gives 15.53 and not 15.52.
   const product = Number((fontSize * ratio.value).toPrecision(12));
-  return Math.round(product * LINE_HEIGHT_PRECISION) / LINE_HEIGHT_PRECISION;
+  const scaled = Number((product * LINE_HEIGHT_PRECISION).toPrecision(12));
+  return Math.round(scaled) / LINE_HEIGHT_PRECISION;
 }
 
 /**
