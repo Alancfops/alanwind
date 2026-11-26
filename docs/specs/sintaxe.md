@@ -4,7 +4,7 @@ Status: **em revisão** (estrutura completa; "Ainda não definido" vazio;
 aguarda o Alan aprovar) · Decisões de origem: D7, D13, D15 a D20,
 D23, D26 a D31, D33 a D38, D41 a D45, D49, D58, D59, D61 a D63, D66, D77, D78,
 D82 a D89, D91 a D98, D100 a D106, D110, D117, D118, D122 a D127, D129, D131,
-D133 a D139
+D133 a D140
 
 Gramática do `look`: tokens, variantes aninháveis, valor livre com `=`,
 opacidade, atalhos, vocabulário da fase 1, regra de conflito e diagnósticos.
@@ -204,7 +204,7 @@ Fica de fora (outras specs):
   `center-x`, `x-start`, `x-end` em `row`) segue a regra de conflito normal:
   vale a última escrita, com aviso `AW201` (D138). Para esse fim, `between`
   define a propriedade `place.main` (`place.y` em `col`, `place.x` em `row`), no
-  nível de `center-x`/`center-y`.
+  nível de `center-x`/`center-y` (D140).
 - **R60.** `gap-N` DEVE aplicar o espaço aos dois eixos; `gap-x-N` DEVE aplicar
   o espaço entre colunas e `gap-y-N` entre linhas, sempre relativos à tela,
   qualquer que seja a direção. `gap-x` e `gap-y` aceitam valor livre
@@ -602,8 +602,8 @@ Notas:
 `height`, `bg`, `text`, `border.color`, `border.width.top|bottom|left|right`,
 `type`, `weight`, `leading`, `align`, `font`, `italic`, `underline`, `case`,
 `round.top-left|top-right|bottom-left|bottom-right`, `shadow`, `opacity`. Na
-parte de props: `lines`. O nome `place.main` (de `between`) e a divisão de `gap`
-e `round` em propriedades são notação desta spec (D139).
+parte de props: `lines`. O nome `place.main` (de `between`; D140) e a divisão
+de `gap` e `round` em propriedades são notação desta spec (D139).
 
 ## 6. Diagnósticos
 
@@ -660,7 +660,8 @@ Notação das saídas (D127; só para esta spec, o formato real é o da IR em
 `funcionamento-interno.md`):
 - Uma saída é uma lista `[condições] propriedade=valor` separada por espaço.
   Sem prefixo, o item vale sempre. As condições são um conjunto, escritas em
-  ordem alfabética (`[dark,hover]`).
+  ordem alfabética (`[dark,hover]`). Isso é só notação desta spec; na IR os
+  átomos seguem a ordem da tabela 5.1 (`[hover, dark]`, D140).
 - Ordem: primeiro os itens sem condição, depois por condições em ordem
   alfabética; dentro de cada grupo, por nome da propriedade.
 - Escalas numéricas saem resolvidas (`pad-4` = 16); escalas nomeadas saem pelo
@@ -1001,5 +1002,5 @@ Nenhuma. O que era consequência por analogia (especificidade das classes novas,
 `gap-N` como `gap.x` + `gap.y`, raio em quatro cantos, `AW102` para
 `text-secondary`, `AW103` para `border-1`/`border-3`, valor livre em `leading` e
 na borda por lado, papel de borda não chamado `x` ou `y`) foi aprovado na D139.
-A única notação nova desta atualização é `place.main`, de `between` (R59), que
-só serve para escrever os exemplos desta spec.
+`place.main`, de `between` (R59), foi confirmado na D140, com a especificidade
+de `center-x`/`center-y`.

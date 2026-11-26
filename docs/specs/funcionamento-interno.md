@@ -1,9 +1,9 @@
 # Spec: funcionamento interno (representação intermediária, IR)
 
-Status: **rascunho** (estrutura completa; a seção 8 ainda tem lacunas) ·
+Status: **em revisão** (estrutura completa; seção 8 vazia; aguarda o Alan) ·
 Decisões de origem: D15, D31, D33, D35, D36, D37, D38, D58, D59, D60, D61, D62,
 D65, D74, D78, D82 a D90, D92, D94, D96 a D99, D101, D103 a D108, D110, D117,
-D118, D120, D122, D124, D125, D127, D132, D133, D135 a D139
+D118, D120, D122, D124, D125, D127, D132, D133, D135 a D140
 
 Formato neutro que o `core` produz e os emissores consomem: estilo, props e
 diagnósticos, sem conflitos e sem nada específico de plataforma. Contrato
@@ -103,17 +103,22 @@ Fica de fora:
 - **R13.** Cada variante DEVE virar um átomo. Variantes aninhadas somam átomos
   (E lógico), em qualquer ordem de escrita: `dark(hover(x))` e `hover(dark(x))`
   DEVEM produzir IR idêntica (D86).
-- **R14.** Uma condição DEVE ser canônica: sem átomos repetidos e ordenada por
-  tipo de átomo na ordem `platform`, `scheme`, `screen`, `state` (D120). O que
-  está escrito sem variante tem condição vazia.
-- **R15.** A IR DEVE ter uma camada por condição distinta, sem camada com
-  `declarations` vazio, tanto no estilo quanto nas props (D135). Um `look` sem
-  declarações tem `layers: []`.
+- **R14.** Uma condição DEVE ser canônica: sem átomos repetidos e com os
+  átomos na ordem da tabela de variantes da `sintaxe.md` (5.1): `hover`,
+  `press`, `focus`, `disabled`, `dark`, `light`, `ios`, `android`, `web`,
+  `native`, `medium`, `expanded`. `press(hover(x))` vira `[hover, press]`. O que
+  está escrito sem variante tem condição vazia (D120, D140).
+- **R15.** Cada ocorrência de variante DEVE virar a sua própria camada, na ordem
+  escrita, **sem fundir** condições iguais (D140). Os itens sem variante formam
+  uma só camada, de condição vazia. Não DEVE haver camada com `declarations`
+  vazio, tanto no estilo quanto nas props (D135). Um `look` sem declarações tem
+  `layers: []`. Duas camadas podem ter a mesma `when`; a posterior vence a
+  anterior, e o conflito gera aviso (R9).
 - **R16.** A ordem das camadas DEVE reproduzir a precedência da D117 e da D136,
   para que aplicar na ordem da lista (a posterior vence, propriedade a
   propriedade) dê o vencedor certo. A ordem é total, sem ciclo:
   1. menos átomos antes de mais átomos (a camada de condição vazia, se existir,
-     vem primeiro; `[hover]` antes de `[dark, hover]`);
+     vem primeiro; `[hover]` antes de `[hover, dark]`);
   2. com o mesmo número de átomos, a camada sem faixa de tela vem antes da de
      `medium`, que vem antes da de `expanded`, mesmo contra outro tipo de
      átomo (`[hover]` antes de `[medium]`), pois `medium(x) expanded(y)` desfaz
@@ -121,8 +126,10 @@ Fica de fora:
   3. no mais, a ordem de escrita (a última escrita vem depois).
   Isso vale para as camadas de estilo e para as de props (D135). Em
   `expanded(x) hover(x) medium(x)`, a ordem é `[hover]`, `[medium]`,
-  `[expanded]` e vale `expanded`. Um caso que a ordem por camada não cobre
-  está na seção 8, item 1.
+  `[expanded]` e vale `expanded`. Como cada ocorrência é uma camada (R15), em
+  `hover(bg-raised) press(bg-surface) hover(pad-4)` a ordem é `[hover]`,
+  `[press]`, `[hover]` e, com `hover` e `press` ativos, vale `bg-surface`
+  (D140).
 - **R17.** Os emissores DEVEM aplicar as camadas na ordem da lista: entre as
   camadas cuja condição vale no momento, a posterior vence a anterior,
   propriedade a propriedade (D117, D135).
@@ -504,19 +511,36 @@ Códigos `AW###` aparecem como marcador `AW<nome>`, porque o catálogo é da
 ### 5.3 Variante aninhada (R13, R14)
 
 Entrada: `bg-primary dark(hover(bg-primary-hover))` e também
-`bg-primary hover(dark(bg-primary-hover))`. As duas DEVEM dar a mesma IR:
+`bg-primary hover(dark(bg-primary-hover))`. As duas DEVEM dar a mesma IR, com os
+átomos na ordem da tabela de variantes (`hover` antes de `dark`, R14):
 
 ```ts
 layers: [
   { when: [],
     declarations: { backgroundColor: T('#2563EB', '#8AB4FF') } },
   { when: [
-      { kind: 'scheme', scheme: 'dark' },
       { kind: 'state', state: 'hover' },
+      { kind: 'scheme', scheme: 'dark' },
     ],
     declarations: { backgroundColor: T('#1D4FD8', '#A6C6FF') } },
 ]
 ```
+
+Sem fusão (R15, D140): `hover(bg-raised) press(bg-surface) hover(pad-4)` dá
+três camadas, na ordem escrita:
+
+```ts
+layers: [
+  { when: [{ kind: 'state', state: 'hover' }],
+    declarations: { backgroundColor: T('#FFFFFF', '#28282D') } },
+  { when: [{ kind: 'state', state: 'press' }],
+    declarations: { backgroundColor: T('#FFFFFF', '#1E1E22') } },
+  { when: [{ kind: 'state', state: 'hover' }],
+    declarations: PAD(16) },
+]
+```
+
+E `press(hover(bg-raised))` dá uma camada com `when` `[hover, press]`.
 
 ### 5.4 Faixas de tela e precedência entre condições (R16, R18, D117)
 
@@ -539,7 +563,7 @@ juntas):
 | `look` | Ordem das camadas (condição: declarações) |
 |---|---|
 | `hover(bg-raised) bg-primary` | `[]`: `bg-primary`; depois `[hover]`: `bg-raised` (condição vence sem condição, mesmo escrita antes) |
-| `dark(hover(bg-raised)) hover(bg-surface)` | `[hover]`: `bg-surface`; depois `[dark, hover]`: `bg-raised` (mais átomos vencem) |
+| `dark(hover(bg-raised)) hover(bg-surface)` | `[hover]`: `bg-surface`; depois `[hover, dark]`: `bg-raised` (mais átomos vencem) |
 | `pad-x-2 medium(pad-4)` | `[]`: `paddingLeft: 8`, `paddingRight: 8`; depois `[medium]`: `PAD(16)` (a condição vence a especificidade da família) |
 | `medium(lines-2) lines-4` | props: `[]`: `numberOfLines: 4`; depois `[medium]`: `numberOfLines: 2` |
 
@@ -740,7 +764,9 @@ juntas; a ordem só serve para a IR ser determinística).
 | Mesma propriedade em condições diferentes | Camadas separadas, sem aviso; quando as duas valem, a ordem das camadas (R16) decide, pela D117 e D136 (R9) |
 | `expanded(x) hover(x) medium(x)` | Camadas na ordem `[hover]`, `[medium]`, `[expanded]`; com as três valendo, vale `expanded` (R16, D136) |
 | `between center-y` (coluna) | Uma declaração de `justifyContent` (a última escrita) e aviso de conflito (R46, D138) |
-| `dark(hover(x)) hover(dark(y))` | Mesma condição canônica: disputa, vence `y`, aviso (R9, R13) |
+| `dark(hover(x)) hover(dark(y))` | Duas camadas com a mesma condição `[hover, dark]`, na ordem escrita: vence `y`, com aviso (R9, R13, R15) |
+| `hover(bg-raised) press(bg-surface) hover(pad-4)` | Três camadas, sem fusão; com `hover` e `press` ativos vale `bg-surface` (R15, D140) |
+| `press(hover(x))` | Condição `[hover, press]` (R14) |
 | `ios(native(x))`, `medium(expanded(x))` | Simplificadas em silêncio para `[ios]` e `[expanded]` (R44) |
 | `dark(light(x))`, `ios(web(x))` | `AW202` (aviso); o trecho é descartado da IR, sem camada (R44) |
 | `medium(lines-2) lines-4` | Props com duas camadas (R28) |
@@ -765,7 +791,7 @@ juntas; a ordem só serve para a IR ser determinística).
 - [ ] Para qualquer `look`, a IR sobrevive a `JSON.parse(JSON.stringify(ir))`
       igual a si mesma, e duas chamadas dão resultado igual (R3, R4).
 - [ ] Em nenhuma saída uma camada (de estilo ou de props) repete propriedade,
-      há camada vazia ou duas camadas com a mesma `when` (R7, R15).
+      há camada vazia (R7, R15). Camadas com a mesma `when` são permitidas.
 - [ ] Teste com strings arbitrárias e malformadas: nunca lança exceção, e toda
       `position` fica em `0 <= start <= end <= look.length` (R2, R38).
 - [ ] Nenhum emissor importa tema nem repete a regra de conflito, de
@@ -775,23 +801,10 @@ juntas; a ordem só serve para a IR ser determinística).
 
 ## 8. Ainda não definido
 
-Lacunas que precisam de decisão do Alan. Nada aqui foi inventado na spec. O que
-as D117 a D139 resolveram saiu daqui: precedência entre condições (D117,
-D136), elevação no escuro (D132, D137), condições redundantes e impossíveis
-(D135, D127, D138), prop dentro de variante (D135), `x-start`, `x-end` e
-`between` sob direção (D122, D138), posição de erro dentro de atalho (D135),
-centralização numa variante com direção em outra (D135) e os nomes novos
-(D139).
-
-1. **Mesma condição escrita em mais de um lugar.** A D136 dá uma ordem total
-   entre condições, mas a IR tem uma camada por condição (R15). Em
-   `hover(a) press(b) hover(c)`, se `a` e `b` definem a mesma propriedade `p`
-   e `c` define outra, com as duas condições ativas vale `b` (a última escrita
-   de `p`, R41). Mas a camada `[hover]` reúne `a` e `c` e, pela R16, fica na
-   posição da última ocorrência, depois de `[press]`; então `a` venceria `b`. A
-   IR não representa isso com uma camada por condição. O que o `core` deve
-   fazer (dividir a camada, ou aceitar a divergência)?
-2. **Átomos de mesmo tipo na condição.** Fora do caso impossível (descartado,
-   D138), a ordem entre átomos do mesmo tipo (`platform`, `state`) na condição
-   canônica (R14) não está definida, por exemplo `[hover, press]` ou
-   `[press, hover]`.
+Nenhuma. O que as D117 a D140 resolveram saiu daqui: precedência entre
+condições (D117, D136), elevação no escuro (D132, D137), condições redundantes e
+impossíveis (D135, D127, D138), prop dentro de variante (D135), `x-start`,
+`x-end` e `between` sob direção (D122, D138, D140), posição de erro dentro de
+atalho (D135), centralização numa variante com direção em outra (D135), os
+nomes novos (D139), a camada por ocorrência de variante e a ordem dos átomos
+(D140).
