@@ -1,6 +1,6 @@
 # 0003. Jest nos componentes React Native
 
-- **Status**: proposto
+- **Status**: aceito
 - **Data**: 2026-11-25
 - **Decisões de origem**: D114 (ajusta a D69)
 
