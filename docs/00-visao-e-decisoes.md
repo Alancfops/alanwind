@@ -579,6 +579,8 @@ Pode esperar:
   (D146), validação com `pnpm pack` (D147) e configs da raiz no hook (D148).
 - 2026-11-26 (Claude Code): sombra do claro em variante e aviso de camada
   (D149). O Alan reaprovou sintaxe, funcionamento interno e tema.
+- 2026-11-26 (Claude Code): o Alan aceitou o ADR 0003 (Jest nos componentes
+  React Native).
 
 ## 11. Vocabulário base (rascunho em construção)
 
