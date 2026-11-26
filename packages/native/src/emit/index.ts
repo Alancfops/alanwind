@@ -8,6 +8,7 @@ import { emitSpacing } from './spacing';
 
 export { emitColor, emitThemedColor } from './color';
 export type { InteractionStates } from './conditions';
+export { emitShadow } from './shadow';
 export {
   emitFontFamily,
   emitFontWeight,
