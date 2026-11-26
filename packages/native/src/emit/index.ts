@@ -1,7 +1,12 @@
 export type { InteractionStates } from './conditions';
 export { emitColor, emitThemedColor } from './color';
-export { emitFontFamily, emitFontWeight, emitLineHeight } from './typography';
 
+export {
+  emitFontFamily,
+  emitFontWeight,
+  emitLineHeight,
+  emitTextStyle,
+} from './typography';
 import type { StyleMap } from '@alanwind/core';
 import type { ViewStyle } from 'react-native';
 import type { ResolutionContext } from '../context/types';

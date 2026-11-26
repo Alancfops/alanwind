@@ -1,7 +1,10 @@
 import type { Ratio, StyleMap } from '@alanwind/core';
+import type { TextStyle } from 'react-native';
 import type { ResolutionContext } from '../context/types';
+import { emitColorStyle } from './color';
 
 type GenericFamily = NonNullable<StyleMap['fontFamily']>;
+type FontWeight = NonNullable<StyleMap['fontWeight']>;
 
 // R21, D156: exact system font text per platform; no font is downloaded.
 const FONT_FAMILIES: Record<
@@ -23,8 +26,8 @@ export function emitFontFamily(
 }
 
 /** R16, D154: the native `fontWeight` is always a string. */
-export function emitFontWeight(weight: 400 | 500 | 700): string {
-  return String(weight);
+export function emitFontWeight(weight: FontWeight): `${FontWeight}` {
+  return `${weight}`;
 }
 
 /**
@@ -36,4 +39,40 @@ export function emitLineHeight(ratio: Ratio, fontSize: number): number {
     Math.round(fontSize * ratio.value * LINE_HEIGHT_PRECISION) /
     LINE_HEIGHT_PRECISION
   );
+}
+
+/**
+ * Color and text style of the merged declarations (R14, R15, R19 to R22).
+ * `fontSize` is the final text size, used only for `lineHeight` (R20); the
+ * emitted `fontSize` is still the one the IR declared. R22: never emits
+ * `allowFontScaling` or `maxFontSizeMultiplier`.
+ */
+export function emitTextStyle(
+  declarations: StyleMap,
+  context: ResolutionContext,
+  fontSize: number,
+): TextStyle {
+  const {
+    fontSize: declaredFontSize,
+    fontWeight,
+    fontFamily,
+    lineHeight,
+    textAlign,
+    fontStyle,
+    textDecorationLine,
+    textTransform,
+  } = declarations;
+  return {
+    ...emitColorStyle(declarations, context.scheme),
+    ...(declaredFontSize !== undefined && { fontSize: declaredFontSize }),
+    ...(fontWeight !== undefined && { fontWeight: emitFontWeight(fontWeight) }),
+    ...(fontFamily && {
+      fontFamily: emitFontFamily(fontFamily, context.platform),
+    }),
+    ...(lineHeight && { lineHeight: emitLineHeight(lineHeight, fontSize) }),
+    ...(textAlign && { textAlign }),
+    ...(fontStyle && { fontStyle }),
+    ...(textDecorationLine && { textDecorationLine }),
+    ...(textTransform && { textTransform }),
+  };
 }
