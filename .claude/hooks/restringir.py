@@ -37,7 +37,13 @@ ESCREVE_ARQUIVO = [
     (r"(^|[^0-9&<>|])>{1,2}\s*(?!&|/dev/null)\S", "redireciona saída para arquivo"),
     (r"\btee\b", "escreve arquivo"),
     (r"\bsed\s+(-[a-zA-Z]*i|--in-place)", "edita arquivos"),
-    (r"\b(python3?|node|perl|ruby)\b[^|;&]*\s(-c|-e|-)\b", "script inline pode escrever arquivos"),
+    (r"\b(python3?|node|perl|ruby)\b[^|;&]*\s(-c|-e|-)(\s|$)", "script inline pode escrever arquivos"),
+    (r"(^|[;&|(]\s*|\b(xargs|sudo|env)\s+)(cp|mv|touch|install|dd|ln)\s",
+     "copia ou cria arquivos"),
+    (r"\bcurl\b[^|;&]*\s(-o|-O|--output)\b", "baixa para arquivo"),
+    (r"\bwget\b", "baixa para arquivo"),
+    (r"\bgit\s+(apply|restore)\b", "altera arquivos pelo git"),
+    (r"\bgit\s+checkout\b[^|;&]*\s--(\s|$)", "altera arquivos pelo git"),
     (r"\bgit\s+worktree\b", "worktree é criada pela sessão principal"),
 ]
 
