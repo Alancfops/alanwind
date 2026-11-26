@@ -86,7 +86,7 @@ def checar_bash(entrada: dict, somente_leitura: bool, sem_escrita: bool) -> None
     for padrao, motivo in regras:
         if re.search(padrao, comando):
             bloquear(f"{motivo} (`{comando.strip()[:80]}`)")
-    if sem_escrita:
+    if sem_escrita or somente_leitura:
         # Quoted text (commit messages, patterns) is not a shell redirection.
         sem_aspas = re.sub(r"'[^']*'|\"[^\"]*\"", "''", comando)
         for padrao, motivo in ESCREVE_ARQUIVO:
