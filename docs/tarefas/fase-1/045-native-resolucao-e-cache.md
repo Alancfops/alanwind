@@ -79,6 +79,8 @@ avisos de desenvolvimento.
   D114; `useLook()`, `look()` sem `context` e avisos com `__DEV__`).
 
 ## Critérios de aceite
+- [ ] Aviso sem código `AW` (D166) deduplicado por `look` e posição da
+      variante (D181).
 - [ ] Cada linha das seções 5.1, 5.2 e 5.4 sai exata por `look()` com o
       contexto da linha (padrão: `compact`, `ios`, janela 390 × 844).
 - [ ] Cada linha da seção 5.5 (cache) dá o resultado indicado; o teste do

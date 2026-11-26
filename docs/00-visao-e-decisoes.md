@@ -239,6 +239,8 @@ próprios diferenciais**.
 | D177 | **Classes de texto no `Box` e no `Pressable` só são repassadas.** Em `<Box look="text-muted">`, a cor e as demais propriedades de texto vão só para os `Text` filhos (D57), não para o `style` do `View`. Vale igual para o `Pressable`. |
 | D178 | **Avisos de uso no README do pacote.** O `@alanwind/native` tem um `README.md` (vai para o npm) com a instalação e os avisos de uso: o da D167 (atalho do RN no `style`) e o do Jest (com o pacote só em ESM, D175, quem usa Jest inclui `@alanwind/native` no `transformIgnorePatterns`). A tarefa 061 confere o Jest no ShadowPlatinum. |
 | D179 | **Nomes dos tipos das props.** Exporta `BoxProps`, `AwTextProps` e `AwPressableProps`: o prefixo `Aw` só nos nomes que colidem com os do React Native. |
+| D180 | **`lines-N` no `Box` e no `Pressable` é descartado com aviso.** `numberOfLines` só vale no `Text`; em `<Box look="lines-2">` a classe não tem efeito e a borda avisa em dev. |
+| D181 | **Repetição do aviso da D166.** O aviso de variante de estado em `Box` e `Text`, sem código `AW`, aparece uma vez por combinação de `look` e posição da variante, como os avisos com código (D160). |
 
 ### 3.1 Alvo técnico de referência (Expo SDK 58)
 
@@ -626,6 +628,9 @@ Pode esperar:
 - 2026-11-26 (Claude Code): perguntas do planejador ao destravar o
   `native`: `lineHeight` em `look()` (D176), texto no `Box` e no `Pressable`
   (D177), README do pacote (D178) e nomes dos tipos das props (D179).
+- 2026-11-26 (Claude Code): `lines-N` fora do `Text` (D180) e repetição do
+  aviso da D166 (D181). O Alan reaprovou `emissor-native.md` e
+  `componentes.md`.
 
 ## 11. Vocabulário base (rascunho em construção)
 

@@ -1,9 +1,9 @@
 # Spec: componentes
 
-Status: **em revisão** (aprovada para a fase 1 em 2026-11-26; D177 a D179
-propagadas, falta reaprovar; a seção 8 só tem fases posteriores, D172) ·
+Status: **aprovado** para a fase 1 (pelo Alan em 2026-11-26, de novo depois
+das D175 a D181; a seção 8 só tem fases posteriores, D172) ·
 Decisões de origem: D26, D27, D40, D41, D53, D54, D57, D59, D60, D62, D78, D98,
-D103, D107, D110 a D115, D126, D157, D158, D163 a D172, D177 a D179
+D103, D107, D110 a D115, D126, D157, D158, D163 a D172, D177 a D181
 
 `Box`, `Text`, `Pressable` e demais componentes, herança de texto, `contentLook`
 e `styled()`.
@@ -66,7 +66,8 @@ e a regra de conflito e precedência (`funcionamento-interno.md`).
   D158; `emissor-native.md` R3, R6, R40).
 - **R5.** As props do `look` (`numberOfLines`, de `lines-N`) DEVEM ser aplicadas
   ao componente; a que a pessoa passar explicitamente vence a do `look` (mesma
-  ideia de R2, D53).
+  ideia de R2, D53). `numberOfLines` só vale no `Text`: em `Box` e `Pressable`,
+  `lines-N` NÃO tem efeito e a borda DEVE avisar em dev (D180).
 - **R6.** Diagnósticos do `look` seguem a borda do `native`: aparecem em dev e
   são ignorados em produção (D84; `emissor-native.md` R31).
 - **R7.** Os componentes DEVEM funcionar na web via `react-native-web` com o
@@ -85,7 +86,8 @@ e a regra de conflito e precedência (`funcionamento-interno.md`).
 - **R12.** Variantes de estado (`hover`, `press`, `focus`, `disabled`) no `look`
   de um `Box` são ignoradas: o `Box` não informa estado e a camada NÃO vale
   (`emissor-native.md` R13). Em dev, a borda DEVE avisar, sem código `AW`,
-  como no `styled()` (D166, D53).
+  como no `styled()` (D166, D53), uma vez por combinação de `look` e posição
+  da variante (D181).
 
 ### 3.3 `Text`
 

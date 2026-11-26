@@ -48,6 +48,8 @@ herdado, com o próprio `look` vencendo, um visual padrão do tema e o
   `@testing-library/react-native`, D114, R34).
 
 ## Critérios de aceite
+- [ ] O aviso de variante de estado (D166) sai uma vez por `look` e posição da
+      variante (D181).
 - [ ] Cada linha da seção 5.2 da `componentes.md` dá o estilo achatado e as
       props exatos.
 - [ ] Sem `look` nem herança: `{ color: '#3B3B42', fontSize: 16 }` claro e

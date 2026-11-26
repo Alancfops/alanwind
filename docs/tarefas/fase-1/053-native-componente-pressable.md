@@ -59,6 +59,8 @@ aos filhos.
   `@testing-library/react-native`, D114, R34).
 
 ## Critérios de aceite
+- [ ] `<Pressable look="lines-2">` não passa `numberOfLines` e avisa em dev
+      (D180).
 - [ ] As duas tabelas da seção 5.4 da `componentes.md` dão o resultado
       indicado, linha a linha.
 - [ ] Sem evento de hover, `hover(...)` nunca vale, nem pressionado (R22).

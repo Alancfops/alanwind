@@ -46,6 +46,9 @@ coluna, somando ao `style` da pessoa e repassando texto aos filhos.
   `@testing-library/react-native`, D114, R34).
 
 ## Critérios de aceite
+- [ ] O aviso de variante de estado (D166) sai uma vez por `look` e posição da
+      variante (D181).
+- [ ] `<Box look="lines-2">` não passa `numberOfLines` e avisa em dev (D180).
 - [ ] Cada linha da seção 5.1 da `componentes.md` dá o estilo achatado
       exato (`StyleSheet.flatten`).
 - [ ] `<Box />` sem `look` é `{ flexDirection: 'column' }` e não tem

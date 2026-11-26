@@ -307,14 +307,7 @@ Caminho crítico: 001 → 002 → 010 → 011 → 020 → 021 → 022/023/025 �
 
 ## Perguntas em aberto
 
-Não bloqueia o início; a tarefa afetada diz o que fazer até a resposta. As
-outras quatro da revisão anterior viraram a D176 a D179.
-
-1. **Repetição do aviso da D166** (variante de estado em `Box` e `Text`,
-   sem código `AW`; `045`, `051`, `052`): a D160 deduplica por `look`,
-   código e posição. Sem código, a chave é `look` + posição da variante?
-   Até a resposta, o QA só confere que há aviso em dev e nenhum em
-   produção.
+Nenhuma. As últimas viraram a D176 a D181.
 
 ## Observações para a orquestração
 
