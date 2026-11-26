@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import type { Diagnostic, DiagnosticCode } from '../src';
-import { createDiagnostic, sortDiagnostics, suggestClosest } from '../src';
+import type { Diagnostic } from '../src';
+import type { DiagnosticCode } from '../src/diagnostics/catalog';
 import { diagnosticCatalog } from '../src/diagnostics/catalog';
+import {
+  createDiagnostic,
+  sortDiagnostics,
+  suggestClosest,
+} from '../src/diagnostics/diagnostics';
 
 // Message text is outside the contract (R40): no test compares it.
 
@@ -54,10 +59,10 @@ describe('catalog (sintaxe.md section 6)', () => {
     expect(make(code, 0).severity).toBe(severity);
   });
 
-  it('only AW201 and AW202 are warnings', () => {
-    const warnings = SEVERITY_TABLE.filter(([, s]) => s === 'warning').map(
-      ([c]) => c,
-    );
+  it('only AW201 and AW202 are warnings in the real catalog', () => {
+    const warnings = (Object.keys(diagnosticCatalog) as DiagnosticCode[])
+      .filter((code) => make(code, 0).severity === 'warning')
+      .sort();
     expect(warnings).toStrictEqual(['AW201', 'AW202']);
   });
 });
@@ -312,5 +317,72 @@ describe('suggestClosest', () => {
   it('empty input only matches candidates of length <= 2', () => {
     expect(suggestClosest('', ['ab'])).toBe('ab');
     expect(suggestClosest('', ['abc'])).toBeUndefined();
+  });
+});
+
+// sintaxe.md R51, D185: Damerau-Levenshtein, optimal string alignment.
+// Distances below were computed by hand.
+describe('suggestClosest, transpositions (D185)', () => {
+  const variants = ['hover', 'focus', 'dark', 'medium', 'pressed'];
+
+  it.each([
+    // input, candidates, expected, hand-computed distance
+    ['hovre', variants, 'hover'], // swap r/e: 1
+    ['ohver', variants, 'hover'], // swap o/h: 1
+    ['ohvre', variants, 'hover'], // two swaps (oh, re): 2
+    ['badc', ['abcd'], 'abcd'], // two swaps (ab, cd): 2
+  ])('%s -> %s', (input, candidates, expected) => {
+    expect(suggestClosest(input, candidates)).toBe(expected);
+  });
+
+  it('three swaps are distance 3, out of the limit', () => {
+    // badcfe vs abcdef: swaps ab, cd, ef = 3
+    expect(suggestClosest('badcfe', ['abcdef'])).toBeUndefined();
+  });
+
+  it('OSA, not unrestricted DL: ca -> abc is distance 3', () => {
+    // OSA forbids editing a substring twice; unrestricted DL would give 2
+    expect(suggestClosest('ca', ['abc'])).toBeUndefined();
+  });
+
+  it('a swap (1) ties with a substitution (1): alphabetical wins', () => {
+    // abcd vs abdc: swap = 1; abcd vs abcx: substitution = 1
+    expect(suggestClosest('abcd', ['abdc', 'abcx'])).toBe('abcx');
+    expect(suggestClosest('abcd', ['abcx', 'abdc'])).toBe('abcx');
+  });
+
+  it('a swap tie resolves alphabetically when the swap one is first', () => {
+    // abcd vs abdc: 1; abcd vs abcz: 1; "abcz" < "abdc"
+    expect(suggestClosest('abcd', ['abdc', 'abcz'])).toBe('abcz');
+    // abcd vs acbd: swap = 1; abcd vs abce: 1; "abce" < "acbd"
+    expect(suggestClosest('abcd', ['acbd', 'abce'])).toBe('abce');
+  });
+
+  it('a swap (1) beats a closer-in-alphabet candidate at distance 2', () => {
+    // hovre vs hover: 1; hovre vs gover: sub + swap = 2; "gover" < "hover"
+    expect(suggestClosest('hovre', ['gover', 'hover'])).toBe('hover');
+    expect(suggestClosest('hovre', ['hover', 'gover'])).toBe('hover');
+  });
+});
+
+describe('suggestClosest, identical candidate (D185)', () => {
+  it('only candidate identical to the input: no suggestion', () => {
+    expect(suggestClosest('hover', ['hover'])).toBeUndefined();
+  });
+
+  it('identical plus a candidate beyond distance 2: no suggestion', () => {
+    expect(suggestClosest('hover', ['hover', 'focus'])).toBeUndefined();
+  });
+
+  it('identical plus another within distance 2: the other', () => {
+    expect(suggestClosest('hover', ['hover', 'hovers'])).toBe('hovers');
+    expect(suggestClosest('hover', ['hovers', 'hover'])).toBe('hovers');
+    // "cover" is alphabetically first among non-identical at distance 1
+    expect(suggestClosest('hover', ['hover', 'cover', 'hovers'])).toBe('cover');
+  });
+
+  it('identical empty input and empty candidate: no suggestion', () => {
+    expect(suggestClosest('', [''])).toBeUndefined();
+    expect(suggestClosest('', ['', 'ab'])).toBe('ab');
   });
 });

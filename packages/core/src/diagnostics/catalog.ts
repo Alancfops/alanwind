@@ -51,14 +51,18 @@ export const diagnosticCatalog = {
   AW008: {
     severity: 'error',
     // Third argument (optional): 'comma', 'leading-dot' or 'palette' selects
-    // the dedicated message.
+    // the dedicated message; anything else gets the generic one.
     message: ([value = '', family = '', problem = '']) => {
-      const reasons: Readonly<Record<string, string>> = {
-        comma: `Value ${value} uses a decimal comma; use "." instead.`,
-        'leading-dot': `Value ${value} needs a digit before the ".".`,
-        palette: `Value ${value} is a palette tone, which is not available in this phase.`,
-      };
-      return reasons[problem] ?? `Value ${value} is not accepted in ${family}.`;
+      switch (problem) {
+        case 'comma':
+          return `Value ${value} uses a decimal comma; use "." instead.`;
+        case 'leading-dot':
+          return `Value ${value} needs a digit before the ".".`;
+        case 'palette':
+          return `Value ${value} is a palette tone, which is not available in this phase.`;
+        default:
+          return `Value ${value} is not accepted in ${family}.`;
+      }
     },
   },
   AW009: {
