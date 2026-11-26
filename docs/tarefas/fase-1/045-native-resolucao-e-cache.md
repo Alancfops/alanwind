@@ -79,6 +79,9 @@ avisos de desenvolvimento.
   D114; `useLook()`, `look()` sem `context` e avisos com `__DEV__`).
 
 ## Critérios de aceite
+- [ ] Um teste percorre todas as chaves do `StyleMap` da IR e confere que
+      cada uma sai no estilo nativo, sem descarte silencioso entre os
+      emissores 041 a 043 (D189).
 - [ ] Aviso sem código `AW` (D166) deduplicado por `look` e posição da
       variante (D181).
 - [ ] Cada linha das seções 5.1, 5.2 e 5.4 sai exata por `look()` com o

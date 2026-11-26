@@ -1,10 +1,10 @@
 # Spec: emissor React Native
 
 Status: **em revisão** (aprovada pelo Alan em 2026-11-26 depois das D175 a
-D178; volta a revisão com a D184) ·
+D178; volta a revisão com a D184 e a D187) ·
 Decisões de origem: D14, D15, D25, D26, D27, D35, D37, D45, D49, D57, D59, D60,
 D62, D64, D83, D84, D88, D94, D98, D103, D107, D108, D109, D110, D116, D117,
-D119, D120, D133, D135, D136, D144, D152 a D162, D175, D176, D178, D184
+D119, D120, D133, D135, D136, D144, D152 a D162, D175, D176, D178, D184, D187
 
 Tradução da IR em objetos de estilo e props do React Native, avaliação das
 condições no contexto atual, cache por contexto e configuração por
@@ -154,7 +154,9 @@ Fica de fora:
   DEVE trazer `lineHeight` igual a `tamanho da fonte × value`, em dp. O tamanho
   da fonte é o final do texto, depois da herança e do padrão do `Text` (D98,
   D112, D113; `funcionamento-interno.md` R33). O produto DEVE ser arredondado
-  a duas casas decimais: `type-2xl leading=1.4` dá `33.6` (D157). O tamanho
+  a duas casas decimais: `type-2xl leading=1.4` dá `33.6` (D157). O meio
+  arredonda para cima, sem ruído de ponto flutuante: `15 × 1.035` dá `15.53`
+  e `1 × 1.005` dá `1.01` (D187). O tamanho
   final vem de quem chama (os componentes, ver `componentes.md`). Em `look()`
   chamado direto, sem `type-*` no `look` e sem tamanho herdado, a conta DEVE
   usar 16, o tamanho padrão do `Text` (`type-base`, D112):
