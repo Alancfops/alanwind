@@ -84,25 +84,28 @@ describe('emitLineHeight (R20, D157, D176)', () => {
 // Half-up pending decision: the exact product sits on a midpoint and floating
 // point noise decides the side. Rounding is half up until Alan confirms; if he
 // picks half to even, only the expected values of these cases change.
+const HALF_UP_CASES = [
+  // name, ratio, received size, expected (half up)
+  ['15 x 1.035 = 15.525 becomes 15.53', 1.035, 15, 15.53],
+  ['13 x 1.005 = 13.065 becomes 13.07', 1.005, 13, 13.07],
+  ['23 x 0.435 = 10.005 becomes 10.01', 0.435, 23, 10.01],
+  // Noise at the x100 step: 1.005 * 100 = 100.49999999999999.
+  ['1 x 1.005 = 1.005 becomes 1.01', 1.005, 1, 1.01],
+] as const;
+
 describe('emitLineHeight: half-up pending decision (D157)', () => {
-  it.each([
-    // name, ratio, received size, expected (half up)
-    ['15 x 1.035 = 15.525 becomes 15.53', 1.035, 15, 15.53],
-    ['13 x 1.005 = 13.065 becomes 13.07', 1.005, 13, 13.07],
-    ['23 x 0.435 = 10.005 becomes 10.01', 0.435, 23, 10.01],
-  ] as const)('%s', (_name, value, fontSize, expected) => {
+  it.each(HALF_UP_CASES)('%s', (_name, value, fontSize, expected) => {
     expect(emitLineHeight(ratio(value), fontSize)).toBe(expected);
   });
 
-  it.each([
-    ['15 x 1.035 = 15.525 becomes 15.53', 1.035, 15, 15.53],
-    ['13 x 1.005 = 13.065 becomes 13.07', 1.005, 13, 13.07],
-    ['23 x 0.435 = 10.005 becomes 10.01', 0.435, 23, 10.01],
-  ] as const)('via emitTextStyle: %s', (_name, value, fontSize, expected) => {
-    expect(
-      emitTextStyle({ fontSize, lineHeight: ratio(value) }, ctx(), 16),
-    ).toStrictEqual({ fontSize, lineHeight: expected });
-  });
+  it.each(HALF_UP_CASES)(
+    'via emitTextStyle: %s',
+    (_name, value, fontSize, expected) => {
+      expect(
+        emitTextStyle({ fontSize, lineHeight: ratio(value) }, ctx(), 16),
+      ).toStrictEqual({ fontSize, lineHeight: expected });
+    },
+  );
 });
 
 // emissor-native.md, sections 5.1, 5.3 and 5.4: full text style.
