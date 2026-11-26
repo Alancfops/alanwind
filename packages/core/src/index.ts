@@ -1,3 +1,10 @@
+export type { DiagnosticCode, MessageArgs } from './diagnostics/catalog.js';
+export type { DiagnosticInput } from './diagnostics/diagnostics.js';
+export {
+  createDiagnostic,
+  sortDiagnostics,
+  suggestClosest,
+} from './diagnostics/diagnostics.js';
 export type {
   Color,
   Condition,
