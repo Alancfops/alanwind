@@ -30,6 +30,7 @@ formato neutro da IR (`ShadowLayer`, `Color`), sem propriedade de RN ou CSS.
 
 ## Arquivos permitidos
 - Implementador: `packages/core/src/theme/shadows/**`,
+  `packages/core/src/theme/default-theme.ts` (o tema é um objeto só),
   `packages/core/src/index.ts`.
 - QA: `packages/core/test/theme-shadows.test.ts`.
 

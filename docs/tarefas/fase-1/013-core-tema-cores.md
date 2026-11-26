@@ -31,6 +31,7 @@ provar o contraste.
 
 ## Arquivos permitidos
 - Implementador: `packages/core/src/theme/colors/**`,
+  `packages/core/src/theme/default-theme.ts` (o tema é um objeto só),
   `packages/core/src/index.ts`.
 - QA: `packages/core/test/theme-colors.test.ts`,
   `packages/core/test/theme-contrast.test.ts` (o cálculo WCAG fica no próprio
