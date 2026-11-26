@@ -1,5 +1,5 @@
-import { backgrounds, borders, texts } from './neutrals';
-import { roles, roleTexts } from './roles';
+import { backgrounds, borders, texts } from './neutrals.js';
+import { roles, roleTexts } from './roles.js';
 
 export const defaultColors = {
   backgrounds,
@@ -8,5 +8,3 @@ export const defaultColors = {
   roles,
   roleTexts,
 } as const;
-
-export type DefaultColors = typeof defaultColors;
