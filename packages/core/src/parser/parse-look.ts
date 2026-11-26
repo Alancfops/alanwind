@@ -11,12 +11,20 @@ import type { ParseResult, SyntaxItem, VariantNode } from './syntax-tree.js';
 const WHITESPACE = new Set([' ', '\t', '\n', '\r']);
 
 /** The list being read: the top level, or the inside of an open variant. */
-interface Scope {
+type Scope = TopLevelScope | VariantScope;
+
+interface ScopeBase {
   readonly items: SyntaxItem[];
   // The last variant closed, to find an item glued to its `)` (R65).
   previousVariant?: Position | undefined;
-  /** Absent in the top-level scope. */
-  readonly variant?: OpenVariant;
+}
+
+interface TopLevelScope extends ScopeBase {
+  readonly variant?: undefined;
+}
+
+interface VariantScope extends ScopeBase {
+  readonly variant: OpenVariant;
 }
 
 interface OpenVariant {
@@ -81,11 +89,10 @@ export function parseLook(look: string): ParseResult {
 
   // The `)` that closes the variant of `scope` ends at `end`.
   function closeVariant(
-    scope: Scope,
-    variant: OpenVariant,
+    scope: VariantScope,
     end: number,
   ): VariantNode | undefined {
-    const { name, start, nameEnd, diagnosticsBefore } = variant;
+    const { name, start, nameEnd, diagnosticsBefore } = scope.variant;
     const position = { start, end };
     if (name.includes(':')) {
       // The whole span goes, so what was found inside goes with it (D188).
@@ -111,16 +118,15 @@ export function parseLook(look: string): ParseResult {
   }
 
   function parseList(): readonly SyntaxItem[] {
-    const topLevel: Scope = { items: [] };
+    const topLevel: TopLevelScope = { items: [] };
     // The scopes around `scope`, from the top level to its parent.
     const parents: Scope[] = [];
-    let scope = topLevel;
+    let scope: Scope = topLevel;
     for (;;) {
       skipWhitespace();
       if (cursor >= look.length) {
-        const outermostOpen =
-          parents.length > 0 ? (parents[1] ?? scope) : undefined;
-        if (outermostOpen?.variant === undefined) return topLevel.items;
+        const outermostOpen = parents[1] ?? scope;
+        if (outermostOpen.variant === undefined) return topLevel.items;
         // R50: from the open variant to the end, as a single error on the
         // outermost one; whatever was found inside is discarded with it.
         const { name, start, diagnosticsBefore } = outermostOpen.variant;
@@ -150,7 +156,7 @@ export function parseLook(look: string): ParseResult {
           continue;
         }
         const end = cursor + 1;
-        addVariant(parent, closeVariant(scope, scope.variant, end));
+        addVariant(parent, closeVariant(scope, end));
         cursor = end;
         scope = parent;
         continue;
@@ -182,8 +188,11 @@ export function parseLook(look: string): ParseResult {
     const colon = text.indexOf(':');
     const equals = text.indexOf('=');
     if (colon >= 0 && (equals < 0 || colon < equals)) {
-      const names = text.split(':');
-      diagnostics.push(colonDiagnostic(position, names, names.pop() ?? ''));
+      // Only the part before the `=` splits: `w=a:b` is one free value (D188).
+      const head = equals < 0 ? text : text.slice(0, equals);
+      const names = head.split(':');
+      const content = (names.pop() ?? '') + text.slice(head.length);
+      diagnostics.push(colonDiagnostic(position, names, content));
       return undefined;
     }
     if (equals < 0) return { kind: 'class', name: text, position };
