@@ -1,4 +1,5 @@
 export type { InteractionStates } from './conditions';
+
 import type { StyleMap } from '@alanwind/core';
 import type { ViewStyle } from 'react-native';
 import type { ResolutionContext } from '../context/types';
