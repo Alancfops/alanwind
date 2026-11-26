@@ -1,10 +1,10 @@
 # Spec: emissor React Native
 
-Status: **aprovado** (pelo Alan em 2026-11-26, de novo depois das D175 a
-D178) ·
+Status: **em revisão** (aprovada pelo Alan em 2026-11-26 depois das D175 a
+D178; volta a revisão com a D184) ·
 Decisões de origem: D14, D15, D25, D26, D27, D35, D37, D45, D49, D57, D59, D60,
 D62, D64, D83, D84, D88, D94, D98, D103, D107, D108, D109, D110, D116, D117,
-D119, D120, D133, D135, D136, D144, D152 a D162, D175, D176, D178
+D119, D120, D133, D135, D136, D144, D152 a D162, D175, D176, D178, D184
 
 Tradução da IR em objetos de estilo e props do React Native, avaliação das
 condições no contexto atual, cache por contexto e configuração por
@@ -63,7 +63,9 @@ Fica de fora:
   tamanho da janela (este para as unidades de tela, R39). Estados de interação
   NÃO fazem parte do contexto (D109, D110).
 - **R2.** Sem `setColorScheme`, o esquema DEVE seguir o do sistema e acompanhar
-  as mudanças dele (D25, `tema.md` R3).
+  as mudanças dele (D25, `tema.md` R3). Se o sistema não informa esquema
+  (`useColorScheme()` devolve `null` ou `undefined`), o esquema DEVE ser
+  `light` (D184).
 - **R3.** `setColorScheme('light' | 'dark' | 'system')` DEVE forçar o esquema em
   toda a árvore, sem Provider, e os componentes já montados DEVEM atualizar.
   `'system'` DEVE voltar a seguir o sistema (D64, `tema.md` R4 e C8). O esquema
