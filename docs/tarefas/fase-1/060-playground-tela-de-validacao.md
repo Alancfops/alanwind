@@ -1,25 +1,28 @@
-# 060. Playground: tela de validação da fase 1
+# 060. Playground: tela de demonstração da fase 1
 
-- **Status**: bloqueada — aguarda as tarefas de componentes e a escolha da tela
-  pelo Alan
+- **Status**: bloqueada — aguarda as tarefas de componentes e `configure`
 - **Fase**: 1
-- **Branch**: feature/playground-tela-validacao
-- **Depende de**: 004, 051, 052, 053
-- **Paralelo com**: 054, 055
-- **Spec**: `docs/specs/componentes.md`, `docs/specs/emissor-native.md`
-  (exemplos)
-- **Decisões**: D25, D57, D59, D60, D62, D64
+- **Branch**: feature/playground-tela-demonstracao
+- **Depende de**: 004, 046, 051, 052, 053
+- **Paralelo com**: 054
+- **Spec**: `docs/specs/componentes.md`, `docs/specs/tema.md` seção 5.9
+  (exemplo de `alanwind.config.ts`)
+- **Decisões**: D25, D57, D59, D62, D64, D67, D111, D112, D119
 
 ## Objetivo
-Reproduzir no `playground-expo` a tela do app do Alan escolhida para a validação
-da D60, usando só `Box`, `Text` e `Pressable` com `look`, e um seletor de
-esquema com `setColorScheme`.
+Uma tela no `playground-expo` que exercita a fase 1 nas três plataformas:
+`Box`, `Text` e `Pressable` com `look`, atalhos via `configure`, e um seletor
+de esquema com `setColorScheme`.
 
 ## Escopo
-- Faz: a tela no playground; botão para alternar `light`/`dark`/`system` (D64);
-  verificação visual em iOS, Android e web.
-- Não faz: mexer no app do Alan (fica fora deste repositório; a validação lado a
-  lado com o NativeWind é feita pelo Alan).
+- Faz:
+  - `alanwind.config.ts` do app com os atalhos do exemplo da seção 5.9 do
+    `tema.md` e `configure(config)` no arquivo de entrada (D119).
+  - Uma tela usando só componentes e `look` do alanwind: cartão (`card`),
+    botões (`btn`, `press(...)`, `hover(...)`, `disabled`), texto herdado do
+    botão, `medium(row)`.
+  - Botões para `setColorScheme('light' | 'dark' | 'system')` (D64).
+- Não faz: a validação no ShadowPlatinum (`061`, D80).
 
 ## Arquivos permitidos
 - Implementador: `apps/playground-expo/**`.
@@ -27,18 +30,13 @@ esquema com `setColorScheme`.
   esquemas, nas três plataformas).
 
 ## Critérios de aceite
-- [ ] A tela usa só componentes e `look` do alanwind, sem `StyleSheet` próprio.
+- [ ] A tela usa só componentes e `look` do alanwind, sem `StyleSheet`.
 - [ ] Claro e escuro funcionam, inclusive forçados com `setColorScheme` (D25,
       D64).
 - [ ] Botões mudam ao pressionar (`press(...)`, D59) e o texto herda a cor do
       botão (D57).
+- [ ] O layout muda de coluna para linha a partir de 600 de largura (web).
 - [ ] `expo export --platform web` sem erro.
 
 ## Casos que o QA deve cobrir
 - Checklist visual: cada critério, em cada plataforma e esquema, com captura.
-
-## Lacunas que bloqueiam
-- Qual tela do app do Alan será reproduzida (e quais classes ela precisa: isso
-  ajuda a fechar o vocabulário da fase 1).
-- Como o app do Alan consome o alanwind antes de publicar (`pnpm pack`, `link`,
-  registro privado?).

@@ -107,7 +107,8 @@ Fica de fora (outras specs):
   variante de tela valem em todas as faixas, inclusive `compact` (D61).
 - **R15.** Uma variante cujas condições são impossíveis juntas (`dark` com
   `light`; duas plataformas entre `ios`, `android` e `web`; `native` com `web`)
-  DEVE ser aceita, nunca vale, e gera o aviso `AW202` (D127, D135).
+  DEVE ser aceita sem erro, gera o aviso `AW202` e é descartada da IR, porque
+  nunca valeria (D127, D138).
 - **R16.** O nome da variante DEVE vir seguido de `(` colado. Um nome de
   variante sozinho, sem parêntese, gera `AW005`.
 - **R53.** Condições redundantes (uma implica a outra) DEVEM ser simplificadas
@@ -782,8 +783,8 @@ Cor livre com tom da paleta (`bg=red-40`) não está na fase 1 (D118): ver 11.1.
 | `bg-primary hover(bg-primary-hover) press(bg-primary-hover)` | `bg=role(primary) [hover] bg=role(primary-hover) [press] bg=role(primary-hover)` |
 | `hover(  bg-raised  )` | `[hover] bg=role(raised)` |
 | `medium(pad-4) expanded(pad-8)` | `[expanded] pad.bottom=32 pad.left=32 pad.right=32 pad.top=32 [medium] pad.bottom=16 pad.left=16 pad.right=16 pad.top=16` |
-| `dark(light(bg-raised))` | `[dark,light] bg=role(raised)` e `diag: AW202[5,21)` |
-| `ios(web(row))` | `[ios,web] direction=row` e `diag: AW202[4,12)` |
+| `dark(light(bg-raised))` | nenhuma camada (descartada, D138) e `diag: AW202[5,21)` |
+| `ios(web(row))` | nenhuma camada (descartada, D138) e `diag: AW202[4,12)` |
 | `ios(native(row))` | `[ios] direction=row` (R53, sem diagnóstico) |
 | `medium(expanded(pad-4))` | `[expanded] pad.bottom=16 pad.left=16 pad.right=16 pad.top=16` (R53, sem diagnóstico) |
 | `medium(lines-2) lines-4` | `props: lines=4 [medium] lines=2` |
@@ -928,7 +929,7 @@ Notas:
 | Mesmo item sob condições diferentes (`bg-primary hover(bg-raised)`) | Ficam os dois, cada um com as suas condições; sem `AW201`; com hover ativo vale o da variante | R41 |
 | `dark(dark(x))` | Aceito; condições repetidas valem como uma | R11, R53 |
 | `ios(native(x))`, `medium(expanded(x))` | Simplificados em silêncio para `ios(x)` e `expanded(x)` | R53 |
-| `dark(light(x))`, `ios(web(x))` | Aceitos, nunca valem, `AW202` | R15 |
+| `dark(light(x))`, `ios(web(x))` | Descartados da IR, `AW202` | R15, D138 |
 | `hover(bg-raised)pad-4` | `AW010` com sugestão; aplica os dois itens | R65 |
 | `between center-y` (coluna) | Conflito normal: vale o último, com `AW201` | R59 |
 | `w=10.5`, `leading=1.4` | Aceitos (decimal com ponto) | R54 |
