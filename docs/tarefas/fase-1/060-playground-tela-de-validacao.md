@@ -1,10 +1,10 @@
 # 060. Playground: tela de demonstração da fase 1
 
-- **Status**: bloqueada — aguarda as tarefas de componentes e `configure`
+- **Status**: pronta (depois da 004, 046 e 051 a 053)
 - **Fase**: 1
 - **Branch**: feature/playground-tela-demonstracao
 - **Depende de**: 004, 046, 051, 052, 053
-- **Paralelo com**: 054
+- **Paralelo com**: 054, 055
 - **Spec**: `docs/specs/componentes.md`, `docs/specs/tema.md` seção 5.9
   (exemplo de `alanwind.config.ts`)
 - **Decisões**: D25, D57, D59, D62, D64, D67, D111, D112, D119
