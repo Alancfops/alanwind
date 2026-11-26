@@ -235,6 +235,10 @@ próprios diferenciais**.
 | D173 | **Bloqueio de hook: o agente para e relata.** Quando um hook de restrição impedir a tarefa, o agente não contorna (redirecionamento, `tee`, script inline, worktree fora do projeto): para e relata. O hook do implementador e do QA passa a bloquear escrita de arquivo pelo `Bash`; arquivos se escrevem só com `Write`/`Edit`. |
 | D174 | **Licença MIT.** O repositório e os pacotes publicados usam a licença MIT (`LICENSE` na raiz e `license: "MIT"` em cada `package.json`). |
 | D175 | **`@alanwind/native` só em ESM.** O `native` é publicado só em ESM, para um app nunca carregar duas cópias do estado do módulo (cache, `configure`). O `core`, sem estado, pode sair em ESM e CJS. |
+| D176 | **`look()` sem tamanho usa 16 no `lineHeight`.** Em `look('leading-normal')`, sem `type-*` e sem herança, a conta usa o tamanho padrão do `Text` (16, `type-base`, D112). |
+| D177 | **Classes de texto no `Box` e no `Pressable` só são repassadas.** Em `<Box look="text-muted">`, a cor e as demais propriedades de texto vão só para os `Text` filhos (D57), não para o `style` do `View`. Vale igual para o `Pressable`. |
+| D178 | **Avisos de uso no README do pacote.** O `@alanwind/native` tem um `README.md` (vai para o npm) com a instalação e os avisos de uso: o da D167 (atalho do RN no `style`) e o do Jest (com o pacote só em ESM, D175, quem usa Jest inclui `@alanwind/native` no `transformIgnorePatterns`). A tarefa 061 confere o Jest no ShadowPlatinum. |
+| D179 | **Nomes dos tipos das props.** Exporta `BoxProps`, `AwTextProps` e `AwPressableProps`: o prefixo `Aw` só nos nomes que colidem com os do React Native. |
 
 ### 3.1 Alvo técnico de referência (Expo SDK 58)
 
@@ -619,6 +623,9 @@ Pode esperar:
 - 2026-11-26 (Claude Code): revisão da tarefa 002: agente para e relata
   quando um hook bloqueia (D173), licença MIT (D174) e `native` só em ESM
   (D175).
+- 2026-11-26 (Claude Code): perguntas do planejador ao destravar o
+  `native`: `lineHeight` em `look()` (D176), texto no `Box` e no `Pressable`
+  (D177), README do pacote (D178) e nomes dos tipos das props (D179).
 
 ## 11. Vocabulário base (rascunho em construção)
 
