@@ -1,6 +1,6 @@
 # Spec: funcionamento interno (representação intermediária, IR)
 
-Status: **em revisão** (estrutura completa; seção 8 vazia; aguarda o Alan) ·
+Status: **aprovado** (pelo Alan em 2026-11-26) ·
 Decisões de origem: D15, D31, D33, D35, D36, D37, D38, D58, D59, D60, D61, D62,
 D65, D74, D78, D82 a D90, D92, D94, D96 a D99, D101, D103 a D108, D110, D117,
 D118, D120, D122, D124, D125, D127, D132, D133, D135 a D140

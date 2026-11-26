@@ -1,7 +1,7 @@
 # Spec: tema
 
-Status: **em revisão** (estrutura completa; "Ainda não definido" vazio; aguarda
-o Alan aprovar) · Decisões de origem: D6, D20, D22, D24, D25, D31 a D35, D43 a
+Status: **aprovado** (pelo Alan em 2026-11-26) ·
+Decisões de origem: D6, D20, D22, D24, D25, D31 a D35, D43 a
 D52, D63, D64, D81, D91 a D102, D118, D119, D127 a D134, D137, D138
 
 Tema padrão da fase 1 (cores, escalas, sombras, fontes, breakpoints), contraste

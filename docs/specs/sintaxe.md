@@ -1,7 +1,7 @@
 # Spec: sintaxe do look
 
-Status: **em revisão** (estrutura completa; "Ainda não definido" vazio;
-aguarda o Alan aprovar) · Decisões de origem: D7, D13, D15 a D20,
+Status: **aprovado** (pelo Alan em 2026-11-26) ·
+Decisões de origem: D7, D13, D15 a D20,
 D23, D26 a D31, D33 a D38, D41 a D45, D49, D58, D59, D61 a D63, D66, D77, D78,
 D82 a D89, D91 a D98, D100 a D106, D110, D117, D118, D122 a D127, D129, D131,
 D133 a D140
@@ -989,7 +989,7 @@ Notas:
 
 ## 11. Ainda não definido
 
-Status do documento: **em revisão**. Não há lacunas: as perguntas das rodadas
+Status do documento: **aprovado**. Não há lacunas: as perguntas das rodadas
 anteriores foram respondidas nas D136 a D139.
 
 ### 11.1 Lacunas (viram pergunta ao Alan)

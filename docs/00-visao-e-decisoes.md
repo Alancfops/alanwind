@@ -566,6 +566,8 @@ Pode esperar:
 - 2026-11-26 (Claude Code): últimos detalhes da IR (D140).
 - 2026-11-26 (Claude Code): CI para docs e código (D141), CD por tag com versão
   única (D142) e branches protegidas (D143).
+- 2026-11-26 (Claude Code): o Alan aprovou as specs `sintaxe.md`,
+  `funcionamento-interno.md` e `tema.md`.
 
 ## 11. Vocabulário base (rascunho em construção)
 
