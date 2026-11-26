@@ -20,8 +20,8 @@ const themed = (light: string, dark: string): ThemedColor => ({
 });
 
 const PRIMARY = themed('#2563EB', '#8AB4FF');
-const PRIMARY_HOVER = themed('#1D4FD8', '#AFCBFF');
-const RAISED = themed('#FFFFFF', '#2A2A30');
+const PRIMARY_HOVER = themed('#1D4FD8', '#A6C6FF');
+const RAISED = themed('#FFFFFF', '#28282D');
 const SURFACE = themed('#FFFFFF', '#1E1E22');
 
 const bg = (color: ThemedColor): StyleMap => ({ backgroundColor: color });
@@ -424,17 +424,14 @@ describe('5.2 e sintaxe 7.7 precedência (R12, D117, D136)', () => {
     );
   });
 
-  it.each([
-    ['expanded(pad-8) medium(pad-4) em 900', 900],
-    ['medium(pad-4) expanded(pad-8) em 900', 900],
-  ])('%s: pad-8 (7.7)', (_n, width) => {
+  // The canonical layer order comes from the core, so 'expanded(pad-8)
+  // medium(pad-4)' and 'medium(pad-4) expanded(pad-8)' share this one IR.
+  it('expanded(pad-8) medium(pad-4) em 900: pad-8 (7.7)', () => {
     const ir = style(
       { when: MEDIUM, declarations: pad(16) },
       { when: EXPANDED, declarations: pad(32) },
     );
-    expect(resolveLayers(ir, atWidth(width), NONE).style).toStrictEqual(
-      pad(32),
-    );
+    expect(resolveLayers(ir, atWidth(900), NONE).style).toStrictEqual(pad(32));
   });
 
   it('hover e press na ordem hover, press: primary-hover (7.7)', () => {
