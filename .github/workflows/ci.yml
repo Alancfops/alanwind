@@ -1,0 +1,79 @@
+# CI: runs on every pull request to develop/main and on pushes to them.
+# - docs: always runs (Markdown rules from CLAUDE.md).
+# - code: runs only once the monorepo exists (pnpm-lock.yaml at the root).
+# - ci: single aggregate check required by branch protection.
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect:
+    name: Detect monorepo
+    runs-on: ubuntu-latest
+    outputs:
+      has-code: ${{ steps.detect.outputs.has-code }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: detect
+        run: |
+          if [[ -f pnpm-lock.yaml ]]; then has=true; else has=false; fi
+          echo "has-code=$has" >> "$GITHUB_OUTPUT"
+
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check Markdown rules
+        run: node .github/scripts/check-docs.mjs
+
+  code:
+    name: Code
+    runs-on: ubuntu-latest
+    needs: detect
+    if: ${{ needs.detect.outputs.has-code == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Lint and format (Biome)
+        run: pnpm exec biome ci .
+      - name: Types
+        run: pnpm run typecheck
+      - name: Tests
+        run: pnpm run test
+      - name: Build
+        run: pnpm run build
+      - name: Dead code and files (Knip)
+        if: ${{ hashFiles('knip.json') != '' }}
+        run: pnpm exec knip
+
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    needs: [detect, docs, code]
+    if: ${{ always() }}
+    steps:
+      - name: All jobs passed or were skipped
+        run: |
+          echo "docs: ${{ needs.docs.result }} / code: ${{ needs.code.result }}"
+          [[ "${{ needs.docs.result }}" == "success" ]]
+          [[ "${{ needs.code.result }}" =~ ^(success|skipped)$ ]]

@@ -83,10 +83,21 @@ O escopo é o mesmo da skill `conventional-commits`.
 Quando a `develop` tiver o conjunto de uma versão:
 
 1. Abrir PR de `develop` para `main` com o título `chore(repo): release vX.Y.Z`.
-2. Depois do merge, criar a tag `vX.Y.Z` na `main`.
-3. O número segue SemVer, guiado pelos commits: `feat` sobe o *minor*, `fix`
+2. Depois do merge, o Alan cria a tag `vX.Y.Z` na `main`
+   (`git tag vX.Y.Z && git push origin vX.Y.Z`).
+3. A tag dispara o workflow `Release` (D142): todos os pacotes públicos recebem
+   a mesma versão, as verificações do CI rodam de novo, os pacotes vão para o
+   npm e a GitHub Release é criada com as notas dos commits. Ninguém publica à
+   mão.
+4. O número segue SemVer, guiado pelos commits: `feat` sobe o *minor*, `fix`
    sobe o *patch*, breaking change (`!`) sobe o *major* (antes da 1.0, sobe o
    *minor*).
+
+## CI
+
+Toda PR para `develop` ou `main` roda o workflow `CI` (D141), e o check `CI`
+precisa estar verde para o merge (D143). Para conferir a documentação antes de
+abrir a PR: `node .github/scripts/check-docs.mjs`.
 
 ## Hotfix
 
