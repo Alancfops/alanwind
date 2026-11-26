@@ -43,7 +43,8 @@ export function sortDiagnostics(
 
 /**
  * The candidate closest to `input` within an edit distance of 2; ties go to
- * the first in alphabetical order (R51). No candidate, no suggestion.
+ * the first in alphabetical order (R51). A candidate identical to `input`
+ * is not a suggestion (D185). No candidate, no suggestion.
  */
 export function suggestClosest(
   input: string,
@@ -52,7 +53,7 @@ export function suggestClosest(
   let best: { readonly name: string; readonly distance: number } | undefined;
   for (const name of candidates) {
     const distance = editDistance(input, name);
-    if (distance > MAX_SUGGESTION_DISTANCE) continue;
+    if (distance === 0 || distance > MAX_SUGGESTION_DISTANCE) continue;
     if (
       best === undefined ||
       distance < best.distance ||
@@ -70,22 +71,28 @@ function compareText(a: string, b: string): number {
   return a < b ? -1 : 1;
 }
 
-/** Levenshtein distance: insertions, deletions and substitutions. */
+/**
+ * Damerau-Levenshtein distance, optimal string alignment variant (D185):
+ * insertions, deletions, substitutions and swaps of two neighbor letters.
+ */
 function editDistance(a: string, b: string): number {
+  let beforePrevious: readonly number[] = [];
   let previous = Array.from({ length: b.length + 1 }, (_, index) => index);
   for (let i = 1; i <= a.length; i++) {
     const current = [i];
     for (let j = 1; j <= b.length; j++) {
-      const substitution =
-        (previous[j - 1] ?? 0) + (a[i - 1] === b[j - 1] ? 0 : 1);
-      current.push(
-        Math.min(
-          substitution,
-          (previous[j] ?? 0) + 1,
-          (current[j - 1] ?? 0) + 1,
-        ),
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      let distance = Math.min(
+        (previous[j - 1] ?? 0) + cost,
+        (previous[j] ?? 0) + 1,
+        (current[j - 1] ?? 0) + 1,
       );
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+        distance = Math.min(distance, (beforePrevious[j - 2] ?? 0) + 1);
+      }
+      current.push(distance);
     }
+    beforePrevious = previous;
     previous = current;
   }
   return previous[b.length] ?? 0;
