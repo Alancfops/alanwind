@@ -1,9 +1,10 @@
 # Spec: emissor React Native
 
-Status: **aprovado** (pelo Alan em 2026-11-26) ·
+Status: **em revisão** (aprovada em 2026-11-26; D175 a D178 propagadas, falta
+reaprovar) ·
 Decisões de origem: D14, D15, D25, D26, D27, D35, D37, D45, D49, D57, D59, D60,
 D62, D64, D83, D84, D88, D94, D98, D103, D107, D108, D109, D110, D116, D117,
-D119, D120, D133, D135, D136, D144, D152 a D162
+D119, D120, D133, D135, D136, D144, D152 a D162, D175, D176, D178
 
 Tradução da IR em objetos de estilo e props do React Native, avaliação das
 condições no contexto atual, cache por contexto e configuração por
@@ -152,7 +153,10 @@ Fica de fora:
   da fonte é o final do texto, depois da herança e do padrão do `Text` (D98,
   D112, D113; `funcionamento-interno.md` R33). O produto DEVE ser arredondado
   a duas casas decimais: `type-2xl leading=1.4` dá `33.6` (D157). O tamanho
-  final vem de quem chama (os componentes, ver `componentes.md`).
+  final vem de quem chama (os componentes, ver `componentes.md`). Em `look()`
+  chamado direto, sem `type-*` no `look` e sem tamanho herdado, a conta DEVE
+  usar 16, o tamanho padrão do `Text` (`type-base`, D112):
+  `look('leading-normal')` dá `lineHeight: 24` (D176).
 - **R21.** **Família de fonte** (`fontFamily` genérica da IR, D133): o emissor
   DEVE mapear para a fonte do sistema da plataforma, sem baixar nenhuma fonte:
 
@@ -243,6 +247,12 @@ Fica de fora:
 - **R41.** Uma segunda chamada de `configure` DEVE substituir os atalhos da
   anterior, sem somar. Uma chave além de `define` (possível em JavaScript puro)
   DEVE ser ignorada, com aviso em dev (D161).
+- **R42.** **Empacotamento** (D175, D178): o `@alanwind/native` DEVE ser
+  publicado só em ESM, sem build CJS, para um app nunca carregar duas cópias do
+  estado do módulo (cache, `configure`). O pacote DEVE ter um `README.md` com a
+  instalação e dois avisos de uso: o do atalho do React Native no `style`
+  (`componentes.md` R2, D167) e o do Jest, em que quem usa Jest DEVE incluir
+  `@alanwind/native` no `transformIgnorePatterns`, por ser só ESM.
 
 ### 3.8 Classes sem tradução
 
@@ -331,6 +341,7 @@ D91, D95.
 | `border-danger` | escuro | `{ borderColor: '#FF8A80' }` |
 | `type-lg leading-normal` | — | `{ fontSize: 18, lineHeight: 27 }` |
 | `type-sm leading-tight` | — | `{ fontSize: 14, lineHeight: 17.5 }` |
+| `leading-normal`, `look()` direto, sem herança | — | `{ lineHeight: 24 }` (D176) |
 | `italic underline upper` | — | `{ fontStyle: 'italic', textDecorationLine: 'underline', textTransform: 'uppercase' }` |
 | `align-center` | — | `{ textAlign: 'center' }` |
 | `` (vazio) | — | `{}` (props `{}`) |
@@ -450,6 +461,8 @@ Valores da D156 (fontes: D133, `tema.md` 5.10 e 7.2).
 | `Percent` | String com `%` (R16) |
 | Cor com alfa 1 | `'#RRGGBB'` como veio da IR (R17) |
 | `lineHeight` com `Ratio` | `tamanho da fonte × value`, a duas casas (R20) |
+| `leading-*` sem `type-*` nem herança, em `look()` | Tamanho 16 na conta (R20, D176) |
+| Pacote carregado em CJS | Não existe build CJS; só ESM (R42, D175) |
 | `w-screen`, `h-screen`, `size-screen` | Janela exata na chave do cache (R39) |
 | `setColorScheme` | Estado próprio; não chama `Appearance` (R3) |
 | `look()` sem `context` | Lê esquema e janela naquele instante; não reage (R40) |
@@ -487,6 +500,9 @@ Valores da D156 (fontes: D133, `tema.md` 5.10 e 7.2).
       reage a `setColorScheme` e à mudança de faixa (R40).
 - [ ] Um aviso por combinação de `look`, código e posição; nenhum em
       produção (R31).
+- [ ] `look('leading-normal')` dá `lineHeight: 24` (R20, D176).
+- [ ] O pacote `native` sai só em ESM e o `README.md` traz a instalação e os
+      avisos do `style` e do Jest (R42, D175, D178).
 - [ ] Os tipos exportados funcionam com a Strict TypeScript API do React Native
       0.88 (D14, D116).
 

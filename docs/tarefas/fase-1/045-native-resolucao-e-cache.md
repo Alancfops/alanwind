@@ -11,7 +11,7 @@
   `docs/specs/funcionamento-interno.md` R2, R41, R42; `docs/specs/sintaxe.md`
   R1, R46
 - **Decisões**: D15, D26, D27, D35, D84, D88, D109, D152, D157, D158, D159,
-  D160, D166
+  D160, D166, D176
 
 ## Objetivo
 Juntar `core` e emissor: `look` + contexto + estados → estilo e props do RN,
@@ -29,8 +29,9 @@ avisos de desenvolvimento.
   - **`lineHeight` na API pública**: o tamanho da fonte é o `fontSize` que o
     próprio `look` resolve no contexto e nos estados dados
     (`type-lg leading-normal` → 27; `type-2xl leading=1.4` → 33.6; R20,
-    D157), traduzido pela `042`. Ver "Perguntas" no `README.md` para
-    `leading-*` sem `type-*` no mesmo `look`.
+    D157), traduzido pela `042`. Sem `type-*` no `look`, a conta usa 16,
+    o tamanho padrão do `Text` (`type-base`): `look('leading-normal')` →
+    `lineHeight` 24, sem `fontSize` no estilo (D176, D112).
   - **Resolução interna para os componentes** (não exportada): o mesmo
     resultado, mas com o `lineHeight` ainda como `Ratio` e o `fontSize`
     próprio separado, para a `050` repassar e a `052` multiplicar pelo
@@ -82,6 +83,7 @@ avisos de desenvolvimento.
       contexto da linha (padrão: `compact`, `ios`, janela 390 × 844).
 - [ ] Cada linha da seção 5.5 (cache) dá o resultado indicado; o teste do
       LRU lê a constante, sem repetir 500 (R27).
+- [ ] `look('leading-normal')` → `{ lineHeight: 24 }` (D176).
 - [ ] Mesma entrada, mesmo contexto e mesmos estados → mesmo objeto (R28,
       R29).
 - [ ] Larguras 700 e 800 dão o mesmo objeto; 599 e 600 não; `h-screen` com
@@ -105,6 +107,8 @@ avisos de desenvolvimento.
 - Seção 5.6: `bg-banana pad-4` e `pad-4 hover(bg-raised` em dev e produção
   (R31, R32, D88).
 - Aviso repetido para o mesmo `look`, código e posição → uma vez (seção 6).
+- `look('leading-normal')` → `lineHeight` 24; `look('leading-tight')` →
+  20; `look('type-lg leading-normal')` → 27 (D176, R20).
 - `useLook('bg-primary')` num componente de teste: claro, depois
   `setColorScheme('dark')` → `'#8AB4FF'`; largura de 599 para 600 com
   `medium(row)` (R40, R6).

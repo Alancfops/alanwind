@@ -9,7 +9,7 @@
   `docs/specs/emissor-native.md` R10, R13, R24, seção 4
   (`InteractionStates`)
 - **Decisões**: D26, D27, D53, D57, D59, D78, D103, D110, D111, D113, D114,
-  D115, D158, D165, D169, D170, D171
+  D115, D158, D165, D169, D170, D171, D177
 
 ## Objetivo
 `<Pressable look="...">`: o `Pressable` do RN com as variantes de estado
@@ -47,7 +47,8 @@ aos filhos.
       próprio; `focus(...)` personaliza (D169).
   - **Repasse de texto** pela `050`, com o `look` avaliado nos estados
     atuais: `press(text-on-primary)` chega ao `Text` filho enquanto
-    pressionado (R26, D165).
+    pressionado (R26, D165). As propriedades de texto do `look` vão **só**
+    para o contexto, nunca para o `style` do `Pressable` (D177).
 - Não faz: tipo da prop com autocomplete (`054`); `tap-target` e
   `focus-ring` (fora da fase 1, R27, D78).
 
@@ -70,6 +71,8 @@ aos filhos.
       no `look` (R25, D169).
 - [ ] Com `press` ativo, o contexto da `050` leva a parte de texto de
       `press(...)`; solto, não (R26).
+- [ ] `<Pressable look="bg-danger text-on-danger">` tem no `style` só
+      `backgroundColor`, sem `color` (D177).
 
 ## Casos que o QA deve cobrir
 - Seção 5.4, `bg-primary hover(bg-raised) press(bg-primary-hover)`:

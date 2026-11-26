@@ -8,7 +8,7 @@
 - **Spec**: `docs/specs/componentes.md` R1, R32, R33, seções 4 e 5.5;
   `docs/specs/emissor-native.md` R40, seção 4 (assinaturas de `look()` e
   `useLook()`); `docs/specs/sintaxe.md` R52
-- **Decisões**: D14, D66, D116, D126, D158
+- **Decisões**: D14, D66, D116, D126, D158, D179
 
 ## Objetivo
 A prop `look` de `Box`, `Text` e `Pressable` e a entrada de `look()` e
@@ -20,11 +20,10 @@ qualquer `string` aceita, compatível com a Strict TypeScript API do RN 0.88.
   - Trocar `string` pelo tipo da `030` na prop `look` dos três componentes e
     no `input` de `look(input, { context?, states? })` e
     `useLook(input, states?)` (R32, emissor R40, D158).
-  - Tipos das props dos três componentes: `ViewProps`, `TextProps` e
-    `PressableProps` do RN + `look` (seção 4 da `componentes.md`). A spec
-    deixa os nomes exportados para esta tarefa, mas são API pública: estão
-    nas "Perguntas" do `README.md`. Sem resposta quando a tarefa começar, os
-    tipos ficam internos (não exportados) e o implementador relata.
+  - Exportar os tipos das props dos três componentes, com estes nomes
+    (D179): `BoxProps` (`ViewProps` do RN + `look`), `AwTextProps`
+    (`TextProps` + `look`) e `AwPressableProps` (`PressableProps` +
+    `look`). O prefixo `Aw` só existe onde o nome colide com o do RN.
   - Conferir os tipos das props originais e do `ref` com a Strict
     TypeScript API (R33, seção 3.1 da visão, D14, D116).
 - Não faz: mudar o tipo em si (`030`); erro de tipo para classe inválida
@@ -42,6 +41,8 @@ qualquer `string` aceita, compatível com a Strict TypeScript API do RN 0.88.
       da `030`, não `string` puro (R32, D158).
 - [ ] Props nativas (`onPress`, `accessibilityRole`, `hitSlop`, `ref`)
       mantêm os tipos originais (R33).
+- [ ] `BoxProps`, `AwTextProps` e `AwPressableProps` são exportados de
+      `@alanwind/native` com esses nomes exatos (D179).
 - [ ] `pnpm run typecheck` passa com a Strict TypeScript API do RN 0.88.
 
 ## Casos que o QA deve cobrir
@@ -51,5 +52,7 @@ qualquer `string` aceita, compatível com a Strict TypeScript API do RN 0.88.
 - `look('pad-17')` e `useLook('bg-banana')` compilam; o parâmetro de
   `look()` e de `useLook()` tem o tipo da `030` (`expectTypeOf`).
 - Os exemplos da `030`, agora na prop de cada componente.
+- `BoxProps['look']`, `AwTextProps['look']` e `AwPressableProps['look']`
+  são o tipo da `030`; `AwPressableProps['onPress']` é o do RN (D179).
 - Observação: o autocomplete no editor é conferido à mão e registrado no
   relatório (critério da seção 7 da `componentes.md`).

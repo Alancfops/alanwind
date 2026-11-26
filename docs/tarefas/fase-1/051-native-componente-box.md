@@ -8,7 +8,7 @@
 - **Spec**: `docs/specs/componentes.md` R1 a R12, seções 5.1 e 6;
   `docs/specs/emissor-native.md` R13, R40
 - **Decisões**: D26, D27, D53, D57, D62, D84, D113, D114, D115, D158, D166,
-  D167, D168
+  D167, D168, D177
 
 ## Objetivo
 `<Box look="...">`: um `View` do RN com o `look` resolvido, sempre flex em
@@ -26,11 +26,8 @@ coluna, somando ao `style` da pessoa e repassando texto aos filhos.
     O `style` NÃO é normalizado: `style={{ padding: 2 }}` não vence os lados
     do `look` (R2, D167).
   - `look` ausente ou vazio: só a base (R3).
-  - Se as propriedades de texto do `look` (`color`, `fontSize`...) também
-    vão para o `style` do próprio `View`, ou só para o contexto, a spec não
-    diz: está nas "Perguntas" do `README.md`. Até a resposta, o QA não testa
-    o `style` do `View` com classe de texto, e o implementador relata o que
-    fez.
+  - As propriedades de texto do `look` (as nove da R31) vão **só** para o
+    contexto da `050`, nunca para o `style` do `View` (D177).
   - `look` resolvido pelo `useLook` (pela resolução interna da `045`), com o
     contexto atual e resolvido de novo quando ele muda (R4, D158).
   - Props do `look` aplicadas; a prop explícita da pessoa vence (R5).
@@ -40,8 +37,7 @@ coluna, somando ao `style` da pessoa e repassando texto aos filhos.
   - Nenhum `accessibilityRole` padrão (R10, D115); funciona via
     `react-native-web` (R7, D26).
 - Não faz: tipo da prop com autocomplete (`054`); estados de interação (só
-  no `Pressable`); o aviso da D167 na documentação (ver "Perguntas" no
-  `README.md`).
+  no `Pressable`); o aviso da D167 no `README.md` do pacote (`056`, D178).
 
 ## Arquivos permitidos
 - Implementador: `packages/native/src/components/Box.tsx`,
@@ -57,7 +53,9 @@ coluna, somando ao `style` da pessoa e repassando texto aos filhos.
 - [ ] O `ref` chega ao `View` (R1).
 - [ ] `<Box look="hover(bg-raised)">` avisa em dev e não avisa em produção
       (R12).
-- [ ] O texto do `look` chega ao contexto da `050` (R11).
+- [ ] O texto do `look` chega ao contexto da `050` (R11) e não aparece no
+      `style` do `View`: `<Box look="text-muted type-lg">` tem estilo
+      `{ flexDirection: 'column' }` (D177).
 
 ## Casos que o QA deve cobrir
 - Seção 5.1, linha a linha: `<Box />`; `look="row"`; `look="pad-4"` com

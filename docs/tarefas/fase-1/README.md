@@ -1,11 +1,11 @@
 # Fase 1: tarefas
 
-**Status do plano: revisado em 2026-11-26** contra as decisões até a D172.
+**Status do plano: revisado em 2026-11-26** contra as decisões até a D179.
 Todas as specs da fase 1 estão aprovadas e **nenhuma tarefa está bloqueada
 por spec**: cada uma está pronta para começar assim que as tarefas da coluna
-"Depende de" estiverem na `develop`. Cinco pontos de detalhe ficaram como
-pergunta (ver "Perguntas em aberto"); nenhum impede começar, e cada tarefa
-afetada diz o que fazer até a resposta.
+"Depende de" estiverem na `develop`. Um ponto de detalhe segue como pergunta
+(ver "Perguntas em aberto"); ele não impede começar, e a tarefa afetada diz o
+que fazer até a resposta.
 
 Se o texto de uma spec diferir de uma tarefa, vale a spec, e o implementador
 relata.
@@ -22,7 +22,9 @@ Fora da fase 1: aviso de contraste (D32, D66); `motion-safe`, `tap-target` e
 da D40 (D172); emissor CSS (fase 2, D60).
 
 Node para desenvolver o monorepo: 22.18+ (D150, na `001`); o 22.13+ é o de
-quem usa o alanwind.
+quem usa o alanwind. Licença MIT (D174, `001` e `002`); `@alanwind/native`
+só em ESM (D175, `002`), com o aviso do Jest no README do pacote (D178,
+`056`) e a prova na `061`.
 
 ## Estado das specs
 
@@ -31,8 +33,11 @@ quem usa o alanwind.
 | `funcionamento-interno.md` | aprovado | 010 a 035, 041 a 045 |
 | `sintaxe.md` | aprovado | 011, 020 a 035 |
 | `tema.md` | aprovado | 012 a 014, 025, 032, 040, 046 |
-| `emissor-native.md` | aprovado (D152 a D162) | 040 a 046 |
-| `componentes.md` | aprovado para a fase 1 (D163 a D172) | 050 a 055, 060 |
+| `emissor-native.md` | aprovado (D152 a D162; D176 em propagação) | 040 a 046 |
+| `componentes.md` | aprovado para a fase 1 (D163 a D172; D177 a D179 em propagação) | 050 a 056, 060 |
+
+As tarefas já citam a D176 a D179 diretamente; o documentador as leva para as
+specs em paralelo.
 
 `emissor-css.md` não entra na fase 1 (D60). O bloco "Fases posteriores" da
 `componentes.md` (`styled()`, demais componentes) não gera tarefa agora
@@ -80,8 +85,9 @@ quem usa o alanwind.
 | 053 | [`Pressable`](053-native-componente-pressable.md) | native | 045, 050 | pronta |
 | 054 | [Tipo do `look` nos componentes e na API](054-native-tipagem-da-prop-look.md) | native | 030, 051, 052, 053 | pronta |
 | 055 | [Árvores de componentes (integração)](055-native-componentes-integracao.md) | native | 051, 052, 053 | pronta |
+| 056 | [`README.md` do `@alanwind/native`](056-native-readme-do-pacote.md) | native | 046, 051 | pronta |
 | 060 | [Tela de demonstração no playground](060-playground-tela-de-validacao.md) | playground | 004, 046, 051, 052, 053 | pronta |
-| 061 | [Validação no ShadowPlatinum](061-validacao-no-shadowplatinum.md) | fora do repo | 054, 060 | pronta (telas escolhidas pelo Alan, D147) |
+| 061 | [Validação no ShadowPlatinum](061-validacao-no-shadowplatinum.md) | fora do repo | 054, 056, 060 | pronta (telas escolhidas pelo Alan, D147) |
 
 "Pronta" = pode começar assim que as tarefas da coluna "Depende de"
 estiverem na `develop`.
@@ -97,8 +103,22 @@ de cada uma viraram regras das specs aprovadas (D152 a D172).
   `componentes.md` precisam de `Box`, `Pressable` e `Text` juntos, e nenhuma
   das tarefas 050 a 053 consegue testá-las sozinha. O número estava livre
   desde a remoção da fachada.
+- **056** `README.md` do `@alanwind/native`: instalação e os avisos da D167
+  e do Jest (D175, D178). Nenhuma tarefa escrevia documentação de uso.
 
-**Mudanças nas tarefas**:
+**Respostas do Alan (D173 a D179)**:
+
+- **001** e **002**: licença MIT (D174; o `LICENSE` da raiz fica com a
+  sessão principal); "pare e relate" sem contornar o hook (D173).
+- **002**: `native` só em ESM; `core` em ESM e, se quiser, CJS (D175).
+- **045**: `look('leading-normal')` usa 16 → `lineHeight` 24 (D176).
+- **051** e **053**: classes de texto só repassadas aos filhos, nunca no
+  `style` do próprio componente (D177).
+- **054**: exporta `BoxProps`, `AwTextProps` e `AwPressableProps` (D179).
+- **061**: passa a depender da `056` e confere o Jest com o
+  `transformIgnorePatterns` do README na cópia (D178).
+
+**Mudanças nas tarefas (D152 a D172)**:
 
 - **040**: faixa com os limites lidos do tema (D153); janela no contexto
   (D152); `setColorScheme` com estado próprio, sem `Appearance` (D162);
@@ -251,7 +271,11 @@ graph TD
   052 --> 060
   053 --> 060
 
+  046 --> 056
+  051 --> 056
+
   054 --> 061
+  056 --> 061
   060 --> 061
 ```
 
@@ -275,7 +299,7 @@ que já chegam por 029).
 | 10 | 030 ‖ 045 | Tipo do `look`; junção de `core` e emissor. |
 | 11 | 046 ‖ 050 | `configure`; herança de texto. |
 | 12 | 051 ‖ 052 ‖ 053 | Componentes. |
-| 13 | 054 ‖ 055 ‖ 060 | Tipos; árvores de componentes; tela de demonstração. |
+| 13 | 054 ‖ 055 ‖ 056 ‖ 060 | Tipos; árvores; README do pacote; demonstração. |
 | 14 | 061 | Validação no ShadowPlatinum. |
 
 Caminho crítico: 001 → 002 → 010 → 011 → 020 → 021 → 022/023/025 → 028 →
@@ -283,40 +307,23 @@ Caminho crítico: 001 → 002 → 010 → 011 → 020 → 021 → 022/023/025 �
 
 ## Perguntas em aberto
 
-Nenhuma bloqueia o início; as tarefas afetadas dizem o que fazer até a
-resposta.
+Não bloqueia o início; a tarefa afetada diz o que fazer até a resposta. As
+outras quatro da revisão anterior viraram a D176 a D179.
 
-1. **`leading-*` sem `type-*` fora dos componentes** (`045`): em
-   `look('leading-normal')` ou `useLook('leading-normal')`, qual tamanho
-   entra na conta? A R20 da `emissor-native.md` fala do "tamanho final do
-   texto, depois da herança e do padrão do `Text`", mas `look()` não tem
-   herança. Opções: 16 (padrão do `Text`, D112), ou não gerar `lineHeight`
-   sem `fontSize` no mesmo `look`. Até a resposta, o QA não testa esse
-   caso.
-2. **Classes de texto no estilo do próprio `Box` e `Pressable`** (`051`,
-   `053`): `<Box look="text-muted">` põe `color` no `style` do `View` além
-   de repassar pelo contexto, ou só repassa? A spec não diz, e o `View` do
-   RN não usa essas propriedades.
-3. **Onde fica o aviso da D167** (`style={{ padding }}` não vence o lado do
-   `look`): a R2 da `componentes.md` diz "a documentação DEVE avisar", mas o
-   site é da fase 5 e nenhuma tarefa da fase 1 escreve documentação de uso.
-   README do `@alanwind/native`, JSDoc da prop, ou fica para o site?
-4. **Repetição do aviso da D166** (variante de estado em `Box` e `Text`,
-   sem código `AW`): a D160 deduplica por `look`, código e posição. Sem
-   código, a chave é `look` + posição da variante? Até a resposta, o QA só
-   confere que há aviso em dev e nenhum em produção.
-5. **Nomes exportados dos tipos das props** (`054`): a seção 4 da
-   `componentes.md` deixa para a tarefa, mas é API pública e `TextProps` e
-   `PressableProps` colidem com os do RN. Até a resposta, os tipos ficam
-   internos.
+1. **Repetição do aviso da D166** (variante de estado em `Box` e `Text`,
+   sem código `AW`; `045`, `051`, `052`): a D160 deduplica por `look`,
+   código e posição. Sem código, a chave é `look` + posição da variante?
+   Até a resposta, o QA só confere que há aviso em dev e nenhum em
+   produção.
 
 ## Observações para a orquestração
 
 - **Hook do implementador** (D148): além de `packages/` e `apps/`, ele edita
   `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `turbo.json`,
   `biome.json`, `tsconfig*.json` e `knip.json` da raiz. `.gitignore`,
-  `.npmrc` e `.github/` continuam com a sessão principal (ver 001). A 061 é
-  fora do repositório.
+  `.npmrc`, `.github/` e `LICENSE` (D174) continuam com a sessão principal
+  (ver 001). A 061 é fora do repositório. Se um hook bloquear, o agente para
+  e relata, sem contornar; arquivos só com `Write`/`Edit` (D173).
 - **CI** (D141): assim que o `pnpm-lock.yaml` entra na `develop` (001), o job
   `Code` passa a rodar `biome ci`, `typecheck`, `test` e `build` em toda PR; o
   passo do Knip liga quando existir `knip.json` (003).
