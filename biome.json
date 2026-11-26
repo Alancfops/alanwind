@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!pnpm-lock.yaml", "!**/*.md", "!.claude/worktrees"]
+    "includes": ["**", "!pnpm-lock.yaml", "!**/*.md"]
   },
   "formatter": {
     "enabled": true,
@@ -59,11 +59,15 @@
                 },
                 "patterns": [
                   {
-                    "group": ["node:*"],
+                    "group": ["react/**", "react-native/**"],
+                    "message": "core is pure: no framework imports (D74)."
+                  },
+                  {
+                    "group": ["node:*", "node:*/**"],
                     "message": "core is pure: no platform APIs (D74)."
                   },
                   {
-                    "group": ["@alanwind/*"],
+                    "group": ["@alanwind/**"],
                     "message": "core depends on no other package (D74)."
                   }
                 ]
@@ -83,24 +87,17 @@
               "options": {
                 "paths": {
                   "@alanwind/css": "emitters never import each other (D74)."
-                }
+                },
+                "patterns": [
+                  {
+                    "group": ["@alanwind/css/**"],
+                    "message": "emitters never import each other (D74)."
+                  }
+                ]
               }
             }
           }
         }
-      }
-    },
-    {
-      "includes": [".github/scripts/**"],
-      "assist": {
-        "actions": {
-          "source": {
-            "organizeImports": "off"
-          }
-        }
-      },
-      "formatter": {
-        "lineWidth": 100
       }
     }
   ],
