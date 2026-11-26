@@ -1,42 +1,52 @@
 # 026. Core: vocabulário de tipografia
 
-- **Status**: bloqueada — aguarda aprovação de `docs/specs/sintaxe.md`,
-  `docs/specs/tema.md` e `docs/specs/funcionamento-interno.md`
+- **Status**: pronta (depois da 021 e da 012)
 - **Fase**: 1
 - **Branch**: feature/core-vocabulario-tipografia
 - **Depende de**: 021, 012
 - **Paralelo com**: 022, 023, 024, 025, 027, 028
-- **Spec**: `docs/specs/sintaxe.md` §1.6; `docs/specs/tema.md` §1.5
-- **Decisões**: D23, D49, D57
+- **Spec**: `docs/specs/sintaxe.md` R21, R54, seções 4.2 (`typography`), 5.7,
+  5.9, 7.1 e 7.2; `docs/specs/funcionamento-interno.md` R27, R33, R36, R48,
+  seções 5.6 e 5.7; `docs/specs/tema.md` R14, R15
+- **Decisões**: D23, D49, D77, D83, D98, D120, D125, D127, D133, D144
 
 ## Objetivo
-Registrar as classes de texto (`type-`, `weight-` e afins), marcadas como
-**classes de texto** na IR, para a herança por contexto (D57) saber o que
-repassar.
+Registrar as classes de texto da fase 1, com `lines-N` indo para a parte de
+props da IR.
 
 ## Escopo
-- Faz: `type-xs` a `type-3xl` com os valores da D49; demais classes de texto que
-  a spec listar para a fase 1 (`weight-*`, `align-*`, `leading-*`, `font-*`,
-  `italic`, `underline`, `upper`, `lower`, `lines-N` estão só no rascunho).
-- Não faz: escala de fonte do sistema (é do emissor, `042`).
+- Faz:
+  - `type-xs` a `type-3xl` → `fontSize` (12 a 30) e `type=V` (D49).
+  - `weight-regular|medium|bold` → `fontWeight` 400, 500, 700 (R36).
+  - `leading-tight|normal|loose` e `leading=V` (com decimal) → `lineHeight`
+    como `Ratio`, **sem** multiplicar pelo `type-*` (R33).
+  - `align-left|center|right` → `textAlign`.
+  - `font-sans|serif|mono` → `fontFamily` genérica (`'sans'`, `'serif'`,
+    `'mono'`) (R48); o emissor mapeia por plataforma (`042`).
+  - `italic` → `fontStyle`, `underline` → `textDecorationLine`, `upper` e
+    `lower` → `textTransform`, disputando a mesma propriedade abstrata `case`
+    (seção 5.9).
+  - `lines-N`, `N` inteiro ≥ 1 → `props`, `numberOfLines: N`, não `style`
+    (R27); `lines-0` → `AW103` (D144).
+  - Nível único de especificidade para todas (seção 5.9); `AW103` fora da
+    escala (`type-4xl`); `AW009` em família sem valor livre (`weight=600`).
+- Não faz: herança de texto (`050`); escala de fonte do sistema e mapeamento
+  da família por plataforma (`042`); camadas de props com condição (`033`).
 
 ## Arquivos permitidos
 - Implementador: `packages/core/src/vocabulary/typography.ts`.
 - QA: `packages/core/test/vocabulary-typography.test.ts`.
 
 ## Critérios de aceite
-- [ ] `type-*` produz os tamanhos da D49.
-- [ ] Toda classe que a spec classificar como "de texto" vem marcada como tal na
-      IR (D57).
+- [ ] Cada classe produz a IR da seção 5.7 da `funcionamento-interno.md`.
+- [ ] `lines-N` aparece só em `props`, nunca em `style` (R27).
+- [ ] `leading-*` sai como `Ratio` e não depende de `type-*` (R33).
 
 ## Casos que o QA deve cobrir
-- `type-xs` 12 … `type-3xl` 30 (D49); `type-4xl` → desconhecida.
-- `type-lg type-sm` → `type-sm` (D58), se a `029` estiver pronta.
-
-## Lacunas que bloqueiam
-- Lista exata de "classes de texto" herdáveis (D57 diz "`text-*`, `type-*`,
-  `weight-*` e afins").
-- Valores de `weight-*`, `leading-*` e mapeamento de `font-sans/serif/mono` no
-  RN.
-- `lines-2` vira prop (`numberOfLines`), não estilo: a IR representa isso?
-  (`funcionamento-interno.md` §2)
+- `funcionamento-interno.md` 5.7: `weight-bold upper`, `font-mono`,
+  `type-lg leading-normal`, `leading=1.4`; 5.6: `lines-2`,
+  `type-sm lines-2`.
+- `sintaxe.md` 7.1: `type-lg`, `weight-bold`, `leading-tight`,
+  `align-center`, `font-mono`, `upper`, `lines-2`; 7.2: `leading=1.4`.
+- `type-xs` 12 … `type-3xl` 30; `type-4xl` → `AW103`; `weight=600` →
+  `AW009[0,10)`; `lines-0` → `AW103[0,7)`, nada em `props` (D144).

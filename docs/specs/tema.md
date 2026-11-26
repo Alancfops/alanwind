@@ -1,8 +1,9 @@
 # Spec: tema
 
-Status: **em revisão** (estrutura completa; "Ainda não definido" vazio; aguarda
-o Alan aprovar) · Decisões de origem: D6, D20, D22, D24, D25, D31 a D35, D43 a
-D52, D63, D64, D81, D91 a D102, D118, D119, D127 a D134, D137, D138
+Status: **aprovado** (pelo Alan em 2026-11-26, de novo depois das D144 a
+D149) · Decisões de origem: D6, D20, D22, D24, D25, D31 a D35, D43 a
+D52, D63, D64, D81, D91 a D102, D118, D119, D127 a D134, D137, D138, D144,
+D146, D149
 
 Tema padrão da fase 1 (cores, escalas, sombras, fontes, breakpoints), contraste
 do tema e formato do `alanwind.config.ts` com atalhos (`define`).
@@ -80,7 +81,8 @@ WCAG 2 (skill `checar-contraste`).
   valores das seções 5.1 a 5.7 são fixos e finais (D95, D99).
 - **R6.** Nomes de papéis NÃO DEVEM terminar em número, para não colidir com a
   opacidade (`bg-primary-50`) (D31). Na fase 1 não há papéis criados pela
-  pessoa; a regra vale quando eles existirem.
+  pessoa; a regra vale quando eles existirem. O código `AW303` fica reservado e
+  fora do catálogo da fase 1 até lá (D144).
 
 ### 4.2 Cores
 
@@ -135,7 +137,10 @@ WCAG 2 (skill `checar-contraste`).
 - **R34.** Na elevação do escuro, o escrito vence: a elevação só preenche o que
   falta. `bg-*` fora de `page`, `surface` e `raised` (`bg-primary`) ou
   `dark(bg...)` explícito mantêm o fundo escrito; `border` próprio mantém a
-  borda escrita; a sombra discreta continua (D137).
+  borda escrita; a sombra discreta continua (D137). Dentro de variante
+  (`hover(shadow-md)`), `shadow-*` herda a condição, e conta como escrito o
+  `bg-*` que vale junto: o da base ou o de uma condição contida na da sombra
+  (D146). A sombra do claro fica em `[<condição>, light]` (D149).
 
 ### 4.5 Contraste
 
@@ -158,10 +163,13 @@ WCAG 2 (skill `checar-contraste`).
   uma variante (`hover(btn)`), expandido no lugar (D127).
 - **R25.** Ciclo entre atalhos (`a` usa `b` e `b` usa `a`, direta ou
   indiretamente) DEVE ser erro ao carregar o tema, com o código `AW301` (D101,
-  D127).
+  D127). O erro DEVE trazer o nome do atalho e a posição dentro do texto dele; o
+  atalho é descartado e usá-lo num `look` gera `AW101` (D144).
 - **R26.** O nome de um atalho NÃO DEVE coincidir com uma classe nativa do
   vocabulário nem com o nome de uma variante; DEVE ser erro de colisão ao
-  carregar o tema, com o código `AW302` (D101, D127, D134).
+  carregar o tema, com o código `AW302` (D101, D127, D134). Vale o mesmo da
+  R25: nome do atalho e posição no texto dele, atalho descartado, uso dá `AW101`
+  (D144).
 - **R27.** Os atalhos DEVEM ficar só no `alanwind.config.ts`. NÃO DEVE existir
   `define()` solto no código (D63, D100).
 - **R28.** Sem arquivo de configuração, DEVE valer o tema padrão (D35, D81).
@@ -170,7 +178,8 @@ WCAG 2 (skill `checar-contraste`).
   app (D35, D84).
 - **R32.** O nome de um atalho DEVE começar com letra minúscula e aceitar
   minúsculas, dígitos e hífen (`btn`, `card-title`, `btn-2`). Fora disso, é erro
-  ao carregar o tema, com o código `AW304` (D134, D138).
+  ao carregar o tema, com o código `AW304` (D134, D138). Vale o mesmo da R25
+  (D144).
 - **R33.** No React Native, `defineConfig` e `configure` DEVEM vir de
   `@alanwind/native` na fase 1. O app DEVE chamar `configure(config)` uma vez,
   no arquivo de entrada. Sem a chamada, os atalhos ficam desligados, com aviso

@@ -1,47 +1,67 @@
-# 028. Core: variantes viram condições na IR
+# 028. Core: variantes viram condições
 
-- **Status**: bloqueada — aguarda aprovação de `docs/specs/sintaxe.md` e
-  `docs/specs/funcionamento-interno.md`
+- **Status**: pronta (depois da 021, 012, 022, 023 e 025)
 - **Fase**: 1
 - **Branch**: feature/core-variantes
-- **Depende de**: 021
-- **Paralelo com**: 022, 023, 024, 025, 026, 027
-- **Spec**: `docs/specs/sintaxe.md` §1.4; `docs/specs/funcionamento-interno.md`
-- **Decisões**: D28, D29, D37, D59, D61
+- **Depende de**: 021, 012; 022, 023, 025 (classes usadas nos casos do QA)
+- **Paralelo com**: 024, 026, 027
+- **Spec**: `docs/specs/sintaxe.md` R8 a R16, R53, seções 5.1 e 7.3, linhas de
+  variante da 7.6; `docs/specs/funcionamento-interno.md` R13, R14, R18 a R21,
+  R44, seção 6
+- **Decisões**: D28, D29, D37, D59, D61, D78, D86, D94, D103, D127, D135,
+  D138, D140
 
 ## Objetivo
-Registrar as variantes da fase 1 e transformar cada grupo `variante(...)` em
-condições neutras na IR, que o emissor avalia depois.
+Registrar as 12 variantes da fase 1 e transformar cada variante (aninhada ou
+não) numa condição canônica: átomos sem repetição, na ordem fixa, com as
+redundâncias simplificadas e as impossíveis descartadas.
 
 ## Escopo
-- Faz: estado `hover` (só ponteiro) e `press` (D59); tela `medium` e `expanded`,
-  "a partir de" (D37, D61); plataforma `ios`, `android`, `web`; esquema `dark`;
-  demais variantes que a spec incluir na fase 1. `compact(...)` → variante
-  desconhecida (D61).
-- Não faz: avaliar a condição (é do emissor, `044`); `focus`, `disabled`,
-  `light`, `native`, `motion-safe` se não forem aprovadas para a fase 1.
+- Faz:
+  - Registro de `hover`, `press`, `focus`, `disabled`, `dark`, `light`, `ios`,
+    `android`, `web`, `native`, `medium`, `expanded` (R8), cada uma com o seu
+    átomo (`state`, `scheme`, `platform`, `screen`) (R19, R20).
+  - Átomo de tela com `minWidth` vindo dos breakpoints da `012` (600 e 840)
+    (R18).
+  - Variantes aninhadas somam átomos (E lógico), em qualquer ordem (R13).
+  - Forma canônica: sem átomo repetido e na ordem `hover`, `press`, `focus`,
+    `disabled`, `dark`, `light`, `ios`, `android`, `web`, `native`, `medium`,
+    `expanded` (R14).
+  - Simplificação silenciosa: `ios(native(x))` → `[ios]`,
+    `medium(expanded(x))` → `[expanded]`, `dark(dark(x))` → `[dark]` (R44,
+    R53).
+  - Condição impossível (`dark` com `light`; duas plataformas entre `ios`,
+    `android` e `web`; `native` com `web`) → `AW202` (aviso) na variante mais
+    interna e o trecho **descartado da IR** (R44, D138).
+  - `AW004` para nome desconhecido, com mensagem própria para `compact` e
+    `motion-safe` (R9, R10, D61, D78), e sugestão (R51). A variante inteira é
+    descartada (R50).
+- Não faz: formar e ordenar as camadas (`033`); avaliar a condição (emissor,
+  `044`).
 
 ## Arquivos permitidos
-- Implementador: `packages/core/src/vocabulary/variants.ts`.
+- Implementador: `packages/core/src/vocabulary/variants.ts`,
+  `packages/core/src/resolve/conditions.ts`.
 - QA: `packages/core/test/variants.test.ts`.
 
 ## Critérios de aceite
-- [ ] Cada variante gera a condição da spec na IR.
-- [ ] `medium(...)` gera condição "a partir de `medium`" (vale também em
-      `expanded`) (D37).
-- [ ] `compact(row)` → variante desconhecida (D61).
-- [ ] `hover:bg-x` não chega aqui (é erro de sintaxe na `020`).
+- [ ] Cada variante gera o átomo da spec; `medium` e `expanded` trazem
+      `minWidth` 600 e 840.
+- [ ] `dark(hover(x))` e `hover(dark(x))` dão a mesma condição, `[hover,
+      dark]`; `press(hover(x))` dá `[hover, press]` (R13, R14).
+- [ ] Nenhuma condição impossível chega à IR; o `AW202` sai (R44).
 
 ## Casos que o QA deve cobrir
-- `hover(bg-raised shadow-md)`, `press(bg-primary-hover)` (D59), `medium(row)`,
-  `expanded(gap-6)`, `ios(pad-6)`, `dark(bg-surface)`.
-- `col medium(row)` (D37).
-- `compact(row)` → desconhecida (D61); `banana(row)` → desconhecida.
-- Aninhamento, conforme a spec (ver `020`).
-
-## Lacunas que bloqueiam
-- `focus(...)`, `disabled(...)`, `light(...)`, `native(...)` sem decisão própria
-  (`sintaxe.md` §2).
-- `motion-safe(...)` está na spec, mas a D66 diz que utilitários de
-  acessibilidade não estão marcados para a fase 1: entra ou não?
-- Aninhamento e ordem entre variantes.
+- Condição de cada variante da seção 5.1, sozinha.
+- Aninhamento e ordem: `dark(hover(bg-raised))`, `hover(dark(bg-raised))`,
+  `press(hover(bg-raised))`, `medium(pad-x-4 hover(bg-raised))`.
+- Simplificação: `ios(native(row))` → `[ios]`, sem diagnóstico;
+  `medium(expanded(pad-4))` → `[expanded]`; `dark(dark(pad-4))` → `[dark]`.
+- Impossíveis: `dark(light(bg-raised))` → `AW202[5,21)`, sem camada;
+  `ios(web(row))` → `AW202[4,12)`, sem camada.
+- Desconhecidas (seção 7.6): `hoover(pad-2)` → `AW004[0,13)` com sugestão
+  `hover`; `compact(row)` → `AW004[0,12)`; `motion-safe(pad-2)` →
+  `AW004[0,18)`; `pad-4 compact(row)` → `PAD(16)` e `AW004[6,18)`
+  (`funcionamento-interno.md` 5.9).
+- `hover(bg-banana pad-2)`: só o token ruim sai; `pad-2` vale sob `[hover]`
+  (R50).

@@ -1,23 +1,32 @@
-# 014. Core: tema padrão, sombras
+# 014. Core: tema padrão, sombras e elevação
 
-- **Status**: bloqueada — aguarda aprovação de `docs/specs/tema.md`
+- **Status**: pronta (depois da 010 e da 012)
 - **Fase**: 1
 - **Branch**: feature/core-tema-sombras
-- **Depende de**: 012
-- **Paralelo com**: 013, 015, 020
-- **Spec**: `docs/specs/tema.md` §1.5 (sombras)
-- **Decisões**: D45, D50, D51
+- **Depende de**: 010, 012
+- **Paralelo com**: 011, 013, 041, 042, 043
+- **Spec**: `docs/specs/tema.md` R17, R18, seção 5.7 e as linhas de sombra da
+  seção 7.2 (valores); `docs/specs/funcionamento-interno.md` R34, R35
+  (formato `ShadowLayer`)
+- **Decisões**: D45, D96, D97, D108, D132, D137
 
 ## Objetivo
-Definir no tema os tokens `shadow-sm`, `shadow-md` e `shadow-lg` para os dois
-esquemas, de forma neutra (sem propriedade de RN ou CSS).
+Guardar no tema os valores das sombras do claro e da elevação do escuro, no
+formato neutro da IR (`ShadowLayer`, `Color`), sem propriedade de RN ou CSS.
 
 ## Escopo
-- Faz: no claro, sombra real, mais suave no `sm` e mais forte no `lg`; no
-  escuro, a elevação descrita na D45 (fundo mais claro, borda fina, sombra
-  discreta), com os valores exatos da spec.
-- Não faz: tradução para iOS/Android (`043`); classe `shadow-*` no vocabulário
-  (`027`).
+- Faz:
+  - claro: `shadow-sm` = `0 1px 2px` a 6%; `shadow-md` = `0 4px 8px` a 8% e
+    `0 1px 2px` a 6%, nessa ordem; `shadow-lg` = `0 12px 24px` a 12% e
+    `0 4px 8px` a 6%, nessa ordem; cor preta, `spread` 0 (D96);
+  - escuro, **uma camada** por classe: `shadow-sm` `0 1px 2px` a 30%,
+    `shadow-md` `0 4px 8px` a 35%, `shadow-lg` `0 12px 24px` a 40% (D132,
+    D137);
+  - borda da elevação: largura 1, cor `#34343A` (D132);
+  - os níveis de fundo da elevação: `page` → `surface` → `raised`, e `raised`
+    fica em `raised` (D97, D132).
+- Não faz: a expansão de `shadow-*` na IR e a regra "o escrito vence" (`032`);
+  tradução para RN (`043`).
 
 ## Arquivos permitidos
 - Implementador: `packages/core/src/theme/shadows/**`,
@@ -25,16 +34,12 @@ esquemas, de forma neutra (sem propriedade de RN ou CSS).
 - QA: `packages/core/test/theme-shadows.test.ts`.
 
 ## Critérios de aceite
-- [ ] Cada token bate com a tabela da spec nos dois esquemas.
-- [ ] O token não usa nomes de propriedade de RN nem de CSS (é tema, não
-      emissor).
+- [ ] Cada camada bate com a tabela 5.7, na ordem da D96 (R17, R34).
+- [ ] O escuro tem uma só camada por classe (D137).
+- [ ] Os valores usam `ShadowLayer`/`Color` da `010` (`alpha` de 0 a 1) e não
+      usam nomes de propriedade de RN nem de CSS.
+- [ ] O tema é imutável e os valores existem uma vez só.
 
 ## Casos que o QA deve cobrir
-- Tabela token × esquema → valores, copiada da spec.
-
-## Lacunas que bloqueiam
-- `tema.md` §2: valores exatos das sombras.
-- No escuro, `shadow-md` **troca o fundo** do elemento para `bg-raised`? E se o
-  mesmo `look` tiver `bg-surface`? (Conflito entre a sombra e a cor de fundo;
-  depende também da D58.)
-- Cor e espessura da "borda fina" no escuro.
+- Tabela classe × esquema → camadas, copiada da seção 5.7.
+- Níveis: `page` → `surface`, `surface` → `raised`, `raised` → `raised`.
