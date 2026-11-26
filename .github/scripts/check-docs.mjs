@@ -82,7 +82,8 @@ function checkLength(file, lineNumber, line) {
   report(file, lineNumber, `line has ${width} columns (max ${MAX_COLUMNS})`);
 }
 
-// A line that is only a list marker plus one unbreakable unit cannot be wrapped.
+// A line that is only a list marker plus one unbreakable unit cannot be
+// wrapped.
 function isSingleUnit(text) {
   const withoutMarker = text.replace(
     /^(>\s*)*([-*+]|\d+\.)(\s+\[[ xX]\])?\s+/,
