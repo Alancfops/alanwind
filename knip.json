@@ -1,0 +1,15 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    "packages/*": {},
+    "apps/*": {},
+    "packages/native": {
+      "ignoreDependencies": [
+        "@alanwind/core",
+        "@jest/globals",
+        "@testing-library/react-native",
+        "test-renderer"
+      ]
+    }
+  }
+}
