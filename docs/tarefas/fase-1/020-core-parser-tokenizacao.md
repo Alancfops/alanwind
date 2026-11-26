@@ -48,6 +48,8 @@ com `=`, descartando só o trecho malformado. Não conhece o vocabulário.
 - QA: `packages/core/test/parser-syntax.test.ts`.
 
 ## Critérios de aceite
+- [ ] Os casos de borda da D188 dão o código, a posição e a sugestão
+      decididos (`sintaxe.md`, regras dos diagnósticos).
 - [ ] As entradas válidas da seção 7 da `sintaxe.md` são lidas sem
       diagnóstico de sintaxe (`AW00x`).
 - [ ] Cada linha de sintaxe da seção 7.6 (`AW001`, `AW002`, `AW003`, `AW006`,

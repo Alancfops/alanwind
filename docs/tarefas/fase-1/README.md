@@ -31,9 +31,9 @@ só em ESM (D175, `002`), com o aviso do Jest no README do pacote (D178,
 | Spec | Status | Tarefas |
 |---|---|---|
 | `funcionamento-interno.md` | aprovado | 010 a 035, 041 a 045 |
-| `sintaxe.md` | em revisão (D185) | 011, 020 a 035 |
+| `sintaxe.md` | em revisão (D185, D188) | 011, 020 a 035 |
 | `tema.md` | aprovado | 012 a 014, 025, 032, 040, 046 |
-| `emissor-native.md` | em revisão (D184; antes aprovado com D152 a D162) | 040 a 046 |
+| `emissor-native.md` | em revisão (D184, D187) | 040 a 046 |
 | `componentes.md` | aprovado para a fase 1 (D163 a D172; D177 a D179 em propagação) | 050 a 056, 060 |
 
 As tarefas já citam a D176 a D179 diretamente; o documentador as leva para as

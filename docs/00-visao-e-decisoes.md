@@ -246,6 +246,9 @@ próprios diferenciais**.
 | D184 | **Sistema sem preferência de esquema conta como `light`.** Quando o sistema não informa esquema (`useColorScheme()` devolve `null` ou `undefined`) e não há `setColorScheme` forçando outro, o esquema do contexto é `light`. O Alan seguiu a recomendação da orquestração. Complementa a D25. |
 | D185 | **Distância da sugestão conta transposição como 1 e ignora o idêntico.** Na R51 da `sintaxe.md`, a distância de edição é a de Damerau-Levenshtein na variante de alinhamento ótimo: trocar duas letras vizinhas de lugar (`hovre` → `hover`) conta 1 edição. Candidato idêntico à entrada (distância 0) não vira sugestão. O Alan seguiu a recomendação da orquestração. Complementa a D127. |
 | D186 | **Funções de diagnóstico ficam internas ao `core`.** `createDiagnostic`, `sortDiagnostics`, `suggestClosest` e o catálogo de diagnósticos não saem pelo `index` do `@alanwind/core`; só quem está dentro do `core` (parser, vocabulário, atalhos, conflito) os usa, pelo caminho relativo. Os tipos dos diagnósticos que fazem parte da IR continuam públicos. O Alan seguiu a recomendação da orquestração. |
+| D187 | **`lineHeight` arredonda o meio para cima, sem ruído.** Na D157, quando o produto cai exatamente no meio (`15 × 1.035 = 15.525`), o resultado é o de cima (`15.53`). O ruído de ponto flutuante é removido antes do arredondamento, inclusive no passo ×100 (`1 × 1.005` dá `1.01`). Se o `look` declara `type-*`, a conta usa esse tamanho. O Alan seguiu a recomendação da orquestração. Complementa a D157. |
+| D188 | **Casos de borda do parser.** O Alan seguiu as recomendações da orquestração: (1) a sugestão do `AW010` é o item colado com um espaço na frente (`" pad-4"`), substituindo o trecho da posição; (2) com variante colada (`hover(a)hover(b)`), a posição do `AW010` é a variante inteira; (3) `hover:w=5` dá `AW006` com sugestão `hover(w=5)`, e `w=a:b` dá `AW008`; (4) `(x)` sem nome dá `AW004` com nome vazio, e `hover:(x)` dá `AW006` com sugestão `hover(x)`; (5) variante que fica vazia por erro interno (`dark(hover())`) só gera o erro interno, sem `AW003` extra; (6) dentro de variante não fechada, só o `AW001`: o trecho descartado não é avaliado; (7) sem limite de aninhamento (o parser não pode lançar exceção, R47); (8) `w=10.`, `w=1.2.3`, `w=5%%`, `w=#ggg` e hex em família de tamanho dão `AW008`; `=` sozinho e `w=` dão `AW007`; (9) sugestões: `AW001` é o trecho com `)` no fim, `AW002` é texto vazio (remover), `AW003` não tem sugestão, `AW008` só nos casos óbvios (`10,5` → `10.5`, `.5` → `0.5`); (10) `hover:dark(bg-x)` dá `AW006` no trecho inteiro, com sugestão `hover(dark(bg-x))`; (11) não há `AW010` colado a uma variante descartada (`hover()x`, `hover(a)dark(b`); (12) opacidade com zero à esquerda (`/050`) dá `AW008`; (13) valor livre que não é número finito (`w=` com mil dígitos) dá `AW008`. Complementa a D88, a D127 e a D138. |
+| D189 | **A 045 prova que toda chave do `StyleMap` é traduzida.** A tarefa de integração do emissor (045) ganha um critério de aceite com um teste que percorre todas as chaves do `StyleMap` da IR e confere que cada uma sai no estilo nativo, para nenhuma ser descartada em silêncio entre os emissores 041 a 043. O Alan seguiu a recomendação da orquestração. |
 
 ### 3.1 Alvo técnico de referência (Expo SDK 58)
 
@@ -646,6 +649,10 @@ Pode esperar:
   idêntico (D185); funções de diagnóstico internas ao `core` (D186). O Alan
   aceitou `default-theme.ts` nas tarefas 013 e 014 e `knip.json` na 040,
   fora dos arquivos permitidos.
+- 2026-11-26 (Claude Code): arredondamento do meio no `lineHeight` (D187),
+  casos de borda do parser (D188) e teste de completude na 045 (D189). O
+  Alan autorizou a sessão principal a fazer o merge das PRs com CI verde e
+  revisor aprovado.
 
 ## 11. Vocabulário base (rascunho em construção)
 

@@ -1,10 +1,11 @@
 # Spec: sintaxe do look
 
 Status: **em revisão** (aprovada pelo Alan em 2026-11-26 depois das D144 a
-D149; volta a revisão com a D185) · Decisões de origem: D7, D13, D15 a D20,
+D149; volta a revisão com a D185 e a D188) · Decisões de origem: D7, D13,
+D15 a D20,
 D23, D26 a D31, D33 a D38, D41 a D45, D49, D58, D59, D61 a D63, D66, D77, D78,
 D82 a D89, D91 a D98, D100 a D106, D110, D117, D118, D122 a D127, D129, D131,
-D133 a D140, D144 a D146, D149, D185
+D133 a D140, D144 a D146, D149, D185, D188
 
 Gramática do `look`: tokens, variantes aninháveis, valor livre com `=`,
 opacidade, atalhos, vocabulário da fase 1, regra de conflito e diagnósticos.
@@ -664,6 +665,18 @@ Regras dos diagnósticos:
   diagnóstico traz um campo de origem com o atalho e a posição dentro do texto
   do `define` (R66, D135). Formato do campo: `funcionamento-interno.md`.
 - Posição de `AW010`: o item colado (`pad-4` em `hover(bg-raised)pad-4`).
+- Casos de borda do parser (D188): posição do `AW010` com variante colada é
+  a variante inteira; `hover:w=5`, `hover:(x)` e `hover:dark(bg-x)` dão
+  `AW006` no trecho inteiro, com o parêntese como sugestão; `(x)` dá `AW004`
+  com nome vazio; variante esvaziada por erro interno só gera o erro interno;
+  dentro de variante não fechada só sai o `AW001`; não há `AW010` colado a
+  variante descartada; sem limite de aninhamento.
+- Valores livres (D188): `w=10.`, `w=1.2.3`, `w=5%%`, `w=#ggg`, hex em
+  família de tamanho, opacidade com zero à esquerda (`/050`) e número não
+  finito dão `AW008`; `=` sozinho e `w=` dão `AW007`.
+- Texto das sugestões (D188): `AW001`, o trecho com `)` no fim; `AW002`, texto
+  vazio; `AW003`, sem sugestão; `AW008`, só nos casos óbvios (`10,5` →
+  `10.5`, `.5` → `0.5`); `AW010`, o item com um espaço na frente.
 - `AW303` (papel criado terminando em número) está **reservado** e fora do
   catálogo da fase 1, até existir criação de papéis (D144).
 - Dois diagnósticos na mesma posição saem em ordem de código, do menor para o
