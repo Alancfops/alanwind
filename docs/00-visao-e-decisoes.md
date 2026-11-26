@@ -167,7 +167,7 @@ próprios diferenciais**.
 | D105 | *Ajuste (D118): tons da paleta (`red-40`) só na fase de tema; na fase 1, só hex.* **O que vale no valor livre (`=`)**: número sem unidade = px na web e dp no nativo (`w=137`); negativo onde fizer sentido (`margin-top=-8`, D89); porcentagem (`w=50%`); cores em hex de 3, 6 ou 8 dígitos e tons da paleta (`red-40`), com opacidade por barra (D104). Sem `rem`, `em`, `vw`, `vh` nesta fase. |
 | D106 | **Faixa exata de tamanho de tela adiada.** Fora da fase 1; o caso se resolve com `medium(x) expanded(y)`, que desfaz no tamanho maior (D37). |
 | D107 | **Classes de eixo expandidas em lados explícitos.** No emissor RN, `pad-x-4` vira `paddingLeft` + `paddingRight` e `margin-y-2` vira `marginTop` + `marginBottom`, sem `paddingHorizontal`/`paddingVertical`. Bate com os lados da D87, com a saída do emissor CSS e com a regra de conflito (D58). |
-| D108 | **Sombras no nativo com `boxShadow`** (RN 0.76+, nova arquitetura, padrão no SDK 58): mesma sintaxe do CSS, igual no iOS e no Android, com as camadas da D96. Ajusta a D45, que falava em `shadow*` no iOS e `elevation` no Android. |
+| D108 | *Ajuste (D155): o `boxShadow` sai como lista de objetos.* **Sombras no nativo com `boxShadow`** (RN 0.76+, nova arquitetura, padrão no SDK 58): mesma sintaxe do CSS, igual no iOS e no Android, com as camadas da D96. Ajusta a D45, que falava em `shadow*` no iOS e `elevation` no Android. |
 | D109 | **Cache da resolução: faixa de tela + limite LRU.** A chave usa a faixa (`compact`/`medium`/`expanded`, D94), não a largura exata, mais o esquema de cor, a plataforma e o tema. Guarda as últimas ~500 combinações e descarta as mais antigas. |
 | D110 | **Ponteiro detectado pelo evento de hover.** `hover(...)` vale enquanto o componente recebe o evento de hover (`onHoverIn`/`onHoverOut`), que só acontece com mouse ou trackpad (web, iPad com trackpad, Android com mouse). Sem ponteiro, o evento nunca vem e o `hover` nunca vale (D59). |
 | D111 | **Área mínima de toque por plataforma, com `hitSlop`.** O `Pressable` garante 44 no iOS e na web (Apple e WCAG) e 48 no Android (Material), aumentando a área de toque com `hitSlop`, sem mudar o visual. Detalha a D78. |
@@ -211,6 +211,27 @@ próprios diferenciais**.
 | D149 | **Sombra do claro em variante e aviso de camada.** Em variante, a sombra do claro fica na camada `[<condição>, light]`, como sem variante (R34): `hover(shadow-md)` gera `[hover, light]` com a sombra e `[hover, dark]` com a elevação do escuro. Ajusta a D146. O `AW201` da D145 só aparece no empate de especificidade (R38): `hover(pad-x-2) hover(pad-4)` não avisa e `hover(pad-4) hover(pad-2)` avisa. |
 | D150 | **Node de desenvolvimento do monorepo: 22.18 ou superior.** O `engines.node` da raiz pede `>=22.18`, porque o `tsup` 9 exige essa versão para rodar. O Node 22.13+ da seção 3.1 continua sendo o de quem usa o alanwind (Expo SDK 58); a mudança vale só para desenvolver o repositório. |
 | D151 | **Scripts de `.github/scripts/` seguem o mesmo padrão do Biome.** Sem exceção no `biome.json`: 80 colunas e imports organizados, como o resto do código. Os scripts existentes são reformatados. |
+| D152 | **Unidades de tela e cache.** `w-screen`, `h-screen` e `size-screen` usam a **janela** (`useWindowDimensions`), como a faixa. Quando a IR do `look` tem unidade de tela, a chave do cache (D109) leva a janela exata; os demais `look` continuam só com a faixa. |
+| D153 | **Faixas do contexto vêm do tema.** A camada de contexto da borda do `native` lê as faixas (600 e 840) do tema que o `core` guarda; só o emissor fica proibido de consultar o tema. Uma só fonte para os números. |
+| D154 | **Formato dos valores de saída no RN.** Cor com alfa menor que 1 sai como `rgba(r, g, b, a)` (como as sombras da `tema.md`); `fontWeight` sai como string (`'400'`, `'500'`, `'700'`). |
+| D155 | **`boxShadow` como lista de objetos.** O emissor RN gera `boxShadow` como lista de `{ offsetX, offsetY, blurRadius, spreadDistance, color }`, com `color` no formato da D154. Ajusta a forma da D108. |
+| D156 | **Pilhas de `fontFamily`.** `sans` = `'System'` (iOS), `'Roboto'` (Android), `'system-ui, sans-serif'` (web); `serif` = `'Georgia'`, `'serif'`, `'Georgia, serif'`; `mono` = `'Menlo'`, `'monospace'`, `'ui-monospace, monospace'`. A pilha da web serve também ao emissor CSS. Detalha a D133. |
+| D157 | **`lineHeight` arredondado a duas casas.** `tamanho × razão` é arredondado a duas casas decimais, para tirar o ruído de ponto flutuante do valor livre (`type-2xl leading=1.4` = 33.6). |
+| D158 | **API pública de resolução: `look()` e `useLook()`.** `look(input, { context?, states? })` devolve o estilo e as props; sem `context`, lê o esquema e a janela naquele instante, sem reagir a mudanças. `useLook(input, states?)` reage às mudanças de contexto, é o que os componentes usam e é público já na fase 1. Detalha a D26 e a D27. |
+| D159 | **Estados de interação no cache.** Cada entrada do cache (D109) guarda o resultado de cada combinação de estados já pedida (no máximo 16). O limite do cache é exatamente 500 entradas. |
+| D160 | **Aviso em dev no `native`.** Dev é `__DEV__`; o canal é `console.warn`; um aviso por combinação de `look`, código e posição, mostrado quando o `look` entra no cache. |
+| D161 | **`configure`: aviso, segunda chamada e chave estranha.** O aviso de ausência de `configure` (D119) só aparece quando um `look` traz classe desconhecida (`AW101`) sem `configure` chamado, com a dica de chamá-lo. Uma segunda chamada substitui os atalhos anteriores. Chave além de `define` (em JavaScript puro) é ignorada com aviso em dev. |
+| D162 | **`setColorScheme` com estado próprio.** Forçar o esquema muda só um estado do alanwind, igual no iOS, no Android e na web; não usa `Appearance.setColorScheme`, para não mexer em barra de status, teclado e alertas. |
+| D163 | **Propriedades de texto herdáveis.** Herdam (D57): `color`, `fontSize`, `fontWeight`, `lineHeight`, `textAlign`, `fontFamily`, `fontStyle`, `textDecorationLine` e `textTransform`. `numberOfLines` não é herdado. |
+| D164 | **`Text` dentro de `Text` herda.** O `Text` também repassa o texto herdado por contexto; o padrão da D112 só vale quando nada é herdado, como no CSS. |
+| D165 | **Texto em variante de estado do pai chega ao filho.** `press(text-on-primary)` no `Pressable` vale para o `Text` filho enquanto o pai está pressionado: as camadas do pai são avaliadas com o estado atual dele (D57). |
+| D166 | **Variantes de estado em `Box` e `Text` são ignoradas.** `hover`, `press`, `focus` e `disabled` em `Box` e `Text` são ignorados com aviso da borda em dev, sem código `AW`, como no `styled()` (D53). |
+| D167 | **Atalho do RN no `style` segue a regra do RN.** Um `style={{ padding: 4 }}` não vence um `paddingTop` do `look`, porque o RN dá precedência ao lado específico. Fica documentado, sem normalizar o `style`. Exceção conhecida à D53. |
+| D168 | **Base explícita do `Box`.** O `Box` aplica `flexDirection: 'column'` explícito, abaixo do `look` e do `style`, para a D62 ser testável. |
+| D169 | **Foco visível na web pelo navegador.** Na fase 1, os componentes não removem o outline do navegador (D115); `focus(...)` personaliza. Sem anel padrão próprio. |
+| D170 | **`hitSlop` do `Pressable`.** Sem `hitSlop` até o primeiro `onLayout`. Se a pessoa passar `hitSlop`, o dela vence, como o `style` sobre o `look`. |
+| D171 | **Foco de leitor de tela fora do estado `focus`.** Na fase 1, o estado `focus` vem só de `onFocus`/`onBlur` (teclado e web); o foco do TalkBack/VoiceOver não ativa `focus(...)`. |
+| D172 | **`componentes.md` aprovável com fases posteriores abertas.** A spec pode ser aprovada para a fase 1 com o mapa de props do `styled()`, a acessibilidade de `Image`, `ScrollView`, `TextInput`, `FlatList`, `Modal`, `Switch` e `SafeArea`, o `Modal` e os estados do `Switch` marcados como fases posteriores. |
 
 ### 3.1 Alvo técnico de referência (Expo SDK 58)
 
@@ -587,6 +608,9 @@ Pode esperar:
 - 2026-11-26 (Claude Code): revisão da tarefa 001: Node 22.18+ para
   desenvolver o monorepo (D150) e scripts de `.github/` sem exceção no Biome
   (D151).
+- 2026-11-26 (Claude Code): o Alan aceitou as recomendações do
+  documentador para `emissor-native.md` (D152 a D162) e `componentes.md`
+  (D163 a D172).
 
 ## 11. Vocabulário base (rascunho em construção)
 
