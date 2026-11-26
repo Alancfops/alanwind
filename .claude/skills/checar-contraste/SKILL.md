@@ -43,8 +43,10 @@ Para **cada papel colorido** (`primary`, `secondary`, `success`, `warning`,
 | `bg-page`, `bg-surface`, `bg-raised` | `text-<papel>` | 4,5 |
 
 Para os **neutros**, em claro e escuro: `text-strong`, `text-body`,
-`text-muted`, `text-subtle` e `text-link` sobre `bg-page`, `bg-surface` e
-`bg-raised` (4,5). `border-focus` sobre os três fundos (3).
+`text-muted` e `text-link` sobre `bg-page`, `bg-surface` e `bg-raised`
+(4,5). `border-focus` sobre os três fundos (3). `text-subtle` (só para
+desabilitado) e `border-subtle` (decorativa) ficam **isentos** e o aviso de
+contraste não os avalia (`tema.md` R10 e R11, D93, D95, D128).
 
 Atenção ao `warning`: o texto sobre o amarelo é escuro (D47). Se a conta
 escolher branco, está errado.
