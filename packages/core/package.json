@@ -2,6 +2,7 @@
   "name": "@alanwind/core",
   "version": "0.0.0",
   "description": "alanwind core: parser, IR and theme (pure TypeScript).",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Alancfops/alanwind.git",
