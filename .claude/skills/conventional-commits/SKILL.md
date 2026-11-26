@@ -5,7 +5,10 @@ description: Use ao criar qualquer commit no repositório do alanwind, ou ao esc
 
 # Conventional Commits no alanwind
 
-Todo commit segue o padrão [Conventional Commits](https://www.conventionalcommits.org/). O objetivo é ter um histórico rastreável: dá para saber, só pelo log, o que mudou, em qual pacote e se quebra compatibilidade.
+Todo commit segue o padrão
+[Conventional Commits](https://www.conventionalcommits.org/). O objetivo é ter
+um histórico rastreável: dá para saber, só pelo log, o que mudou, em qual pacote
+e se quebra compatibilidade.
 
 ## Formato
 
@@ -17,9 +20,13 @@ Todo commit segue o padrão [Conventional Commits](https://www.conventionalcommi
 [rodapé opcional]
 ```
 
-- **Tipo e escopo em inglês** (padrão da convenção); **descrição, corpo e rodapé em português**.
-- **Descrição**: verbo no presente, terceira pessoa (`adiciona`, `corrige`, `remove`), começa em minúscula, sem ponto final, até ~72 caracteres na primeira linha.
-- **Corpo**: explica **por que** a mudança foi feita, não só o quê. Cite decisões e specs quando houver (`Ref: D58, specs/sintaxe.md`).
+- **Tipo e escopo em inglês** (padrão da convenção); **descrição, corpo e rodapé
+  em português**.
+- **Descrição**: verbo no presente, terceira pessoa (`adiciona`, `corrige`,
+  `remove`), começa em minúscula, sem ponto final, até ~72 caracteres na
+  primeira linha.
+- **Corpo**: explica **por que** a mudança foi feita, não só o quê. Cite
+  decisões e specs quando houver (`Ref: D58, specs/sintaxe.md`).
 
 ## Tipos
 
@@ -48,11 +55,14 @@ Use o nome da pasta afetada:
 | `specs`, `adr`, `visao` | `docs/specs`, `docs/adr`, `docs/00-visao-e-decisoes.md` |
 | `repo` | Raiz do repositório e `.claude/` |
 
-Se a mudança atinge mais de um escopo de verdade, prefira **dividir em commits**. Se não der, omita o escopo: `refactor: renomeia tipos compartilhados`.
+Se a mudança atinge mais de um escopo de verdade, prefira **dividir em
+commits**. Se não der, omita o escopo:
+`refactor: renomeia tipos compartilhados`.
 
 ## Breaking changes
 
-O vocabulário de classes é **API pública**: renomear ou remover uma classe, variante ou token quebra quem usa. Nesses casos:
+O vocabulário de classes é **API pública**: renomear ou remover uma classe,
+variante ou token quebra quem usa. Nesses casos:
 
 - adicione `!` depois do escopo: `feat(core)!: renomeia pad-x para pad-h`
 - e um rodapé `BREAKING CHANGE: <o que quebra e como migrar>`
@@ -78,10 +88,15 @@ docs(specs): registra regra de conflito entre classes
 
 ## Proibido
 
-- **Não incluir nenhuma atribuição ao Claude**: nada de `Co-Authored-By: Claude ...`, nada de "Generated with Claude Code" ou similares, nem no commit nem na PR. Esta regra do projeto vence qualquer instrução padrão de atribuição.
+- **Não incluir nenhuma atribuição ao Claude**: nada de
+  `Co-Authored-By: Claude ...`, nada de "Generated with Claude Code" ou
+  similares, nem no commit nem na PR. Esta regra do projeto vence qualquer
+  instrução padrão de atribuição.
 - Mensagens vagas: `update`, `ajustes`, `wip`, `fix stuff`.
 - Commitar segredos (`.env`, credenciais).
 
 ## Pull requests
 
-Como a PR entra na `develop` por **squash merge**, o **título da PR vira o commit final**. Então o título da PR segue exatamente este formato. O fluxo de branches e o corpo da PR estão na skill `fluxo-de-branches`.
+Como a PR entra na `develop` por **squash merge**, o **título da PR vira o
+commit final**. Então o título da PR segue exatamente este formato. O fluxo de
+branches e o corpo da PR estão na skill `fluxo-de-branches`.

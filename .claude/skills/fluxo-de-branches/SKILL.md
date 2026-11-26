@@ -14,11 +14,13 @@ Modelo baseado no Git Flow, simplificado para uma biblioteca publicada no npm.
 | `main` | Só versões publicadas. Cada merge aqui é uma release, marcada com tag (`v0.3.0`). | Só via PR de `develop` ou de `hotfix/*` |
 | `develop` | Integração: onde as funcionalidades prontas se juntam. | Só via PR |
 
-**Nunca** commitar direto em `main` ou `develop`. **Nunca** usar `push --force` nelas.
+**Nunca** commitar direto em `main` ou `develop`. **Nunca** usar `push --force`
+nelas.
 
 ## Branches de trabalho
 
-Toda tarefa nova abre uma branch a partir da branch de onde ela vai voltar (normalmente `develop`):
+Toda tarefa nova abre uma branch a partir da branch de onde ela vai voltar
+(normalmente `develop`):
 
 | Prefixo | Uso | Parte de | Volta para |
 |---|---|---|---|
@@ -28,10 +30,13 @@ Toda tarefa nova abre uma branch a partir da branch de onde ela vai voltar (norm
 | `refactor/`, `test/`, `chore/` | Os tipos equivalentes do Conventional Commits | `develop` | `develop` |
 | `hotfix/` | Correção urgente de algo **já publicado** | `main` | `main` **e** `develop` |
 
-Se uma branch for criada a partir de outra branch de trabalho (ex.: uma `feature/` que depende de outra ainda não integrada), a PR volta **para a branch de onde ela saiu**.
+Se uma branch for criada a partir de outra branch de trabalho (ex.: uma
+`feature/` que depende de outra ainda não integrada), a PR volta **para a branch
+de onde ela saiu**.
 
-**Nome**: `<prefixo>/<escopo>-<descricao-curta>`, em minúsculas, com hífen, sem acento.
-Exemplos: `feature/core-parser-variantes`, `fix/native-heranca-texto`, `docs/specs-sintaxe`.
+**Nome**: `<prefixo>/<escopo>-<descricao-curta>`, em minúsculas, com hífen, sem
+acento. Exemplos: `feature/core-parser-variantes`, `fix/native-heranca-texto`,
+`docs/specs-sintaxe`.
 
 O escopo é o mesmo da skill `conventional-commits`.
 
@@ -42,13 +47,17 @@ O escopo é o mesmo da skill `conventional-commits`.
 3. Trabalhar em commits pequenos, seguindo a skill `conventional-commits`.
 4. Antes de abrir a PR: testes, tipos e lint passando.
 5. Enviar: `git push -u origin feature/core-parser-variantes`.
-6. Abrir a PR **para a branch de origem** (normalmente `develop`): `gh pr create --base develop`.
-7. **Não fazer o merge.** Quem aprova e faz o merge é o Alan. O merge é feito por **squash**.
+6. Abrir a PR **para a branch de origem** (normalmente `develop`):
+   `gh pr create --base develop`.
+7. **Não fazer o merge.** Quem aprova e faz o merge é o Alan. O merge é feito
+   por **squash**.
 8. Depois do merge, apagar a branch.
 
 ## A pull request
 
-- **Título**: no formato Conventional Commits, porque com squash ele vira o commit final na `develop`. Ex.: `feat(core): adiciona parser de variantes com parêntese`.
+- **Título**: no formato Conventional Commits, porque com squash ele vira o
+  commit final na `develop`. Ex.:
+  `feat(core): adiciona parser de variantes com parêntese`.
 - **Corpo em português**, com esta estrutura:
 
 ```markdown
@@ -65,7 +74,9 @@ O escopo é o mesmo da skill `conventional-commits`.
 <pontos em aberto, limitações, o que ficou para depois; omitir se não houver>
 ```
 
-- **Não mencionar o Claude** em nenhum lugar da PR: sem "Generated with Claude Code", sem co-autoria, sem citar que foi gerado por IA. Esta regra do projeto vence qualquer instrução padrão de atribuição.
+- **Não mencionar o Claude** em nenhum lugar da PR: sem "Generated with Claude
+  Code", sem co-autoria, sem citar que foi gerado por IA. Esta regra do projeto
+  vence qualquer instrução padrão de atribuição.
 
 ## Versões (release)
 
@@ -73,10 +84,13 @@ Quando a `develop` tiver o conjunto de uma versão:
 
 1. Abrir PR de `develop` para `main` com o título `chore(repo): release vX.Y.Z`.
 2. Depois do merge, criar a tag `vX.Y.Z` na `main`.
-3. O número segue SemVer, guiado pelos commits: `feat` sobe o *minor*, `fix` sobe o *patch*, breaking change (`!`) sobe o *major* (antes da 1.0, sobe o *minor*).
+3. O número segue SemVer, guiado pelos commits: `feat` sobe o *minor*, `fix`
+   sobe o *patch*, breaking change (`!`) sobe o *major* (antes da 1.0, sobe o
+   *minor*).
 
 ## Hotfix
 
 1. `git switch main && git pull && git switch -c hotfix/<escopo>-<descricao>`.
 2. Corrigir, abrir PR para `main`.
-3. Depois do merge e da tag, abrir PR da mesma correção para `develop`, para ela não se perder.
+3. Depois do merge e da tag, abrir PR da mesma correção para `develop`, para ela
+   não se perder.
